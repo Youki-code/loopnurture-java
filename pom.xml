@@ -10,20 +10,20 @@
     </parent>
 
     <groupId>org.springframework.samples</groupId>
-    <artifactId>spring-petclinic-microservices</artifactId>
+    <artifactId>spring-loopnurture-microservices</artifactId>
     <version>3.4.1</version>
     <name>${project.artifactId}</name>
     <packaging>pom</packaging>
 
     <modules>
-        <module>spring-petclinic-admin-server</module>
-        <module>spring-petclinic-customers-service</module>
-        <module>spring-petclinic-vets-service</module>
-        <module>spring-petclinic-visits-service</module>
-        <module>spring-petclinic-genai-service</module>
-        <module>spring-petclinic-config-server</module>
-        <module>spring-petclinic-discovery-server</module>
-        <module>spring-petclinic-api-gateway</module>
+        <module>spring-loopnurture-admin-server</module>
+        <module>spring-loopnurture-customers-service</module>
+        <module>spring-loopnurture-vets-service</module>
+        <module>spring-loopnurture-visits-service</module>
+        <module>spring-loopnurture-genai-service</module>
+        <module>spring-loopnurture-config-server</module>
+        <module>spring-loopnurture-discovery-server</module>
+        <module>spring-loopnurture-api-gateway</module>
     </modules>
 
     <properties>
