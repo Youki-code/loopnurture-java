@@ -1,0 +1,18 @@
+spring:
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+  sql:
+    init:
+      schema-locations: classpath*:db/mysql/schema.sql
+      data-locations: classpath*:db/mysql/data.sql
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:petclinic}?serverTimezone=UTC
+    username: ${DB_USER:root}
+    password: ${DB_PASS:petclinic}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      minimum-idle: ${DB_MIN_IDLE:5}
+      idle-timeout: 300000
+      connection-timeout: 20000 
