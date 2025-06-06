@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: users-service
+  config:
+    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://db.qvyxvqbxvhxvwxvjxvwx.supabase.co:5432/postgres
+    username: tangyuqi764@163.com
+    password: 1c2i3a2222
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8081
+
+jwt:
+  secret: loopnurture_jwt_secret_key_please_change_in_production
+  expiration: 86400 # 24 hours in seconds
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+    import: configserver:http://config-server:8888

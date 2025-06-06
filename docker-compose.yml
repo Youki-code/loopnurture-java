@@ -32,9 +32,9 @@ services:
     ports:
      - 8761:8761
 
-  customers-service:
-    image: springcommunity/spring-loopnurture-customers-service
-    container_name: customers-service
+  users-service:
+    image: springcommunity/spring-loopnurture-users-service
+    container_name: users-service
     deploy:
       resources:
         limits:

@@ -32,10 +32,7 @@ CREATE TABLE marketing_user (
     user_type INT NOT NULL,                     -- 用户类型：1=LOCAL_USER, 2=GOOGLE_USER, 3=MICROSOFT_USER, 4=GITHUB_USER, 5=APPLE_USER, 6=GUEST_USER，可扩展
     user_role INT NOT NULL,                     -- 用户角色：1=ADMIN, 2=EDITOR, 3=VIEWER，可扩展
     sys_user_id VARCHAR(100),                   -- 系统用户ID
-    oauth_provider_id VARCHAR(100),             -- OAuth提供商用户ID
-    oauth_access_token TEXT,                    -- OAuth访问令牌
-    oauth_refresh_token TEXT,                   -- OAuth刷新令牌
-    oauth_expires_at TIMESTAMP WITH TIME ZONE,  -- OAuth令牌过期时间
+    extends_info TEXT,                          -- 用户扩展信息，存储JSON格式的扩展字段
     
     -- 基本信息
     nickname VARCHAR(50),                       -- 用户昵称
@@ -64,7 +61,7 @@ CREATE TABLE marketing_user (
     -- 约束
     CONSTRAINT user_uniq_unique UNIQUE (user_uniq),
     CONSTRAINT primary_email_unique UNIQUE (primary_email),
-    CONSTRAINT phone_unique UNIQUE (phone),
+    CONSTRAINT phone_unique UNIQUE (phone)
 );
 
 -- 2. 营销邮件基础表
@@ -133,7 +130,6 @@ CREATE INDEX idx_user_type ON marketing_user(user_type);
 CREATE INDEX idx_user_role ON marketing_user(user_role);
 CREATE INDEX idx_user_status ON marketing_user(account_status);
 CREATE INDEX idx_user_sys_id ON marketing_user(sys_user_id) WHERE sys_user_id IS NOT NULL;
-CREATE INDEX idx_user_oauth ON marketing_user(oauth_provider_id) WHERE oauth_provider_id IS NOT NULL;
 CREATE INDEX idx_user_email ON marketing_user(primary_email) WHERE primary_email IS NOT NULL;
 CREATE INDEX idx_user_phone ON marketing_user(phone) WHERE phone IS NOT NULL;
 

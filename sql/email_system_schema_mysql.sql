@@ -24,10 +24,7 @@ CREATE TABLE marketing_user (
     user_type INT NOT NULL,                     -- 用户类型：1=LOCAL_USER, 2=GOOGLE_USER, 3=MICROSOFT_USER, 4=GITHUB_USER, 5=APPLE_USER, 6=GUEST_USER，可扩展
     user_role INT NOT NULL,                     -- 用户角色：1=ADMIN, 2=EDITOR, 3=VIEWER，可扩展
     sys_user_id VARCHAR(100),                   -- 系统用户ID
-    oauth_provider_id VARCHAR(100),             -- OAuth提供商用户ID
-    oauth_access_token TEXT,                    -- OAuth访问令牌
-    oauth_refresh_token TEXT,                   -- OAuth刷新令牌
-    oauth_expires_at TIMESTAMP NULL,            -- OAuth令牌过期时间
+    extends_info TEXT,                          -- 用户扩展信息，存储JSON格式的扩展字段
     
     -- 基本信息
     nickname VARCHAR(50),                       -- 用户昵称
@@ -125,9 +122,6 @@ ALTER TABLE marketing_user ADD INDEX idx_user_type (user_type);
 ALTER TABLE marketing_user ADD INDEX idx_user_role (user_role);
 ALTER TABLE marketing_user ADD INDEX idx_user_status (account_status);
 ALTER TABLE marketing_user ADD INDEX idx_user_sys_id (sys_user_id);
-ALTER TABLE marketing_user ADD INDEX idx_user_oauth (oauth_provider_id);
-ALTER TABLE marketing_user ADD INDEX idx_user_email (primary_email);
-ALTER TABLE marketing_user ADD INDEX idx_user_phone (phone);
 
 ALTER TABLE marketing_email_template ADD INDEX idx_template_org (org_id);
 ALTER TABLE marketing_email_template ADD INDEX idx_template_status (template_status);

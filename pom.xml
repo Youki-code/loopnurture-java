@@ -17,7 +17,7 @@
 
     <modules>
         <module>spring-loopnurture-admin-server</module>
-        <module>spring-loopnurture-customers-service</module>
+        <module>spring-loopnurture-users-service</module>
         <module>spring-loopnurture-vets-service</module>
         <module>spring-loopnurture-visits-service</module>
         <module>spring-loopnurture-genai-service</module>

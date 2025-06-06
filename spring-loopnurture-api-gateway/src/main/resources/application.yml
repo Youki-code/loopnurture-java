@@ -28,8 +28,8 @@ spring:
             - Path=/api/visit/**
           filters:
             - StripPrefix=2
-        - id: customers-service
-          uri: lb://customers-service
+        - id: users-service
+          uri: lb://users-service
           predicates:
             - Path=/api/customer/**
           filters:
