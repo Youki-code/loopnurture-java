@@ -1,7 +1,10 @@
 package org.springframework.samples.loopnurture.users.domain.model;
 
 import lombok.Data;
-import org.springframework.samples.loopnurture.users.domain.enums.*;
+import org.springframework.samples.loopnurture.users.domain.enums.AuthTypeEnum;
+import org.springframework.samples.loopnurture.users.domain.enums.AccountStatusEnum;
+import org.springframework.samples.loopnurture.users.domain.enums.UserTypeEnum;
+import org.springframework.samples.loopnurture.users.domain.enums.LanguagePreferenceEnum;
 import org.springframework.samples.loopnurture.users.domain.model.vo.MarketingUserExtendsVO;
 import java.time.LocalDateTime;
 
@@ -42,6 +45,11 @@ public class MarketingUserDO {
      * 当authType为OAuth类型时必填
      */
     private String oauthUserId;
+    
+    /**
+     * 密码
+     */
+    private String password;
     
     /**
      * 用户类型

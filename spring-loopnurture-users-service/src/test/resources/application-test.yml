@@ -1,18 +1,57 @@
 spring:
+  application:
+    name: users-service
   cloud:
     config:
       enabled: false
   sql:
     init:
-      schema-locations: classpath*:db/hsqldb/schema.sql
-      data-locations: classpath*:db/hsqldb/data.sql
+      mode: always
+      schema-locations: classpath:db/schema/user_schema.sql
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://db.cilxaqxdcffzpggwjphz.supabase.co:5432/postgres
+    username: postgres
+    password: loopnurture1a2b3c4d!
+  test:
+    database:
+      replace: none
+
+server:
+  port: 8081
 
 eureka:
   client:
     enabled: false
 
-logging.level.org.springframework: INFO
+logging.level:
+  org.springframework: INFO
+  org.hibernate.SQL: DEBUG
+  org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+jwt:
+  secret: test_jwt_secret_key_for_testing_purposes_only
+  expiration: 3600000
+
+rsa:
+  private-key: |
+    -----BEGIN PRIVATE KEY-----
+    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC9QFi6EO3J4Qhc
+    UP+1kjvdh8yZKK3yZhfZvgF8ZPxQHQ0KozxNbdVF3142L1hBGvEYPUYXI7dvOR2O
+    test_key_for_testing_only_do_not_use_in_production
+    -----END PRIVATE KEY-----
+  public-key: |
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvUBYuhDtyeEIXFD/tZI7
+    3YfMmSit8mYX2b4BfGT8UB0NCqM8TW3VRd9eNi9YQRrxGD1GFyO3bztest_key_for
+    testing_only_do_not_use_in_production
+    -----END PUBLIC KEY-----
 

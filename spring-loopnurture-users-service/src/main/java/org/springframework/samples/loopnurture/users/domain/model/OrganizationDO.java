@@ -1,8 +1,10 @@
 package org.springframework.samples.loopnurture.users.domain.model;
 
 import lombok.Data;
-import org.springframework.samples.loopnurture.users.domain.enums.*;
-import org.springframework.samples.loopnurture.users.domain.vo.OrganizationSettingsVO;
+import org.springframework.samples.loopnurture.users.domain.enums.OrganizationTypeEnum;
+import org.springframework.samples.loopnurture.users.domain.enums.OrganizationStatusEnum;
+import org.springframework.samples.loopnurture.users.domain.model.vo.OrganizationSettingsVO;
+
 import java.time.LocalDateTime;
 
 /**
@@ -14,7 +16,12 @@ public class OrganizationDO {
     /**
      * 组织ID，系统生成的唯一标识符
      */
-    private String orgId;
+    private String id;
+
+    /**
+     * 组织代码
+     */
+    private String orgCode;
 
     /**
      * 组织名称
@@ -22,9 +29,9 @@ public class OrganizationDO {
     private String orgName;
 
     /**
-     * 组织描述
+     * 组织类型
      */
-    private String description;
+    private OrganizationTypeEnum orgType;
 
     /**
      * 组织状态
@@ -32,24 +39,54 @@ public class OrganizationDO {
     private OrganizationStatusEnum status;
 
     /**
-     * 创建时间
+     * 组织描述
      */
-    private Long createTime;
+    private String description;
 
     /**
-     * 更新时间
+     * 组织地址
      */
-    private Long updateTime;
+    private String address;
 
     /**
-     * 组织类型
+     * 联系电话
      */
-    private OrganizationTypeEnum orgType;
+    private String phone;
+
+    /**
+     * 联系邮箱
+     */
+    private String email;
+
+    /**
+     * 组织网站
+     */
+    private String website;
+
+    /**
+     * 组织Logo URL
+     */
+    private String logoUrl;
+
+    /**
+     * 最大用户数
+     */
+    private Integer maxUsers;
+
+    /**
+     * 最大模板数
+     */
+    private Integer maxTemplates;
+
+    /**
+     * 最大规则数
+     */
+    private Integer maxRules;
 
     /**
      * 组织设置，包含配额限制、密码策略、通知设置等
      */
-    private OrganizationSettingsVO settings = new OrganizationSettingsVO();
+    private OrganizationSettingsVO settings;
 
     /**
      * 记录创建时间
@@ -70,4 +107,8 @@ public class OrganizationDO {
      * 最后修改人ID，关联marketing_user.id
      */
     private String updatedBy;
+
+    public String getOrgId() {
+        return id;
+    }
 } 

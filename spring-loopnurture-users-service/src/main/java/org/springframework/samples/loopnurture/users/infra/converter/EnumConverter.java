@@ -39,12 +39,12 @@ public class EnumConverter {
     public static class LanguagePreferenceConverter implements AttributeConverter<LanguagePreferenceEnum, String> {
         @Override
         public String convertToDatabaseColumn(LanguagePreferenceEnum attribute) {
-            return attribute == null ? null : attribute.name();
+            return attribute == null ? null : attribute.getCode();
         }
 
         @Override
         public LanguagePreferenceEnum convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : LanguagePreferenceEnum.valueOf(dbData);
+            return LanguagePreferenceEnum.fromCode(dbData);
         }
     }
 
@@ -58,6 +58,45 @@ public class EnumConverter {
         @Override
         public OrganizationTypeEnum convertToEntityAttribute(Integer dbData) {
             return OrganizationTypeEnum.fromCode(dbData);
+        }
+    }
+
+    @Converter(autoApply = true)
+    public static class OrganizationStatusConverter implements AttributeConverter<OrganizationStatusEnum, Integer> {
+        @Override
+        public Integer convertToDatabaseColumn(OrganizationStatusEnum attribute) {
+            return attribute == null ? null : attribute.getCode();
+        }
+
+        @Override
+        public OrganizationStatusEnum convertToEntityAttribute(Integer dbData) {
+            return OrganizationStatusEnum.fromCode(dbData);
+        }
+    }
+
+    @Converter(autoApply = true)
+    public static class UserRoleConverter implements AttributeConverter<UserRoleEnum, Integer> {
+        @Override
+        public Integer convertToDatabaseColumn(UserRoleEnum attribute) {
+            return attribute == null ? null : attribute.getCode();
+        }
+
+        @Override
+        public UserRoleEnum convertToEntityAttribute(Integer dbData) {
+            return UserRoleEnum.fromCode(dbData);
+        }
+    }
+
+    @Converter(autoApply = true)
+    public static class AuthTypeConverter implements AttributeConverter<AuthTypeEnum, Integer> {
+        @Override
+        public Integer convertToDatabaseColumn(AuthTypeEnum attribute) {
+            return attribute == null ? null : attribute.getCode();
+        }
+
+        @Override
+        public AuthTypeEnum convertToEntityAttribute(Integer dbData) {
+            return AuthTypeEnum.fromCode(dbData);
         }
     }
 } 

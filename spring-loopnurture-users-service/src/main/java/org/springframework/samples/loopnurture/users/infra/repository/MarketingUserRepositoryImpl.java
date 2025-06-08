@@ -93,4 +93,10 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
         return jpaMapper.findByOauthUserIdAndAuthType(oauthUserId, authType)
             .map(converter::toDO);
     }
+
+    @Override
+    public Optional<MarketingUserDO> findBySystemUserId(Long systemUserId) {
+        return jpaMapper.findBySystemUserId(systemUserId)
+            .map(converter::toDO);
+    }
 } 

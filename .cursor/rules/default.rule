@@ -1,0 +1,43 @@
+/**
+ * Code Documentation and Comments Rules
+ * 
+ * 1. Code is written for humans to read, and only incidentally for machines to execute.
+ *    Every piece of code should be well-documented and self-explanatory.
+ * 
+ * 2. Class/Interface Level Comments:
+ *    - Must have a class-level Javadoc comment explaining its purpose
+ *    - Document the author and version if relevant
+ *    - Explain any specific design patterns or architectural decisions
+ *    - List important dependencies or requirements
+ * 
+ * 3. Method Level Comments:
+ *    - Every public method must have a Javadoc comment
+ *    - Document parameters, return values, and exceptions
+ *    - Explain complex algorithms or business logic
+ *    - Include examples for non-obvious usage
+ * 
+ * 4. Field Level Comments:
+ *    - Document non-obvious fields
+ *    - Explain constraints or valid value ranges
+ *    - Note any default values and their significance
+ * 
+ * 5. Inline Comments:
+ *    - Add comments for complex logic or business rules
+ *    - Explain "why" rather than "what" the code does
+ *    - Document any workarounds or temporary solutions
+ *    - Mark TODO items with clear descriptions
+ * 
+ * 6. Code Organization:
+ *    - Group related code blocks with explanatory comments
+ *    - Use section headers for better readability
+ *    - Keep comments up-to-date with code changes
+ * 
+ * 7. Generated Code:
+ *    - Must include comprehensive comments
+ *    - Document any assumptions or limitations
+ *    - Explain integration points with other components
+ *    - Include usage examples where appropriate
+ * 
+ * Remember: Good code is self-documenting, but great code is well-documented.
+ * Write comments that you would want to read when revisiting the code months later.
+ */ 

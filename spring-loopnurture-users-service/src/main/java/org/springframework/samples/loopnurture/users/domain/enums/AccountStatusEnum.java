@@ -4,9 +4,30 @@ package org.springframework.samples.loopnurture.users.domain.enums;
  * 账户状态枚举
  */
 public enum AccountStatusEnum {
-    ACTIVE(1, "活跃"),
-    INACTIVE(2, "不活跃"),
-    SUSPENDED(3, "已停用");
+    /**
+     * 正常
+     */
+    ACTIVE(1, "正常"),
+
+    /**
+     * 已锁定
+     */
+    LOCKED(2, "已锁定"),
+
+    /**
+     * 已禁用
+     */
+    DISABLED(3, "已禁用"),
+
+    /**
+     * 已删除
+     */
+    DELETED(4, "已删除"),
+
+    /**
+     * 待验证
+     */
+    PENDING_VERIFICATION(5, "待验证");
 
     private final Integer code;
     private final String description;

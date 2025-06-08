@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface JpaMarketingUserMapper extends JpaRepository<MarketingUserPO, String> {
+    Optional<MarketingUserPO> findBySystemUserId(Long systemUserId);
     Optional<MarketingUserPO> findByUserUniq(String userUniq);
     Optional<MarketingUserPO> findByPrimaryEmail(String primaryEmail);
     Optional<MarketingUserPO> findByPhone(String phone);

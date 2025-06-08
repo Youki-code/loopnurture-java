@@ -1,86 +1,110 @@
 package org.springframework.samples.loopnurture.mail.domain.model;
 
 import lombok.Data;
-import javax.persistence.*;
+import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
+import org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * 营销邮件模板领域对象
+ * 
+ * 该对象代表了一个营销邮件模板的业务实体，包含了模板的基本信息和业务行为。
+ * 与数据库实体的主要区别：
+ * 1. 直接使用枚举类型而不是代码
+ * 2. 包含了模板渲染等业务方法
  */
 @Data
-@Entity
-@Table(name = "t_marketing_email_template")
 public class MarketingEmailTemplateDO {
     /**
-     * 模板ID
+     * 主键ID
      */
-    @Id
-    @Column(name = "template_id")
+    private String id;
+
+    /**
+     * 组织编码
+     */
+    private String orgCode;
+
+    /**
+     * 模板ID，在组织内唯一
+     */
     private String templateId;
 
     /**
      * 模板名称
      */
-    @Column(name = "template_name")
     private String templateName;
 
     /**
-     * 模板主题
+     * 内容类型：1-文本，2-HTML
      */
-    @Column(name = "subject")
-    private String subject;
+    private ContentTypeEnum contentType;
 
     /**
      * 模板内容
      */
-    @Column(name = "content", columnDefinition = "TEXT")
-    private String content;
+    private String contentTemplate;
 
     /**
-     * 发件人名称
+     * AI策略版本
      */
-    @Column(name = "from_name")
-    private String fromName;
+    private String aiStrategyVersion;
 
     /**
-     * 发件人邮箱
+     * 启用状态：1-启用，0-禁用
      */
-    @Column(name = "from_email")
-    private String fromEmail;
+    private EnableStatusEnum enableStatus;
 
     /**
-     * 模板状态：0-草稿，1-已发布，2-已禁用
+     * 扩展信息
      */
-    @Column(name = "status")
-    private Integer status;
-
-    /**
-     * 所属组织ID
-     */
-    @Column(name = "org_id")
-    private String orgId;
+    private Map<String, Object> extendsInfo;
 
     /**
      * 创建时间
      */
-    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     /**
      * 更新时间
      */
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     /**
      * 创建人ID
      */
-    @Column(name = "created_by")
     private String createdBy;
 
     /**
      * 更新人ID
      */
-    @Column(name = "updated_by")
     private String updatedBy;
+
+    /**
+     * 检查模板是否是HTML格式
+     *
+     * @return true 如果是HTML格式
+     */
+    public boolean isHtmlContent() {
+        return contentType == ContentTypeEnum.HTML;
+    }
+
+    /**
+     * 检查模板是否启用
+     *
+     * @return true 如果是启用状态
+     */
+    public boolean isEnabled() {
+        return enableStatus == EnableStatusEnum.ENABLED;
+    }
+
+    /**
+     * 检查模板是否禁用
+     *
+     * @return true 如果是禁用状态
+     */
+    public boolean isDisabled() {
+        return enableStatus == EnableStatusEnum.DISABLED;
+    }
 } 

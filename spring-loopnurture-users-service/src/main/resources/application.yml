@@ -5,9 +5,9 @@ spring:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://db.qvyxvqbxvhxvwxvjxvwx.supabase.co:5432/postgres
-    username: tangyuqi764@163.com
-    password: 1c2i3a2222
+    url: jdbc:postgresql://db.cilxaqxdcffzpggwjphz.supabase.co:5432/postgres
+    username: postgres
+    password: loopnurture1a2b3c4d!
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

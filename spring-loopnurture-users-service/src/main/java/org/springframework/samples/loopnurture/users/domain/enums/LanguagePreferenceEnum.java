@@ -1,31 +1,25 @@
 package org.springframework.samples.loopnurture.users.domain.enums;
 
+import lombok.Getter;
+
 /**
  * 语言偏好枚举
  */
+@Getter
 public enum LanguagePreferenceEnum {
-    ZH_CN(1, "简体中文"),
-    EN_US(2, "美式英语"),
-    JA_JP(3, "日语"),
-    KO_KR(4, "韩语");
+    EN_US("en-US"),
+    ZH_CN("zh-CN"),
+    ZH_TW("zh-TW"),
+    JA_JP("ja-JP"),
+    KO_KR("ko-KR");
 
-    private final Integer code;
-    private final String description;
+    private final String code;
 
-    LanguagePreferenceEnum(Integer code, String description) {
+    LanguagePreferenceEnum(String code) {
         this.code = code;
-        this.description = description;
     }
 
-    public Integer getCode() {
-        return code;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public static LanguagePreferenceEnum fromCode(Integer code) {
+    public static LanguagePreferenceEnum fromCode(String code) {
         if (code == null) {
             return null;
         }

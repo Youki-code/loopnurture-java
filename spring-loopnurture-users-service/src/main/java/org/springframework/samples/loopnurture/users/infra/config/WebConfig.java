@@ -2,7 +2,7 @@ package org.springframework.samples.loopnurture.users.infra.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.samples.loopnurture.users.server.interceptor.JwtAuthInterceptor;
+import org.springframework.samples.loopnurture.users.server.config.JwtAuthInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 

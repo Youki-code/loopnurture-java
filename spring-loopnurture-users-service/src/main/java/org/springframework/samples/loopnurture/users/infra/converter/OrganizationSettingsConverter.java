@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import org.springframework.samples.loopnurture.users.domain.vo.OrganizationSettingsVO;
+import org.springframework.samples.loopnurture.users.domain.model.vo.OrganizationSettingsVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

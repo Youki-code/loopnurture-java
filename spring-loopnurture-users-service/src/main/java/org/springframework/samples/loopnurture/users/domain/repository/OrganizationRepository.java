@@ -39,4 +39,14 @@ public interface OrganizationRepository {
      * 删除组织
      */
     void deleteById(String orgId);
+
+    /**
+     * 根据组织代码查询组织
+     */
+    Optional<OrganizationDO> findByOrgCode(String orgCode);
+
+    /**
+     * 检查组织代码是否存在
+     */
+    boolean existsByOrgCode(String orgCode);
 } 

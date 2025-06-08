@@ -1,0 +1,254 @@
+# Cursor Default Rules
+# 默认规则文件 / Default Rules File
+
+# 目录结构规范 / Directory Structure Rules
+[directory_structure]
+# 领域对象必须在 domain/model/ 目录下
+# Domain Objects must be in domain/model/
+domain_objects = "domain/model/"
+
+# 值对象必须在 domain/model/vo/ 目录下
+# Value Objects must be in domain/model/vo/
+value_objects = "domain/model/vo/"
+
+# HTTP DTO必须在 server/controller/dto/ 目录下
+# HTTP DTOs must be in server/controller/dto/
+http_dtos = "server/controller/dto/"
+
+# HTTP 接口必须在 server/controller/ 目录下
+# HTTP Controllers must be in server/controller/
+http_controllers = "server/controller/"
+
+# Service类必须在 service/ 目录下
+# Service classes must be in service/
+services = "service/"
+
+# 命名规范 / Naming Conventions
+[naming]
+# HTTP接口必须以Controller结尾
+# HTTP interfaces must end with "Controller"
+controller_suffix = "Controller"
+
+# 请求对象必须以Request结尾
+# Request objects must end with "Request"
+request_suffix = "Request"
+
+# 响应对象必须以Response结尾
+# Response objects must end with "Response"
+response_suffix = "Response"
+
+# 通用DTO必须以DTO结尾
+# General DTOs must end with "DTO"
+dto_suffix = "DTO"
+
+# 值对象必须以VO结尾
+# Value Objects must end with "VO"
+vo_suffix = "VO"
+
+# 持久化对象必须以PO结尾
+# Persistence Objects must end with "PO"
+po_suffix = "PO"
+
+# 领域对象必须以DO结尾
+# Domain Objects must end with "DO"
+do_suffix = "DO"
+
+# 服务类必须以Service结尾
+# Service classes must end with "Service"
+service_suffix = "Service"
+
+# JPA仓储必须以JpaMapper结尾
+# JPA repositories must end with "JpaMapper"
+jpa_repository_suffix = "JpaMapper"
+
+# 领域仓储必须以Repository结尾
+# Domain repositories must end with "Repository"
+domain_repository_suffix = "Repository"
+
+# 数据访问分层规范 / Data Access Layer Rules
+[data_access_layers]
+# 数据访问层交互顺序
+# Data access layer interaction order
+interaction_order = [
+    "*Service -> *Repository -> Jpa*Mapper -> Database",
+    "禁止*Service直接调用Jpa*Mapper / Service cannot directly use JpaMapper",
+    "禁止跨层调用 / No cross-layer calls allowed"
+]
+
+# 数据访问层职责
+# Data access layer responsibilities
+layer_responsibilities = [
+    "*Service: 业务逻辑层，处理业务规则和流程 / Business logic layer, handles business rules and flows",
+    "*Repository: 领域仓储层，定义领域对象的存储和查询接口 / Domain repository layer, defines storage and query interfaces for domain objects",
+    "Jpa*Mapper: 数据访问层，实现与数据库的直接交互 / Data access layer, implements direct database interactions"
+]
+
+# 目录结构规范
+# Directory structure rules
+directory_structure = [
+    "*Service -> service/",
+    "*Repository -> domain/repository/",
+    "*RepositoryImpl -> infra/repository/",
+    "Jpa*Mapper -> infra/mapper/"
+]
+
+# 数据访问实现规范
+# Data access implementation rules
+implementation_rules = [
+    "Repository接口在domain/repository/目录下定义 / Repository interfaces defined in domain/repository/",
+    "Repository实现类在infra/repository/目录下实现 / Repository implementations in infra/repository/",
+    "禁止在infra/repository/目录下创建impl子目录 / No impl subdirectory allowed in infra/repository/",
+    "Jpa*Mapper在infra/mapper/目录下实现 / JpaMappers in infra/mapper/",
+    "领域对象转换在Repository实现类中处理 / Domain object conversion handled in Repository implementations"
+]
+
+# 依赖规则
+# Dependency rules
+dependency_rules = [
+    "domain层不依赖infra层 / Domain layer does not depend on infra layer",
+    "infra层依赖domain层 / Infra layer depends on domain layer",
+    "service层依赖domain层 / Service layer depends on domain layer",
+    "禁止跨层依赖 / No cross-layer dependencies"
+]
+
+# 代码规范 / Code Standards
+[code_standards]
+# 所有公共方法必须有注释
+# All public methods must have comments
+public_method_comments = true
+
+# 必须使用统一的异常处理
+# Must use unified exception handling
+unified_exception_handling = true
+
+# 必须使用统一的日志处理
+# Must use unified logging
+unified_logging = true
+
+# Service类规范
+# Service Class Standards
+[service_standards]
+# Service类直接实现业务方法，不需要定义接口
+# Service classes directly implement business methods, no interface needed
+no_service_interface = true
+
+# Service类必须在service目录下
+# Service classes must be in service directory
+service_directory = true
+
+# Service类必须以Service结尾
+# Service classes must end with "Service"
+service_naming = true
+
+# 分层规范 / Layer Standards
+[layers]
+# 领域层：包含模型、值对象、枚举等
+# Domain Layer: contains models, value objects, enums
+domain = ["model", "vo", "enums"]
+
+# 基础设施层：包含仓储实现、工具类等
+# Infrastructure Layer: contains repository implementations, utils
+infrastructure = ["repository", "utils"]
+
+# 应用层：包含服务实现
+# Application Layer: contains service implementations
+application = ["service"]
+
+# 接口层：包含控制器、DTO等
+# Interface Layer: contains controllers, DTOs
+interface = ["controller", "dto"]
+
+# 包结构规范 / Package Structure
+[package_structure]
+# 基础包名
+# Base package name
+base_package = "org.springframework.samples.loopnurture"
+
+# 模块包名规范（users和mail模块）
+# Module package naming convention (users and mail modules)
+module_package = "${base_package}.${module_name}"
+
+# 组件包名规范
+# Component package naming convention
+component_package = "${module_package}.${component_type}"
+
+# 模块列表
+# Module list
+modules = ["users", "mail"]
+
+# Service类规范
+# Service Class Rules
+[service_rules]
+# Service类位置规范
+# Service class location rules
+location = "${module_package}.service"
+
+# Service类命名规范
+# Service class naming rules
+naming = "*Service"
+
+# Service类实现规范
+# Service class implementation rules
+implementation = "direct" # 直接实现，不需要接口
+
+# Service类职责规范
+# Service class responsibility rules
+responsibility = "business_logic" # 仅包含业务逻辑实现
+
+[persistence_rules]
+# PO类规范
+po_class_rules = [
+    # PO类中不使用枚举类型，使用基本类型代替
+    "PO类中避免使用枚举类型，应使用对应的基本类型：",
+    "  - SMALLINT类型的枚举字段使用Integer类型",
+    "  - VARCHAR类型的枚举字段使用String类型",
+    "  - 枚举类型与基本类型的转换在Converter中处理",
+    
+    # JSON/JSONB字段处理
+    "JSON/JSONB类型字段在PO中使用String类型存储，在Converter中进行序列化/反序列化",
+    
+    # 其他PO类规范
+    "使用JPA注解进行表映射",
+    "必须包含审计字段(created_at, updated_at等)",
+    "使用@PrePersist和@PreUpdate自动维护审计字段"
+]
+
+# 转换器规范
+converter_rules = [
+    "负责DO和PO之间的转换",
+    "在转换器中处理枚举类型与基本类型的转换：",
+    "  - PO -> DO: 使用枚举类的fromCode()方法",
+    "  - DO -> PO: 使用枚举实例的getCode()方法",
+    "处理JSON/JSONB字段的序列化/反序列化"
+]
+
+[domain_rules]
+# DO类规范
+do_class_rules = [
+    "领域对象可以使用枚举类型",
+    "使用@Data注解简化getter/setter",
+    "包含完整的字段注释"
+]
+
+# 枚举类规范
+enum_rules = [
+    "枚举类必须提供code字段",
+    "必须实现fromCode()静态方法",
+    "必须实现getCode()实例方法",
+    "必须包含详细的注释说明每个枚举值的含义"
+]
+
+[module_specific_rules]
+# users模块特定规则
+users_module = [
+    "处理用户认证和授权",
+    "管理组织信息",
+    "维护用户-组织关系"
+]
+
+# mail模块特定规则
+mail_module = [
+    "处理邮件模板管理",
+    "处理邮件发送",
+    "维护邮件发送记录"
+] 

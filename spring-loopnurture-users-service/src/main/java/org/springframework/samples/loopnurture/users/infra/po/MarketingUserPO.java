@@ -1,7 +1,6 @@
 package org.springframework.samples.loopnurture.users.infra.po;
 
 import lombok.Data;
-import org.springframework.samples.loopnurture.users.domain.enums.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -10,7 +9,14 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
-@Table(name = "t_marketing_user")
+@Table(name = "marketing_user", indexes = {
+    @Index(name = "idx_primary_email", columnList = "primary_email"),
+    @Index(name = "idx_phone", columnList = "phone"),
+    @Index(name = "idx_org_id", columnList = "org_id")
+}, uniqueConstraints = {
+    @UniqueConstraint(name = "uk_user_uniq", columnNames = "user_uniq"),
+    @UniqueConstraint(name = "uk_oauth_user", columnNames = {"oauth_user_id", "auth_type"})
+})
 public class MarketingUserPO {
     @Id
     @Column(name = "id")
@@ -25,11 +31,11 @@ public class MarketingUserPO {
     @Column(name = "org_id")
     private String orgId;
 
-    @Column(name = "user_uniq")
+    @Column(name = "user_uniq", nullable = false)
     private String userUniq;
 
-    @Column(name = "auth_type")
-    private String authType;
+    @Column(name = "auth_type", nullable = false, columnDefinition = "SMALLINT")
+    private Integer authType;
 
     @Column(name = "oauth_user_id")
     private String oauthUserId;
@@ -37,8 +43,8 @@ public class MarketingUserPO {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "user_type")
-    private String userType;
+    @Column(name = "user_type", columnDefinition = "SMALLINT")
+    private Integer userType;
 
     @Column(name = "extends_info", columnDefinition = "TEXT")
     private String extendsInfo;
@@ -67,19 +73,19 @@ public class MarketingUserPO {
     @Column(name = "timezone")
     private String timezone;
 
-    @Column(name = "account_status")
-    private String accountStatus;
+    @Column(name = "account_status", columnDefinition = "SMALLINT")
+    private Integer accountStatus;
 
-    @Column(name = "email_verified")
+    @Column(name = "email_verified", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean emailVerified;
 
-    @Column(name = "phone_verified")
+    @Column(name = "phone_verified", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean phoneVerified;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     @Column(name = "last_login_at")
@@ -93,6 +99,8 @@ public class MarketingUserPO {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (emailVerified == null) emailVerified = false;
+        if (phoneVerified == null) phoneVerified = false;
     }
 
     @PreUpdate

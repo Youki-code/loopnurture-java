@@ -1,53 +1,107 @@
 package org.springframework.samples.loopnurture.users.infra.converter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.samples.loopnurture.users.domain.model.OrganizationDO;
+import org.springframework.samples.loopnurture.users.domain.model.vo.OrganizationSettingsVO;
+import org.springframework.samples.loopnurture.users.domain.enums.OrganizationStatusEnum;
+import org.springframework.samples.loopnurture.users.domain.enums.OrganizationTypeEnum;
 import org.springframework.samples.loopnurture.users.infra.po.OrganizationPO;
 import org.springframework.stereotype.Component;
 
+/**
+ * 组织对象转换器
+ */
 @Component
 public class OrganizationConverter {
-    
-    public OrganizationDO toEntity(OrganizationPO po) {
-        if (po == null) {
-            return null;
-        }
-        
-        OrganizationDO entity = new OrganizationDO();
-        entity.setId(po.getId());
-        entity.setOrgCode(po.getOrgCode());
-        entity.setOrgName(po.getOrgName());
-        entity.setOrgType(po.getOrgType());
-        entity.setStatus(po.getStatus());
-        entity.setMaxUsers(po.getMaxUsers());
-        entity.setMaxTemplates(po.getMaxTemplates());
-        entity.setMaxRules(po.getMaxRules());
-        entity.setSettings(po.getSettings());
-        entity.setCreatedAt(po.getCreatedAt());
-        entity.setUpdatedAt(po.getUpdatedAt());
-        entity.setCreatedBy(po.getCreatedBy());
-        entity.setUpdatedBy(po.getUpdatedBy());
-        return entity;
+
+    private final ObjectMapper objectMapper;
+
+    public OrganizationConverter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
     }
-    
-    public OrganizationPO toPO(OrganizationDO entity) {
-        if (entity == null) {
+
+    /**
+     * 将DO转换为PO
+     */
+    public OrganizationPO toPO(OrganizationDO organizationDO) {
+        if (organizationDO == null) {
             return null;
         }
-        
-        OrganizationPO po = new OrganizationPO();
-        po.setId(entity.getId());
-        po.setOrgCode(entity.getOrgCode());
-        po.setOrgName(entity.getOrgName());
-        po.setOrgType(entity.getOrgType());
-        po.setStatus(entity.getStatus());
-        po.setMaxUsers(entity.getMaxUsers());
-        po.setMaxTemplates(entity.getMaxTemplates());
-        po.setMaxRules(entity.getMaxRules());
-        po.setSettings(entity.getSettings());
-        po.setCreatedAt(entity.getCreatedAt());
-        po.setUpdatedAt(entity.getUpdatedAt());
-        po.setCreatedBy(entity.getCreatedBy());
-        po.setUpdatedBy(entity.getUpdatedBy());
-        return po;
+
+        return OrganizationPO.builder()
+            .id(organizationDO.getId())
+            .orgCode(organizationDO.getOrgCode())
+            .orgName(organizationDO.getOrgName())
+            .orgType(organizationDO.getOrgType().getCode())
+            .status(organizationDO.getStatus().getCode())
+            .description(organizationDO.getDescription())
+            .address(organizationDO.getAddress())
+            .phone(organizationDO.getPhone())
+            .email(organizationDO.getEmail())
+            .website(organizationDO.getWebsite())
+            .logoUrl(organizationDO.getLogoUrl())
+            .maxUsers(organizationDO.getMaxUsers())
+            .maxTemplates(organizationDO.getMaxTemplates())
+            .maxRules(organizationDO.getMaxRules())
+            .settings(toJsonString(organizationDO.getSettings()))
+            .createdAt(organizationDO.getCreatedAt())
+            .updatedAt(organizationDO.getUpdatedAt())
+            .createdBy(organizationDO.getCreatedBy())
+            .updatedBy(organizationDO.getUpdatedBy())
+            .build();
+    }
+
+    /**
+     * 将PO转换为DO
+     */
+    public OrganizationDO toDO(OrganizationPO organizationPO) {
+        if (organizationPO == null) {
+            return null;
+        }
+
+        OrganizationDO organizationDO = new OrganizationDO();
+        organizationDO.setId(organizationPO.getId());
+        organizationDO.setOrgCode(organizationPO.getOrgCode());
+        organizationDO.setOrgName(organizationPO.getOrgName());
+        organizationDO.setOrgType(OrganizationTypeEnum.fromCode(organizationPO.getOrgType()));
+        organizationDO.setStatus(OrganizationStatusEnum.fromCode(organizationPO.getStatus()));
+        organizationDO.setDescription(organizationPO.getDescription());
+        organizationDO.setAddress(organizationPO.getAddress());
+        organizationDO.setPhone(organizationPO.getPhone());
+        organizationDO.setEmail(organizationPO.getEmail());
+        organizationDO.setWebsite(organizationPO.getWebsite());
+        organizationDO.setLogoUrl(organizationPO.getLogoUrl());
+        organizationDO.setMaxUsers(organizationPO.getMaxUsers());
+        organizationDO.setMaxTemplates(organizationPO.getMaxTemplates());
+        organizationDO.setMaxRules(organizationPO.getMaxRules());
+        organizationDO.setSettings(fromJsonString(organizationPO.getSettings()));
+        organizationDO.setCreatedAt(organizationPO.getCreatedAt());
+        organizationDO.setUpdatedAt(organizationPO.getUpdatedAt());
+        organizationDO.setCreatedBy(organizationPO.getCreatedBy());
+        organizationDO.setUpdatedBy(organizationPO.getUpdatedBy());
+        return organizationDO;
+    }
+
+    private String toJsonString(OrganizationSettingsVO settings) {
+        if (settings == null) {
+            return null;
+        }
+        try {
+            return objectMapper.writeValueAsString(settings);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to convert settings to JSON", e);
+        }
+    }
+
+    private OrganizationSettingsVO fromJsonString(String json) {
+        if (json == null || json.isEmpty()) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(json, OrganizationSettingsVO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to parse settings JSON", e);
+        }
     }
 } 

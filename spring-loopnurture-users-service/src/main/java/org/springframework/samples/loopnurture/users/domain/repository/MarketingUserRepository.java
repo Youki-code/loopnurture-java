@@ -9,6 +9,14 @@ import java.util.Optional;
  */
 public interface MarketingUserRepository {
     /**
+     * 根据系统用户ID查询用户
+     *
+     * @param systemUserId 系统用户ID
+     * @return 用户信息（如果存在）
+     */
+    Optional<MarketingUserDO> findBySystemUserId(Long systemUserId);
+
+    /**
      * 根据OAuth信息查询用户
      *
      * @param oauthUserId OAuth用户ID

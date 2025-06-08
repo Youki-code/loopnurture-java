@@ -28,11 +28,13 @@ public class MarketingUserConverter {
 
         MarketingUserDO entity = new MarketingUserDO();
         entity.setId(po.getId());
+        entity.setSystemUserId(po.getSystemUserId());
         entity.setOrgId(po.getOrgId());
         entity.setUserUniq(po.getUserUniq());
-        entity.setAuthType(AuthTypeEnum.valueOf(po.getAuthType()));
+        entity.setAuthType(AuthTypeEnum.fromCode(po.getAuthType()));
         entity.setOauthUserId(po.getOauthUserId());
-        entity.setUserType(UserTypeEnum.valueOf(po.getUserType()));
+        entity.setPassword(po.getPassword());
+        entity.setUserType(UserTypeEnum.fromCode(po.getUserType()));
         entity.setNickname(po.getNickname());
         entity.setAvatarUrl(po.getAvatarUrl());
         entity.setPrimaryEmail(po.getPrimaryEmail());
@@ -41,7 +43,7 @@ public class MarketingUserConverter {
         entity.setTelephone(po.getTelephone());
         entity.setLanguagePreference(LanguagePreferenceEnum.valueOf(po.getLanguagePreference()));
         entity.setTimezone(po.getTimezone());
-        entity.setAccountStatus(AccountStatusEnum.valueOf(po.getAccountStatus()));
+        entity.setAccountStatus(AccountStatusEnum.fromCode(po.getAccountStatus()));
         entity.setEmailVerified(po.getEmailVerified());
         entity.setPhoneVerified(po.getPhoneVerified());
         entity.setCreatedAt(po.getCreatedAt());
@@ -70,11 +72,13 @@ public class MarketingUserConverter {
 
         MarketingUserPO po = new MarketingUserPO();
         po.setId(entity.getId());
+        po.setSystemUserId(entity.getSystemUserId());
         po.setOrgId(entity.getOrgId());
         po.setUserUniq(entity.getUserUniq());
-        po.setAuthType(entity.getAuthType().name());
+        po.setAuthType(entity.getAuthType().getCode());
         po.setOauthUserId(entity.getOauthUserId());
-        po.setUserType(entity.getUserType().name());
+        po.setPassword(entity.getPassword());
+        po.setUserType(entity.getUserType().getCode());
         po.setNickname(entity.getNickname());
         po.setAvatarUrl(entity.getAvatarUrl());
         po.setPrimaryEmail(entity.getPrimaryEmail());
@@ -83,7 +87,7 @@ public class MarketingUserConverter {
         po.setTelephone(entity.getTelephone());
         po.setLanguagePreference(entity.getLanguagePreference().name());
         po.setTimezone(entity.getTimezone());
-        po.setAccountStatus(entity.getAccountStatus().name());
+        po.setAccountStatus(entity.getAccountStatus().getCode());
         po.setEmailVerified(entity.getEmailVerified());
         po.setPhoneVerified(entity.getPhoneVerified());
         po.setCreatedAt(entity.getCreatedAt());
