@@ -1,7 +1,6 @@
 package org.springframework.samples.loopnurture.mail.server.controller.dto;
 
 import lombok.Data;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,19 +16,16 @@ public class MarketingEmailTemplatePageRequest {
     /**
      * 组织编码
      */
-    @Size(max = 50, message = "Organization code length cannot exceed 50")
     private String orgCode;
 
     /**
-     * 模板代码
+     * 模板ID
      */
-    @Size(max = 50, message = "Template code length cannot exceed 50")
-    private String templateCode;
+    private String templateId;
 
     /**
      * 模板名称
      */
-    @Size(max = 100, message = "Template name length cannot exceed 100")
     private String templateName;
 
     /**
@@ -43,9 +39,9 @@ public class MarketingEmailTemplatePageRequest {
     private List<Integer> enableStatusList;
 
     /**
-     * 页码，从0开始
+     * 页码（从1开始）
      */
-    private Integer pageNumber = 0;
+    private Integer pageNum = 1;
 
     /**
      * 每页大小
@@ -70,6 +66,7 @@ public class MarketingEmailTemplatePageRequest {
             Sort.Direction.fromString(sortDirection),
             sortField
         );
-        return PageRequest.of(pageNumber, pageSize, sort);
+        int pageIndex = pageNum != null && pageNum > 0 ? pageNum - 1 : 0;
+        return PageRequest.of(pageIndex, pageSize, sort);
     }
 } 

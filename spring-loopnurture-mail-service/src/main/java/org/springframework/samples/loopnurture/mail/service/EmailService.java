@@ -2,17 +2,17 @@ package org.springframework.samples.loopnurture.mail.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.samples.loopnurture.mail.domain.model.EmailRuleDO;
-import org.springframework.samples.loopnurture.mail.domain.model.EmailTemplateDO;
+import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRuleDO;
+import org.springframework.samples.loopnurture.mail.domain.model.MarketingEmailTemplateDO;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRecordDO;
-import org.springframework.samples.loopnurture.mail.domain.repository.EmailRuleRepository;
-import org.springframework.samples.loopnurture.mail.domain.repository.EmailTemplateRepository;
+import org.springframework.samples.loopnurture.mail.domain.repository.EmailSendRuleRepository;
+import org.springframework.samples.loopnurture.mail.domain.repository.MarketingEmailTemplateRepository;
 import org.springframework.samples.loopnurture.mail.domain.repository.EmailSendRecordRepository;
+import org.springframework.samples.loopnurture.mail.exception.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -22,8 +22,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmailService {
 
-    private final EmailRuleRepository ruleRepository;
-    private final EmailTemplateRepository templateRepository;
+    private final EmailSendRuleRepository ruleRepository;
+    private final MarketingEmailTemplateRepository templateRepository;
     private final EmailSendRecordRepository sendRecordRepository;
     private final UserQueryService userQueryService;
 
@@ -32,27 +32,23 @@ public class EmailService {
      */
     public void executeRule(String ruleId) {
         // 查询规则
-        Optional<EmailRuleDO> ruleOpt = ruleRepository.findById(ruleId);
-        if (!ruleOpt.isPresent()) {
+        EmailSendRuleDO rule = ruleRepository.findById(ruleId);
+        if (rule == null) {
             return;
         }
 
-        EmailRuleDO rule = ruleOpt.get();
-        
         // 查询模板
-        Optional<EmailTemplateDO> templateOpt = templateRepository.findById(rule.getTemplateId());
-        if (!templateOpt.isPresent()) {
+        MarketingEmailTemplateDO template = templateRepository.getByTemplateId(rule.getTemplateId());
+        if (template == null) {
             return;
         }
-
-        EmailTemplateDO template = templateOpt.get();
 
         // 获取目标用户
         List<Map<String, Object>> targetUsers = getTargetUsers(rule);
         
         // 创建发送记录
         for (Map<String, Object> user : targetUsers) {
-            EmailSendRecordDO sendRecord = createSendLog(rule, template, user);
+            EmailSendRecordDO sendRecord = createSendRecord(rule, template, user);
             sendRecordRepository.save(sendRecord);
         }
 
@@ -63,20 +59,20 @@ public class EmailService {
     /**
      * 获取目标用户
      */
-    private List<Map<String, Object>> getTargetUsers(EmailRuleDO rule) {
+    private List<Map<String, Object>> getTargetUsers(EmailSendRuleDO rule) {
         return userQueryService.executeQuery(rule.getUserQuery());
     }
 
     /**
      * 创建发送记录
      */
-    private EmailSendRecordDO createSendLog(EmailRuleDO rule, EmailTemplateDO template, Map<String, Object> user) {
+    private EmailSendRecordDO createSendRecord(EmailSendRuleDO rule, MarketingEmailTemplateDO template, Map<String, Object> user) {
         EmailSendRecordDO record = new EmailSendRecordDO();
         record.setOrgCode(rule.getOrgCode());
         record.setTemplateId(template.getTemplateId());
         record.setRecipient(user.get("email").toString());
         record.setVariables(user);
-        record.setStatus(0); // PENDING
+        record.setStatus(org.springframework.samples.loopnurture.mail.domain.enums.EmailStatusEnum.PENDING);
         record.setCreatedAt(LocalDateTime.now());
         record.setUpdatedAt(LocalDateTime.now());
         return record;
@@ -85,7 +81,7 @@ public class EmailService {
     /**
      * 更新规则执行信息
      */
-    private void updateRuleExecutionInfo(EmailRuleDO rule) {
+    private void updateRuleExecutionInfo(EmailSendRuleDO rule) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nextExecutionTime = calculateNextExecutionTime(rule, now);
         ruleRepository.updateExecutionInfo(
@@ -99,24 +95,21 @@ public class EmailService {
     /**
      * 计算下次执行时间
      */
-    private LocalDateTime calculateNextExecutionTime(EmailRuleDO rule, LocalDateTime now) {
+    private LocalDateTime calculateNextExecutionTime(EmailSendRuleDO rule, LocalDateTime now) {
         // 根据调度类型和值计算下次执行时间
         // TODO: 实现具体的调度逻辑
         return now.plusHours(1);
     }
 
-    @Override
     public void sendEmail(EmailSendRuleDO rule) {
         // 获取模板
-        Optional<EmailTemplateDO> templateOpt = templateRepository.findByTemplateId(rule.getTemplateId());
-        if (templateOpt.isEmpty()) {
+        MarketingEmailTemplateDO template = templateRepository.getByTemplateId(rule.getTemplateId());
+        if (template == null) {
             throw ResourceNotFoundException.templateNotFound(rule.getTemplateId());
         }
-        EmailTemplateDO template = templateOpt.get();
 
         // 创建发送记录
         EmailSendRecordDO record = new EmailSendRecordDO();
-        record.setId(UUID.randomUUID().toString());
         record.setOrgCode(rule.getOrgCode());
         record.setTemplateId(template.getTemplateId());
         // ... existing code ...

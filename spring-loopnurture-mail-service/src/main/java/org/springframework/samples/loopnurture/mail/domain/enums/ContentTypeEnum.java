@@ -1,28 +1,33 @@
 package org.springframework.samples.loopnurture.mail.domain.enums;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * 内容类型枚举
  */
 @Getter
-@RequiredArgsConstructor
-public enum ContentTypeEnum {
-    
-    /**
-     * 纯文本
-     */
-    TEXT(1, "纯文本"),
-    
-    /**
-     * HTML格式
-     */
-    HTML(2, "HTML格式");
-    
+public enum ContentTypeEnum implements BaseIntEnum {
+    TEXT(0, "纯文本"),
+    HTML(1, "HTML");
+
     private final Integer code;
-    private final String desc;
-    
+    private final String description;
+
+    ContentTypeEnum(Integer code, String description) {
+        this.code = code;
+        this.description = description;
+    }
+
+    @Override
+    public Integer getCode() {
+        return code;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
     public static ContentTypeEnum fromCode(Integer code) {
         if (code == null) {
             return null;
@@ -32,6 +37,6 @@ public enum ContentTypeEnum {
                 return type;
             }
         }
-        throw new IllegalArgumentException("Unknown content type code: " + code);
+        throw new IllegalArgumentException("Invalid ContentTypeEnum code: " + code);
     }
 } 

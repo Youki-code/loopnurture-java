@@ -1,17 +1,20 @@
 package org.springframework.samples.loopnurture.mail.infra.repository;
 
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Example;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 import org.springframework.samples.loopnurture.mail.domain.model.MarketingEmailTemplateDO;
 import org.springframework.samples.loopnurture.mail.domain.repository.MarketingEmailTemplateRepository;
-import org.springframework.samples.loopnurture.mail.domain.enums.EmailTemplateStatusEnum;
+import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
 import org.springframework.samples.loopnurture.mail.infra.converter.MarketingEmailTemplateConverter;
 import org.springframework.samples.loopnurture.mail.infra.mapper.JpaMarketingEmailTemplateMapper;
 import org.springframework.samples.loopnurture.mail.infra.po.MarketingEmailTemplatePO;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,73 +26,124 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MarketingEmailTemplateRepositoryImpl implements MarketingEmailTemplateRepository {
 
-    private final JpaMarketingEmailTemplateMapper jpaMapper;
-    private final MarketingEmailTemplateConverter converter;
+    private final JpaMarketingEmailTemplateMapper templateMapper;
+    private final MarketingEmailTemplateConverter templateConverter;
 
     @Override
     public MarketingEmailTemplateDO save(MarketingEmailTemplateDO template) {
-        var po = converter.toPO(template);
-        po = jpaMapper.save(po);
-        return converter.toDO(po);
+        MarketingEmailTemplatePO po = templateConverter.toPO(template);
+        return templateConverter.toDO(templateMapper.save(po));
+    }
+
+
+    @Override
+    public MarketingEmailTemplateDO findByOrgCodeAndTemplateCode(String orgCode, String templateCode) {
+        return templateMapper.findByOrgCodeAndTemplateCode(orgCode, templateCode).map(templateConverter::toDO).orElse(null);
+    }
+
+
+    @Override
+    public long countByOrgCode(String orgCode) {
+        return templateMapper.countByOrgCode(orgCode);
     }
 
     @Override
-    public Optional<MarketingEmailTemplateDO> findById(Long id) {
-        return jpaMapper.findById(id)
-            .map(converter::toDO);
+    public Page<MarketingEmailTemplateDO> findByOrgCode(String orgCode, Pageable pageable) {
+        return templateMapper.findByOrgCode(orgCode, pageable)
+            .map(templateConverter::toDO);
+    }
+
+
+
+    @Override
+    public MarketingEmailTemplateDO findByOrgCodeAndTemplateId(String orgCode, String templateId) {
+        return templateMapper.findByOrgCodeAndTemplateId(orgCode, templateId).map(templateConverter::toDO).orElse(null);
     }
 
     @Override
-    public Optional<MarketingEmailTemplateDO> findByOrgIdAndTemplateCode(Long orgId, String templateCode) {
-        return jpaMapper.findByOrgIdAndTemplateCode(orgId, templateCode)
-            .map(converter::toDO);
+    public List<MarketingEmailTemplateDO> findActiveTemplatesByOrgCode(String orgCode) {
+        return templateMapper.findByOrgCodeAndEnableStatus(orgCode, EnableStatusEnum.ENABLED.getCode())
+                .stream()
+                .map(templateConverter::toDO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<MarketingEmailTemplateDO> findActiveTemplatesByOrgId(Long orgId) {
-        return jpaMapper.findActiveTemplatesByOrgId(orgId).stream()
-            .map(converter::toDO)
-            .collect(Collectors.toList());
+    public Page<MarketingEmailTemplateDO> findByOrgCodeAndEnableStatus(String orgCode, EnableStatusEnum enableStatus, Pageable pageable) {
+        return templateMapper.findByOrgCodeAndEnableStatus(orgCode, enableStatus.getCode(), pageable)
+                .map(templateConverter::toDO);
     }
 
     @Override
-    public Page<MarketingEmailTemplateDO> findByOrgId(Long orgId, Pageable pageable) {
-        return jpaMapper.findByOrgId(orgId, pageable)
-            .map(converter::toDO);
+    public List<MarketingEmailTemplateDO> findByOrgCodeAndEnableStatus(String orgCode, EnableStatusEnum enableStatus) {
+        return templateMapper.findByOrgCodeAndEnableStatus(orgCode, enableStatus.getCode())
+                .stream()
+                .map(templateConverter::toDO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public boolean existsByOrgIdAndTemplateCode(Long orgId, String templateCode) {
-        return jpaMapper.existsByOrgIdAndTemplateCode(orgId, templateCode);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        jpaMapper.deleteById(id);
-    }
-
-    @Override
-    public Page<MarketingEmailTemplateDO> findByOrgIdAndStatus(Long orgId, EmailTemplateStatusEnum status, Pageable pageable) {
-        return jpaMapper.findByOrgIdAndStatus(orgId, status.getCode(), pageable)
-            .map(converter::toDO);
-    }
-
-    @Override
-    public List<MarketingEmailTemplateDO> findByOrgIdAndStatus(Long orgId, EmailTemplateStatusEnum status) {
-        return jpaMapper.findByOrgIdAndStatus(orgId, status.getCode()).stream()
-            .map(converter::toDO)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public long countByOrgIdAndStatus(Long orgId, EmailTemplateStatusEnum status) {
-        return jpaMapper.countByOrgIdAndStatus(orgId, status.getCode());
+    public long countByOrgCodeAndEnableStatus(String orgCode, EnableStatusEnum enableStatus) {
+        return templateMapper.countByOrgCodeAndEnableStatus(orgCode, enableStatus.getCode());
     }
 
     @Override
     public Page<MarketingEmailTemplateDO> findByExample(MarketingEmailTemplateDO example, Pageable pageable) {
-        MarketingEmailTemplatePO po = converter.toPO(example);
-        return jpaMapper.findAll(Example.of(po), pageable)
-            .map(converter::toDO);
+        MarketingEmailTemplatePO po = templateConverter.toPO(example);
+        return templateMapper.findAll((root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            
+            if (StringUtils.hasText(po.getOrgCode())) {
+                predicates.add(cb.equal(root.get("orgCode"), po.getOrgCode()));
+            }
+            if (StringUtils.hasText(po.getTemplateId())) {
+                predicates.add(cb.equal(root.get("templateId"), po.getTemplateId()));
+            }
+            if (StringUtils.hasText(po.getTemplateName())) {
+                predicates.add(cb.like(root.get("templateName"), "%" + po.getTemplateName() + "%"));
+            }
+            if (po.getContentType() != null) {
+                predicates.add(cb.equal(root.get("contentType"), po.getContentType()));
+            }
+            if (po.getEnableStatus() != null) {
+                predicates.add(cb.equal(root.get("enableStatus"), po.getEnableStatus()));
+            }
+            
+            return cb.and(predicates.toArray(new Predicate[0]));
+        }, pageable).map(templateConverter::toDO);
     }
+    
+
+    @Override
+    public Page<MarketingEmailTemplateDO> findAll(Specification<MarketingEmailTemplateDO> spec, Pageable pageable) {
+        @SuppressWarnings("unchecked")
+        Specification<MarketingEmailTemplatePO> poSpec = (Specification<MarketingEmailTemplatePO>) (Specification<?>) spec;
+        return templateMapper.findAll(poSpec, pageable)
+                .map(templateConverter::toDO);
+    }
+
+    @Override
+    public MarketingEmailTemplateDO findByTemplateCode(String templateCode) {
+        return templateMapper.findByTemplateCode(templateCode).map(templateConverter::toDO).orElse(null);
+    }
+
+    @Override
+    public MarketingEmailTemplateDO getByTemplateId(String templateId) {
+        return templateMapper.findByTemplateId(templateId).map(templateConverter::toDO).orElse(null);
+    }
+
+    @Override
+    public void deleteByTemplateId(String templateId) {
+        templateMapper.softDeleteByTemplateId(templateId);
+    }
+
+    @Override
+    public List<MarketingEmailTemplateDO> findByOrgCodeAndTemplateName(String orgCode, String templateName) {
+        return templateMapper.findByOrgCodeAndTemplateName(orgCode, templateName)
+                .stream()
+                .map(templateConverter::toDO)
+                .collect(Collectors.toList());
+    }
+
+    // 以下方法可按需扩展，如删除或按Specification查询
 } 

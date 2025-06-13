@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.samples.loopnurture.mail.domain.model.EmailRuleDO;
-import org.springframework.samples.loopnurture.mail.domain.repository.EmailRuleRepository;
+import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRuleDO;
+import org.springframework.samples.loopnurture.mail.domain.repository.EmailSendRuleRepository;
 import org.springframework.samples.loopnurture.mail.service.EmailService;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EmailScheduler {
 
-    private final EmailRuleRepository ruleRepository;
+    private final EmailSendRuleRepository ruleRepository;
     private final EmailService emailService;
 
     /**
@@ -28,9 +28,9 @@ public class EmailScheduler {
     @Scheduled(fixedRate = 60000)
     public void executeRules() {
         LocalDateTime now = LocalDateTime.now();
-        List<EmailRuleDO> activeRules = ruleRepository.findRulesForExecution(now);
+        List<EmailSendRuleDO> activeRules = ruleRepository.findRulesForExecution(now);
 
-        for (EmailRuleDO rule : activeRules) {
+        for (EmailSendRuleDO rule : activeRules) {
             try {
                 if (shouldExecuteRule(rule)) {
                     emailService.executeRule(rule.getId());
@@ -44,7 +44,7 @@ public class EmailScheduler {
     /**
      * 检查规则是否应该执行
      */
-    private boolean shouldExecuteRule(EmailRuleDO rule) {
+    private boolean shouldExecuteRule(EmailSendRuleDO rule) {
         if (!rule.getIsActive()) {
             return false;
         }

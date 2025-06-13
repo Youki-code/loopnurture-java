@@ -1,9 +1,15 @@
 package org.springframework.samples.loopnurture.mail.domain.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.samples.loopnurture.mail.domain.enums.RuleTypeEnum;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 邮件发送规则领域对象
@@ -15,6 +21,11 @@ import java.util.List;
  * 3. 包含了规则执行管理的业务方法
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class EmailSendRuleDO {
     /**
      * 主键ID
@@ -22,14 +33,14 @@ public class EmailSendRuleDO {
     private String id;
 
     /**
-     * 组织ID
+     * 组织编码
      */
-    private String orgId;
+    private String orgCode;
 
     /**
-     * 规则代码
+     * 规则ID
      */
-    private String ruleCode;
+    private String ruleId;
 
     /**
      * 规则名称
@@ -37,44 +48,44 @@ public class EmailSendRuleDO {
     private String ruleName;
 
     /**
-     * 模板代码
+     * 模板ID
      */
-    private String templateCode;
+    private String templateId;
 
     /**
-     * 规则类型：1-立即发送，2-定时发送，3-周期发送
+     * 规则类型：1-定时，2-固定频率，3-固定延迟
      */
-    private RuleTypeEnum ruleType;
+    private Integer ruleType;
 
     /**
-     * Cron表达式（定时发送时必填）
+     * Cron表达式（定时规则）
      */
     private String cronExpression;
 
     /**
-     * 固定频率，单位：毫秒（周期发送时必填）
+     * 固定频率（毫秒）
      */
     private Long fixedRate;
 
     /**
-     * 固定延迟，单位：毫秒（周期发送时必填）
+     * 固定延迟（毫秒）
      */
     private Long fixedDelay;
 
     /**
      * 收件人列表
      */
-    private List<String> recipients;
+    private String recipients;
 
     /**
-     * 抄送人列表
+     * 抄送列表
      */
-    private List<String> cc;
+    private String cc;
 
     /**
-     * 密送人列表
+     * 密送列表
      */
-    private List<String> bcc;
+    private String bcc;
 
     /**
      * 开始时间
@@ -107,7 +118,7 @@ public class EmailSendRuleDO {
     private LocalDateTime nextExecutionTime;
 
     /**
-     * 是否启用
+     * 是否激活
      */
     private Boolean isActive;
 
@@ -115,6 +126,12 @@ public class EmailSendRuleDO {
      * 规则描述
      */
     private String description;
+
+    /**
+     * 用户查询条件
+     */
+    @Builder.Default
+    private Map<String, Object> userQuery = new HashMap<>();
 
     /**
      * 创建时间
@@ -141,11 +158,23 @@ public class EmailSendRuleDO {
      *
      * @return true 如果规则可以执行
      */
-    public boolean isEnabled() {
-        return isActive != null && isActive &&
-               (startTime == null || startTime.isBefore(LocalDateTime.now())) &&
-               (endTime == null || endTime.isAfter(LocalDateTime.now())) &&
-               (maxExecutions == null || executionCount < maxExecutions);
+    public boolean isExecutable() {
+        if (!isActive) {
+            return false;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (startTime != null && now.isBefore(startTime)) {
+            return false;
+        }
+        if (endTime != null && now.isAfter(endTime)) {
+            return false;
+        }
+        if (maxExecutions != null && executionCount != null && executionCount >= maxExecutions) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -174,7 +203,7 @@ public class EmailSendRuleDO {
      * @return true 如果使用Cron表达式
      */
     public boolean isCronRule() {
-        return ruleType == RuleTypeEnum.CRON;
+        return ruleType != null && ruleType.equals(RuleTypeEnum.CRON.getCode());
     }
 
     /**
@@ -183,7 +212,7 @@ public class EmailSendRuleDO {
      * @return true 如果使用固定频率
      */
     public boolean isFixedRateRule() {
-        return ruleType == RuleTypeEnum.FIXED_RATE;
+        return ruleType != null && ruleType.equals(RuleTypeEnum.FIXED_RATE.getCode());
     }
 
     /**
@@ -192,6 +221,33 @@ public class EmailSendRuleDO {
      * @return true 如果使用固定延迟
      */
     public boolean isFixedDelayRule() {
-        return ruleType == RuleTypeEnum.FIXED_DELAY;
+        return ruleType != null && ruleType.equals(RuleTypeEnum.FIXED_DELAY.getCode());
+    }
+
+    /**
+     * 检查是否是立即执行规则
+     *
+     * @return true 如果是立即执行规则
+     */
+    public boolean isImmediateRule() {
+        return ruleType != null && ruleType.equals(RuleTypeEnum.IMMEDIATE.getCode());
+    }
+
+    /**
+     * 获取用户查询条件
+     *
+     * @return 用户查询条件
+     */
+    public Map<String, Object> getUserQuery() {
+        return userQuery;
+    }
+
+    /**
+     * 设置用户查询条件
+     *
+     * @param userQuery 用户查询条件
+     */
+    public void setUserQuery(Map<String, Object> userQuery) {
+        this.userQuery = userQuery;
     }
 } 

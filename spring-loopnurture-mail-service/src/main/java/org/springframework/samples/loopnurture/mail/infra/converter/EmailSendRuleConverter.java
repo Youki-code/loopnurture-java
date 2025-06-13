@@ -1,11 +1,19 @@
 package org.springframework.samples.loopnurture.mail.infra.converter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.samples.loopnurture.mail.domain.enums.RuleTypeEnum;
-import org.springframework.samples.loopnurture.mail.domain.enums.RecipientTypeEnum;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRuleDO;
+import org.springframework.samples.loopnurture.mail.domain.enums.RuleTypeEnum;
 import org.springframework.samples.loopnurture.mail.infra.po.EmailSendRulePO;
+import org.springframework.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 邮件发送规则转换器
@@ -13,80 +21,107 @@ import org.springframework.samples.loopnurture.mail.infra.po.EmailSendRulePO;
 @Component
 @RequiredArgsConstructor
 public class EmailSendRuleConverter {
+    private final ObjectMapper objectMapper;
+    private static final Logger log = LoggerFactory.getLogger(EmailSendRuleConverter.class);
 
-    /**
-     * 将领域对象转换为持久化对象
-     */
-    public EmailSendRulePO toPO(EmailSendRuleDO domain) {
-        if (domain == null) {
-            return null;
-        }
-
-        EmailSendRulePO po = new EmailSendRulePO();
-        po.setId(domain.getId());
-        po.setOrgId(domain.getOrgId());
-        po.setTemplateId(domain.getTemplateId());
-        po.setRuleName(domain.getRuleName());
-        po.setRuleType(domain.getRuleType().getCode());
-        po.setCronExpression(domain.getCronExpression());
-        po.setFixedRate(domain.getFixedRate());
-        po.setFixedDelay(domain.getFixedDelay());
-        po.setRecipientType(domain.getRecipientType().getCode());
-        po.setRecipients(domain.getRecipients());
-        po.setRecipientQuery(domain.getRecipientQuery());
-        po.setCc(domain.getCc());
-        po.setBcc(domain.getBcc());
-        po.setVariablesQuery(domain.getVariablesQuery());
-        po.setStartTime(domain.getStartTime());
-        po.setEndTime(domain.getEndTime());
-        po.setMaxExecutions(domain.getMaxExecutions());
-        po.setExecutionCount(domain.getExecutionCount());
-        po.setLastExecutionTime(domain.getLastExecutionTime());
-        po.setNextExecutionTime(domain.getNextExecutionTime());
-        po.setIsActive(domain.getIsActive());
-        po.setDescription(domain.getDescription());
-        po.setCreatedAt(domain.getCreatedAt());
-        po.setUpdatedAt(domain.getUpdatedAt());
-        po.setCreatedBy(domain.getCreatedBy());
-        po.setUpdatedBy(domain.getUpdatedBy());
-        return po;
-    }
-
-    /**
-     * 将持久化对象转换为领域对象
-     */
     public EmailSendRuleDO toDO(EmailSendRulePO po) {
         if (po == null) {
             return null;
         }
 
-        EmailSendRuleDO domain = new EmailSendRuleDO();
-        domain.setId(po.getId());
-        domain.setOrgId(po.getOrgId());
-        domain.setTemplateId(po.getTemplateId());
-        domain.setRuleName(po.getRuleName());
-        domain.setRuleType(RuleTypeEnum.fromCode(po.getRuleType()));
-        domain.setCronExpression(po.getCronExpression());
-        domain.setFixedRate(po.getFixedRate());
-        domain.setFixedDelay(po.getFixedDelay());
-        domain.setRecipientType(RecipientTypeEnum.fromCode(po.getRecipientType()));
-        domain.setRecipients(po.getRecipients());
-        domain.setRecipientQuery(po.getRecipientQuery());
-        domain.setCc(po.getCc());
-        domain.setBcc(po.getBcc());
-        domain.setVariablesQuery(po.getVariablesQuery());
-        domain.setStartTime(po.getStartTime());
-        domain.setEndTime(po.getEndTime());
-        domain.setMaxExecutions(po.getMaxExecutions());
-        domain.setExecutionCount(po.getExecutionCount());
-        domain.setLastExecutionTime(po.getLastExecutionTime());
-        domain.setNextExecutionTime(po.getNextExecutionTime());
-        domain.setIsActive(po.getIsActive());
-        domain.setDescription(po.getDescription());
-        domain.setCreatedAt(po.getCreatedAt());
-        domain.setUpdatedAt(po.getUpdatedAt());
-        domain.setCreatedBy(po.getCreatedBy());
-        domain.setUpdatedBy(po.getUpdatedBy());
-        return domain;
+        EmailSendRuleDO entity = new EmailSendRuleDO();
+        entity.setId(po.getId());
+        entity.setOrgCode(po.getOrgCode());
+        entity.setRuleId(po.getRuleId());
+        entity.setRuleName(po.getRuleName());
+        entity.setTemplateId(po.getTemplateId());
+        entity.setRuleType(po.getRuleType());
+        entity.setCronExpression(po.getCronExpression());
+        entity.setFixedRate(po.getFixedRate());
+        entity.setFixedDelay(po.getFixedDelay());
+        entity.setRecipients(po.getRecipients());
+        entity.setCc(po.getCc());
+        entity.setBcc(po.getBcc());
+        entity.setStartTime(po.getStartTime());
+        entity.setEndTime(po.getEndTime());
+        entity.setMaxExecutions(po.getMaxExecutions());
+        entity.setExecutionCount(po.getExecutionCount());
+        entity.setLastExecutionTime(po.getLastExecutionTime());
+        entity.setNextExecutionTime(po.getNextExecutionTime());
+        entity.setIsActive(po.getIsActive());
+        entity.setDescription(po.getDescription());
+        entity.setCreatedAt(po.getCreatedAt());
+        entity.setUpdatedAt(po.getUpdatedAt());
+        entity.setCreatedBy(po.getCreatedBy());
+        entity.setUpdatedBy(po.getUpdatedBy());
+
+        if (po.getUserQuery() != null) {
+            entity.setUserQuery(parseUserQuery(po.getUserQuery()));
+        }
+
+        return entity;
+    }
+
+    public EmailSendRulePO toPO(EmailSendRuleDO entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        EmailSendRulePO po = new EmailSendRulePO();
+        po.setId(entity.getId());
+        po.setOrgCode(entity.getOrgCode());
+        po.setRuleId(entity.getRuleId());
+        po.setRuleName(entity.getRuleName());
+        po.setTemplateId(entity.getTemplateId());
+        po.setRuleType(entity.getRuleType());
+        po.setCronExpression(entity.getCronExpression());
+        po.setFixedRate(entity.getFixedRate());
+        po.setFixedDelay(entity.getFixedDelay());
+        po.setRecipients(entity.getRecipients());
+        po.setCc(entity.getCc());
+        po.setBcc(entity.getBcc());
+        po.setStartTime(entity.getStartTime());
+        po.setEndTime(entity.getEndTime());
+        po.setMaxExecutions(entity.getMaxExecutions());
+        po.setExecutionCount(entity.getExecutionCount());
+        po.setLastExecutionTime(entity.getLastExecutionTime());
+        po.setNextExecutionTime(entity.getNextExecutionTime());
+        po.setIsActive(entity.getIsActive());
+        po.setDescription(entity.getDescription());
+        po.setCreatedAt(entity.getCreatedAt());
+        po.setUpdatedAt(entity.getUpdatedAt());
+        po.setCreatedBy(entity.getCreatedBy());
+        po.setUpdatedBy(entity.getUpdatedBy());
+
+        if (entity.getUserQuery() != null) {
+            po.setUserQuery(serializeUserQuery(entity.getUserQuery()));
+        }
+
+        return po;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> parseUserQuery(String userQuery) {
+        if (!StringUtils.hasText(userQuery)) {
+            return new HashMap<>();
+        }
+        try {
+            return objectMapper.readValue(userQuery, Map.class);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse user query: {}", userQuery, e);
+            return new HashMap<>();
+        }
+    }
+
+    private String serializeUserQuery(Map<String, Object> userQuery) {
+        if (userQuery == null || userQuery.isEmpty()) {
+            return null;
+        }
+        try {
+            return objectMapper.writeValueAsString(userQuery);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize user query: {}", userQuery, e);
+            return null;
+        }
     }
 } 

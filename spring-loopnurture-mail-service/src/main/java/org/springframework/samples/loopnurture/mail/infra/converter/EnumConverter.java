@@ -10,15 +10,15 @@ import org.springframework.samples.loopnurture.mail.domain.enums.*;
 public class EnumConverter {
 
     @Converter(autoApply = true)
-    public static class EmailSendStatusConverter implements AttributeConverter<EmailSendStatusEnum, Integer> {
+    public static class EmailStatusConverter implements AttributeConverter<EmailStatusEnum, Integer> {
         @Override
-        public Integer convertToDatabaseColumn(EmailSendStatusEnum attribute) {
+        public Integer convertToDatabaseColumn(EmailStatusEnum attribute) {
             return attribute == null ? null : attribute.getCode();
         }
 
         @Override
-        public EmailSendStatusEnum convertToEntityAttribute(Integer dbData) {
-            return EmailSendStatusEnum.fromCode(dbData);
+        public EmailStatusEnum convertToEntityAttribute(Integer dbData) {
+            return EmailStatusEnum.fromCode(dbData);
         }
     }
 

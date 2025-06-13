@@ -1,8 +1,8 @@
 package org.springframework.samples.loopnurture.mail.server.controller.dto;
 
 import lombok.Data;
+import org.springframework.samples.loopnurture.mail.domain.model.vo.MarketingEmailTemplateExtendsInfoVO;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * 营销邮件模板响应DTO
@@ -11,19 +11,19 @@ import java.util.Map;
 public class MarketingEmailTemplateResponse {
     
     /**
-     * 模板ID
+     * 主键ID
      */
     private String id;
 
     /**
-     * 组织ID
+     * 组织编码
      */
-    private String orgId;
+    private String orgCode;
 
     /**
-     * 模板代码
+     * 模板ID
      */
-    private String templateCode;
+    private String templateId;
 
     /**
      * 模板名称
@@ -41,19 +41,24 @@ public class MarketingEmailTemplateResponse {
     private String contentTemplate;
 
     /**
+     * 输入内容
+     */
+    private String inputContent;
+
+    /**
      * AI策略版本
      */
     private String aiStrategyVersion;
 
     /**
-     * 扩展信息
+     * 启用状态：1-启用，0-禁用
      */
-    private Map<String, Object> extendsInfo;
+    private Integer enableStatus;
 
     /**
-     * 模板状态：1-草稿，2-已发布，3-已禁用，4-已删除
+     * 扩展信息
      */
-    private Integer status;
+    private MarketingEmailTemplateExtendsInfoVO extendsInfo;
 
     /**
      * 创建时间

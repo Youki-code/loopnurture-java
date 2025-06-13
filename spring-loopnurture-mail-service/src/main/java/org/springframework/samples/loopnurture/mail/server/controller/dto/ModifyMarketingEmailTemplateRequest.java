@@ -14,11 +14,11 @@ import java.util.Map;
 public class ModifyMarketingEmailTemplateRequest {
 
     /**
-     * 模板代码，唯一标识
+     * 模板ID
      */
-    @NotBlank(message = "Template code cannot be empty")
-    @Size(max = 50, message = "Template code length cannot exceed 50")
-    private String templateCode;
+    @NotBlank(message = "Template ID cannot be empty")
+    @Size(max = 50, message = "Template ID length cannot exceed 50")
+    private String templateId;
 
     /**
      * 模板名称
@@ -38,6 +38,17 @@ public class ModifyMarketingEmailTemplateRequest {
      */
     @NotBlank(message = "Template content cannot be empty")
     private String contentTemplate;
+
+    /**
+     * 输入内容
+     */
+    @NotBlank(message = "Input content cannot be empty")
+    private String inputContent;
+
+    /**
+     * 启用状态：1-启用，0-禁用
+     */
+    private Integer enableStatus;
 
     /**
      * AI策略版本

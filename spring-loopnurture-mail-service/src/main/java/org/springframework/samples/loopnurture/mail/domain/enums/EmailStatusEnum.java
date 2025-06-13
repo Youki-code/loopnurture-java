@@ -3,29 +3,62 @@ package org.springframework.samples.loopnurture.mail.domain.enums;
 import lombok.Getter;
 
 /**
- * 邮件发送状态
+ * 邮件状态枚举
  */
 @Getter
-public enum EmailStatusEnum {
-    PENDING(1, "待发送"),
-    SENDING(2, "发送中"),
-    SENT(3, "已发送"),
-    FAILED(4, "发送失败");
+public enum EmailStatusEnum implements BaseIntEnum {
+    PENDING(0, "待发送"),
+    SENDING(1, "发送中"),
+    SENT(2, "已发送"),
+    FAILED(3, "发送失败");
 
-    private final int code;
+    private final Integer code;
     private final String description;
 
-    EmailStatusEnum(int code, String description) {
+    EmailStatusEnum(Integer code, String description) {
         this.code = code;
         this.description = description;
     }
 
-    public static EmailStatusEnum fromCode(int code) {
+    @Override
+    public Integer getCode() {
+        return code;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    public static EmailStatusEnum fromCode(Integer code) {
+        if (code == null) {
+            return null;
+        }
         for (EmailStatusEnum status : values()) {
-            if (status.getCode() == code) {
+            if (status.code.equals(code)) {
                 return status;
             }
         }
-        throw new IllegalArgumentException("Invalid email status code: " + code);
+        throw new IllegalArgumentException("Unknown email status code: " + code);
+    }
+
+    public static EmailStatusEnum fromValue(Integer code) {
+        return fromCode(code);
+    }
+
+    public boolean isPending() {
+        return this == PENDING;
+    }
+
+    public boolean isSending() {
+        return this == SENDING;
+    }
+
+    public boolean isSent() {
+        return this == SENT;
+    }
+
+    public boolean isFailed() {
+        return this == FAILED;
     }
 } 

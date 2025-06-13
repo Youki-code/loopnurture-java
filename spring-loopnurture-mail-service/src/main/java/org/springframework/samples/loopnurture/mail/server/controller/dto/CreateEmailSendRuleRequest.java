@@ -18,12 +18,13 @@ public class CreateEmailSendRuleRequest {
     @Size(max = 100, message = "Rule name length cannot exceed 100")
     private String ruleName;
 
+
     /**
-     * 模板代码
+     * 模板ID
      */
-    @NotNull(message = "Template code cannot be null")
-    @Size(max = 50, message = "Template code length cannot exceed 50")
-    private String templateCode;
+    @NotNull(message = "Template ID cannot be null")
+    @Size(max = 50, message = "Template ID length cannot exceed 50")
+    private String templateId;
 
     /**
      * 规则类型：1-立即发送，2-定时发送，3-周期发送

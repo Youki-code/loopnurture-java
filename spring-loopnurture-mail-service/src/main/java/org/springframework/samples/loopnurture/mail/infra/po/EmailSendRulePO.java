@@ -2,65 +2,63 @@ package org.springframework.samples.loopnurture.mail.infra.po;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 /**
  * 邮件发送规则持久化对象
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "email_send_rule")
+@org.hibernate.annotations.Where(clause="deleted = false")
+@Getter
+@Setter
 public class EmailSendRulePO {
-    
+
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
-    @Column(name = "org_code", nullable = false)
+    @Column(name = "org_code")
     private String orgCode;
 
-    @Column(name = "template_code", nullable = false)
-    private String templateCode;
+    @Column(name = "rule_id")
+    private String ruleId;
 
-    @Column(name = "rule_name", nullable = false)
+    @Column(name = "rule_name")
     private String ruleName;
 
-    @Column(name = "rule_type", nullable = false)
+    @Column(name = "template_id")
+    private String templateId;
+
+    @Column(name = "rule_type")
     private Integer ruleType;
 
     @Column(name = "cron_expression")
     private String cronExpression;
 
     @Column(name = "fixed_rate")
-    private Integer fixedRate;
+    private Long fixedRate;
 
     @Column(name = "fixed_delay")
-    private Integer fixedDelay;
-
-    @Column(name = "recipient_type", nullable = false)
-    private Integer recipientType;
+    private Long fixedDelay;
 
     @Column(name = "recipients")
     private String recipients;
-
-    @Column(name = "recipient_query")
-    private String recipientQuery;
 
     @Column(name = "cc")
     private String cc;
 
     @Column(name = "bcc")
     private String bcc;
-
-    @Column(name = "variables_query")
-    private String variablesQuery;
 
     @Column(name = "start_time")
     private LocalDateTime startTime;
@@ -72,7 +70,7 @@ public class EmailSendRulePO {
     private Integer maxExecutions;
 
     @Column(name = "execution_count")
-    private Integer executionCount = 0;
+    private Integer executionCount;
 
     @Column(name = "last_execution_time")
     private LocalDateTime lastExecutionTime;
@@ -80,25 +78,30 @@ public class EmailSendRulePO {
     @Column(name = "next_execution_time")
     private LocalDateTime nextExecutionTime;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    @Column(name = "is_active")
+    private Boolean isActive;
 
     @Column(name = "description")
     private String description;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    /**
+     * 用户过滤条件 JSON 字符串
+     */
+    @Column(name = "user_query")
+    private String userQuery;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @CreatedBy
-    @Column(name = "created_by", nullable = false, updatable = false)
+    @Column(name = "created_by")
     private String createdBy;
 
-    @LastModifiedBy
-    @Column(name = "updated_by", nullable = false)
+    @Column(name = "updated_by")
     private String updatedBy;
+
+    @Column(name="deleted",nullable=false)
+    private Boolean deleted = false;
 } 

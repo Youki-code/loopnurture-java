@@ -2,38 +2,41 @@ package org.springframework.samples.loopnurture.mail.infra.po;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 /**
  * 邮件发送记录持久化对象
- * 对应数据库表：email_send_record
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @Table(name = "email_send_record")
+@org.hibernate.annotations.Where(clause="deleted = false")
+@Getter
+@Setter
 public class EmailSendRecordPO {
-    
+
     @Id
-    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
-    @Column(name = "org_code", nullable = false)
+    @Column(name = "org_code")
     private String orgCode;
 
-    @Column(name = "template_code", nullable = false)
-    private String templateCode;
+    @Column(name = "template_id")
+    private String templateId;
 
-    @Column(name = "sender", nullable = false)
+    @Column(name = "sender")
     private String sender;
 
-    @Column(name = "recipient", nullable = false)
+    @Column(name = "recipient")
     private String recipient;
 
     @Column(name = "cc")
@@ -42,40 +45,39 @@ public class EmailSendRecordPO {
     @Column(name = "bcc")
     private String bcc;
 
-    @Column(name = "subject", nullable = false)
+    @Column(name = "subject")
     private String subject;
 
-    @Column(name = "content", nullable = false, columnDefinition = "text")
+    @Column(name = "content")
     private String content;
 
-    @Column(name = "variables", columnDefinition = "jsonb")
+    @Column(name = "variables")
     private String variables;
 
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     private Integer status;
 
     @Column(name = "error_message")
     private String errorMessage;
 
     @Column(name = "retry_count")
-    private Integer retryCount = 0;
+    private Integer retryCount;
 
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
 
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @CreatedBy
-    @Column(name = "created_by", nullable = false, updatable = false)
+    @Column(name = "created_by")
     private String createdBy;
 
-    @LastModifiedBy
-    @Column(name = "updated_by", nullable = false)
+    @Column(name = "updated_by")
     private String updatedBy;
+
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
 } 

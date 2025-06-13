@@ -1,29 +1,40 @@
 package org.springframework.samples.loopnurture.mail.domain.enums;
 
-import lombok.Getter;
-
 /**
- * 收件人类型
+ * 收件人类型枚举
  */
-@Getter
-public enum RecipientTypeEnum {
-    FIXED(1, "固定收件人"),
-    DYNAMIC(2, "动态查询");
+public enum RecipientTypeEnum implements BaseIntEnum {
+    TO(1, "收件人"),
+    CC(2, "抄送"),
+    BCC(3, "密送");
 
-    private final int code;
+    private final Integer code;
     private final String description;
 
-    RecipientTypeEnum(int code, String description) {
+    RecipientTypeEnum(Integer code, String description) {
         this.code = code;
         this.description = description;
     }
 
-    public static RecipientTypeEnum fromCode(int code) {
+    @Override
+    public Integer getCode() {
+        return code;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    public static RecipientTypeEnum fromCode(Integer code) {
+        if (code == null) {
+            return null;
+        }
         for (RecipientTypeEnum type : values()) {
-            if (type.getCode() == code) {
+            if (type.getCode().equals(code)) {
                 return type;
             }
         }
-        throw new IllegalArgumentException("Invalid recipient type code: " + code);
+        return null;
     }
 } 

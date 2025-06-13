@@ -1,10 +1,13 @@
 package org.springframework.samples.loopnurture.mail.domain.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
 import org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum;
+import org.springframework.samples.loopnurture.mail.domain.model.vo.MarketingEmailTemplateExtendsInfoVO;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * 营销邮件模板领域对象
@@ -15,11 +18,10 @@ import java.util.Map;
  * 2. 包含了模板渲染等业务方法
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class MarketingEmailTemplateDO {
-    /**
-     * 主键ID
-     */
-    private String id;
 
     /**
      * 组织编码
@@ -59,7 +61,7 @@ public class MarketingEmailTemplateDO {
     /**
      * 扩展信息
      */
-    private Map<String, Object> extendsInfo;
+    private MarketingEmailTemplateExtendsInfoVO extendsInfo;
 
     /**
      * 创建时间
@@ -86,7 +88,7 @@ public class MarketingEmailTemplateDO {
      *
      * @return true 如果是HTML格式
      */
-    public boolean isHtmlContent() {
+    public boolean isHtml() {
         return contentType == ContentTypeEnum.HTML;
     }
 
@@ -106,5 +108,27 @@ public class MarketingEmailTemplateDO {
      */
     public boolean isDisabled() {
         return enableStatus == EnableStatusEnum.DISABLED;
+    }
+
+    public boolean isAvailable() {
+        return isEnabled();
+    }
+
+    /**
+     * 获取模板代码
+     */
+    public String getTemplateCode() {
+        return templateId;
+    }
+
+    /**
+     * 获取主题模板
+     */
+    public String getSubjectTemplate() {
+        return extendsInfo != null ? extendsInfo.getSubjectTemplate() : null;
+    }
+
+    public boolean isHtmlContent() {
+        return contentType == ContentTypeEnum.HTML;
     }
 } 

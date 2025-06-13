@@ -1,0 +1,92 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# HTTP 接口规范
+
+## 目录结构规范
+1. DTO 目录结构
+   - 所有 Controller 使用的请求 (Request) 和响应 (Response) DTO 必须放在 `server/controller/dto` 目录下
+   - `server` 目录下 **不得**直接存在 `dto` 目录
+   - 适用于 `users`、`mail` 等模块
+
+2. DTO 命名规范
+   - 请求 DTO 以 `Request` 结尾
+   - 响应 DTO 以 `Response` 结尾
+   - 类名应清晰表明用途
+
+3. 目录示例
+```text
+src/main/java/org/springframework/samples/loopnurture/[module]/server/
+├── controller/
+│   ├── UserController.java
+│   └── dto/
+│       ├── UserRegistrationRequest.java
+│       ├── UserRegistrationResponse.java
+│       ├── UserUpdateRequest.java
+│       └── UserResponse.java
+├── exception/
+├── config/
+└── ...
+```
+
+## 请求与响应数据类型规则
+1. **枚举类型处理**
+   - Request / Response DTO 中 **禁止**直接使用枚举
+   - Request 枚举值使用 `Integer` 或 `String` 传入
+   - Response 枚举值转换为 `String` 返回
+   - 枚举转换必须在 Service / Converter 层完成
+
+2. **数据转换规则**
+   - Controller 负责基础类型校验
+   - Service 层实现枚举 ↔ 基础类型转换，可使用 MapStruct `@Named` 方法
+
+3. **错误处理**
+   - 非法枚举值在 Controller 层拦截并返回 400
+   - 转换失败给出清晰、国际化的错误信息
+
+## 示例代码
+```java
+// Controller 请求 DTO
+public class UserRequest {
+    private String authType;  // String 而非 AuthTypeEnum
+    private Integer userType; // Integer 而非 UserTypeEnum
+}
+
+// Controller 响应 DTO
+public class UserResponse {
+    private String authType;
+    private String userType;
+}
+
+// Service 转换逻辑
+public class UserService {
+    public UserResponse toResponse(User user) {
+        return new UserResponse(
+            user.getAuthType().name(),
+            user.getUserType().name()
+        );
+    }
+    public User toEntity(UserRequest req) {
+        User u = new User();
+        u.setAuthType(AuthTypeEnum.valueOf(req.getAuthType()));
+        u.setUserType(UserTypeEnum.fromCode(req.getUserType()));
+        return u;
+    }
+}
+```
+
+## 枚举参数类型与安全校验
+1. DTO 中枚举参数使用基础类型 (优先 `Integer/int`; 必要时 `String`).
+2. **转换位置**:
+   - 入参 ➜ 枚举: Service / Converter
+   - 出参 ➜ 基础类型: Service / Converter
+3. 对非法枚举值抛业务异常, 记录日志.
+4. API 文档需列出枚举值及默认值.
+
+## 验证清单
+- [ ] DTO 中无枚举字段
+- [ ] 枚举转换集中在 Service / Converter
+- [ ] 错误信息国际化
+- [ ] DTO 放置于正确目录结构

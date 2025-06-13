@@ -3,7 +3,6 @@ package org.springframework.samples.loopnurture.users.server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.samples.loopnurture.users.service.MarketingUserService;
 import org.springframework.samples.loopnurture.users.infra.utils.RsaUtils;
@@ -11,7 +10,6 @@ import org.springframework.samples.loopnurture.users.server.controller.dto.ApiRe
 import org.springframework.samples.loopnurture.users.server.controller.dto.LoginRequest;
 import org.springframework.samples.loopnurture.users.server.controller.dto.LoginResponse;
 import org.springframework.samples.loopnurture.users.server.controller.dto.TokenValidationResponse;
-import org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO;
 
 import jakarta.validation.Valid;
 

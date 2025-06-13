@@ -21,7 +21,7 @@ public class ResourceNotFoundException extends MailBusinessException {
         return new ResourceNotFoundException("Rule not found: " + ruleId);
     }
 
-    public static ResourceNotFoundException sendLogNotFound(String logId) {
-        return new ResourceNotFoundException("Send log not found: " + logId);
+    public static ResourceNotFoundException sendRecordNotFound(String recordId) {
+        return new ResourceNotFoundException("Send record not found with id: " + recordId);
     }
 } 

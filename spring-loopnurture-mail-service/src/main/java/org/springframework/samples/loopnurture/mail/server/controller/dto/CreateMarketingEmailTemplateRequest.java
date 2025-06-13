@@ -1,35 +1,41 @@
 package org.springframework.samples.loopnurture.mail.server.controller.dto;
 
 import lombok.Data;
+import org.springframework.samples.loopnurture.mail.domain.model.vo.MarketingEmailTemplateExtendsInfoVO;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.Map;
-
 /**
- * 创建营销邮件模板请求DTO
+ * 创建营销邮件模板请求
  */
 @Data
 public class CreateMarketingEmailTemplateRequest {
 
     /**
-     * 模板名称（可选，如果不传则由系统自动生成）
+     * 模板名称
      */
-    @Size(max = 100, message = "Template name length cannot exceed 100")
+    @Size(max = 100, message = "模板名称长度不能超过100")
     private String templateName;
 
     /**
-     * 内容类型：1-文本，2-HTML
+     * 内容类型
      */
-    @NotNull(message = "Content type cannot be empty")
+    @NotNull(message = "内容类型不能为空")
     private Integer contentType;
 
     /**
-     * 模板内容
+     * 内容模板
      */
-    @NotBlank(message = "Template content cannot be empty")
+    @NotBlank(message = "内容模板不能为空")
     private String contentTemplate;
+
+    /**
+     * 输入内容
+     */
+    @NotBlank(message = "输入内容不能为空")
+    private String inputContent;
 
     /**
      * AI策略版本
@@ -40,5 +46,5 @@ public class CreateMarketingEmailTemplateRequest {
     /**
      * 扩展信息
      */
-    private Map<String, Object> extendsInfo;
+    private MarketingEmailTemplateExtendsInfoVO extendsInfo;
 } 

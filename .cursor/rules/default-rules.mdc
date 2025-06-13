@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Cursor Default Rules
 # 默认规则文件 / Default Rules File
 
@@ -251,4 +256,14 @@ mail_module = [
     "处理邮件模板管理",
     "处理邮件发送",
     "维护邮件发送记录"
-] 
+]
+
+# ==============================================================
+# Domain Model Enum & Date rules (added)
+[domain_enum_rules]
+# DO/VO 中若有枚举字段必须直接使用枚举类型而非 Integer code
+use_enum_in_do_vo = true
+
+[date_rules]
+# 统一使用 java.util.Date 或 java.time.*，推荐 Date，避免自定义 String 时间字段
+prefer_date_type = true 

@@ -12,15 +12,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.samples.loopnurture.mail.domain.model.EmailSendLogDO;
+import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRecordDO;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRuleDO;
 import org.springframework.samples.loopnurture.mail.domain.model.MarketingEmailTemplateDO;
-import org.springframework.samples.loopnurture.mail.repository.EmailSendLogRepository;
-import org.springframework.samples.loopnurture.mail.repository.EmailSendRuleRepository;
+import org.springframework.samples.loopnurture.mail.domain.repository.EmailSendRecordRepository;
+import org.springframework.samples.loopnurture.mail.domain.repository.EmailSendRuleRepository;
 import org.springframework.samples.loopnurture.mail.exception.ResourceNotFoundException;
 import org.springframework.samples.loopnurture.mail.exception.MailSendException;
 import org.springframework.samples.loopnurture.mail.exception.ValidationException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.samples.loopnurture.mail.service.EmailTemplateQueryService;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -37,30 +38,30 @@ import java.util.UUID;
 public class EmailSendService {
     
     private final SendGrid sendGrid;
-    private final EmailSendLogRepository sendLogRepository;
+    private final EmailSendRecordRepository sendRecordRepository;
     private final EmailSendRuleRepository sendRuleRepository;
-    private final EmailTemplateService templateService;
+    private final EmailTemplateQueryService templateQueryService;
 
     /**
      * 发送邮件
      */
     @Transactional
-    public EmailSendLogDO sendEmail(EmailSendLogDO emailLog) {
+    public EmailSendRecordDO sendEmail(EmailSendRecordDO emailRecord) {
         try {
             // 标记为发送中
-            emailLog.markAsSending();
+            emailRecord.markAsSending();
 
             // 构建SendGrid邮件对象
-            Email from = new Email(emailLog.getFromEmail(), emailLog.getFromName());
-            Email to = new Email(emailLog.getToEmail(), emailLog.getToName());
+            Email from = new Email(emailRecord.getFromEmail(), emailRecord.getFromName());
+            Email to = new Email(emailRecord.getToEmail(), emailRecord.getToName());
             Content content = new Content(
-                emailLog.isHtmlContent() ? "text/html" : "text/plain", 
-                emailLog.getContent()
+                emailRecord.isHtmlContent() ? "text/html" : "text/plain", 
+                emailRecord.getContent()
             );
-            Mail mail = new Mail(from, emailLog.getSubject(), to, content);
+            Mail mail = new Mail(from, emailRecord.getSubject(), to, content);
 
             // 添加抄送
-            List<String> ccList = emailLog.getCcList();
+            List<String> ccList = emailRecord.getCcList();
             if (ccList != null && !ccList.isEmpty()) {
                 for (String cc : ccList) {
                     mail.personalization.get(0).addCc(new Email(cc));
@@ -68,7 +69,7 @@ public class EmailSendService {
             }
 
             // 添加密送
-            List<String> bccList = emailLog.getBccList();
+            List<String> bccList = emailRecord.getBccList();
             if (bccList != null && !bccList.isEmpty()) {
                 for (String bcc : bccList) {
                     mail.personalization.get(0).addBcc(new Email(bcc));
@@ -84,26 +85,26 @@ public class EmailSendService {
 
             // 检查发送结果
             if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
-                emailLog.markAsSent();
+                emailRecord.markAsSent();
             } else {
-                emailLog.markAsFailed("SendGrid API error: " + response.getStatusCode() + " - " + response.getBody());
+                emailRecord.markAsFailed("SendGrid API error: " + response.getStatusCode() + " - " + response.getBody());
             }
         } catch (IOException e) {
             log.error("Failed to send email", e);
-            emailLog.markAsFailed("SendGrid API error: " + e.getMessage());
+            emailRecord.markAsFailed("SendGrid API error: " + e.getMessage());
             throw new MailSendException("Failed to send email", e);
         }
 
-        return createSendLog(emailLog);
+        return createSendRecord(emailRecord);
     }
 
     /**
      * 使用模板发送邮件
      */
     @Transactional
-    public EmailSendLogDO sendTemplateEmail(String templateCode, String recipient, String recipientName, Map<String, Object> variables) {
+    public EmailSendRecordDO sendTemplateEmail(String templateId, String recipient, String recipientName, Map<String, Object> variables) {
         // 获取模板
-        MarketingEmailTemplateDO template = templateService.getTemplateByCode(templateCode);
+        MarketingEmailTemplateDO template = templateQueryService.getTemplate(templateId);
         
         // 检查模板状态
         if (!template.isAvailable()) {
@@ -111,67 +112,64 @@ public class EmailSendService {
         }
         
         // 构建邮件日志
-        EmailSendLogDO emailLog = EmailSendLogDO.builder()
-            .templateCode(template.getTemplateCode())
-            .toEmail(recipient)
-            .toName(recipientName)
+        EmailSendRecordDO emailRecord = EmailSendRecordDO.builder()
+            .templateId(template.getTemplateCode())
+            .recipient(recipient)
             .subject(template.getSubjectTemplate())
             .content(template.getContentTemplate())
-            .isHtmlContent(template.isHtmlContent())
             .variables(variables)
             .build();
 
-        return sendEmail(emailLog);
+        return sendEmail(emailRecord);
     }
 
     // 发送日志相关方法
     @Transactional
-    public EmailSendLogDO createSendLog(EmailSendLogDO log) {
-        return sendLogRepository.save(log);
+    public EmailSendRecordDO createSendRecord(EmailSendRecordDO record) {
+        return sendRecordRepository.save(record);
     }
 
     @Transactional
-    public EmailSendLogDO updateSendLog(EmailSendLogDO log) {
-        if (!sendLogRepository.existsById(log.getId())) {
-            throw new ResourceNotFoundException("Send log not found");
+    public EmailSendRecordDO updateSendRecord(EmailSendRecordDO record) {
+        return sendRecordRepository.save(record);
+    }
+
+    public EmailSendRecordDO getSendRecord(String recordId) {
+        EmailSendRecordDO record = sendRecordRepository.findById(recordId);
+        if(record==null){
+            throw new ResourceNotFoundException("Send record not found");
         }
-        return sendLogRepository.save(log);
+        return record;
     }
 
-    public EmailSendLogDO getSendLog(String logId) {
-        return sendLogRepository.findById(logId)
-            .orElseThrow(() -> new ResourceNotFoundException("Send log not found"));
+    public Page<EmailSendRecordDO> getOrgSendRecords(String orgId, Pageable pageable) {
+        return sendRecordRepository.findByOrgId(orgId, pageable);
     }
 
-    public Page<EmailSendLogDO> getOrgSendLogs(String orgId, Pageable pageable) {
-        return sendLogRepository.findByOrgId(orgId, pageable);
+    public Page<EmailSendRecordDO> getRuleSendRecords(String ruleId, Pageable pageable) {
+        return sendRecordRepository.findByRuleId(ruleId, pageable);
     }
 
-    public Page<EmailSendLogDO> getRuleSendLogs(String ruleId, Pageable pageable) {
-        return sendLogRepository.findByRuleId(ruleId, pageable);
+    public Page<EmailSendRecordDO> getTemplateSendRecords(String templateId, Pageable pageable) {
+        return sendRecordRepository.findByTemplateId(templateId, pageable);
     }
 
-    @Override
-    public Page<EmailSendLogDO> getTemplateSendLogs(String templateCode, Pageable pageable) {
-        return sendLogRepository.findByTemplateCode(templateCode, pageable);
+    public List<EmailSendRecordDO> findRecordsForRetry(int maxRetries, LocalDateTime now) {
+        return sendRecordRepository.findRecordsForRetry(maxRetries, now);
     }
 
-    public List<EmailSendLogDO> findLogsForRetry(int maxRetries, LocalDateTime now) {
-        return sendLogRepository.findLogsForRetry(maxRetries, now);
-    }
-
-    public long countOrgSendLogs(String orgId, Integer status, LocalDateTime start, LocalDateTime end) {
-        return sendLogRepository.countByOrgIdAndStatusAndSendTimeBetween(orgId, status, start, end);
+    public long countOrgSendRecords(String orgId, Integer status, LocalDateTime start, LocalDateTime end) {
+        return sendRecordRepository.countByOrgIdAndStatusAndSendTimeBetween(orgId, status, start, end);
     }
 
     @Transactional
-    public void retryFailedLogs() {
-        List<EmailSendLogDO> failedLogs = findLogsForRetry(3, LocalDateTime.now());
-        for (EmailSendLogDO log : failedLogs) {
+    public void retryFailedRecords() {
+        List<EmailSendRecordDO> failedRecords = findRecordsForRetry(3, LocalDateTime.now());
+        for (EmailSendRecordDO record : failedRecords) {
             try {
-                sendEmail(log);
+                sendEmail(record);
             } catch (Exception e) {
-                log.error("Failed to retry sending email: {}", log.getId(), e);
+                log.error("Failed to retry sending email", e);
             }
         }
     }
@@ -199,8 +197,11 @@ public class EmailSendService {
     }
 
     public EmailSendRuleDO getRule(String ruleId) {
-        return sendRuleRepository.findById(ruleId)
-            .orElseThrow(() -> new ResourceNotFoundException("Send rule not found"));
+        EmailSendRuleDO rule = sendRuleRepository.findById(ruleId);
+        if(rule==null){
+            throw new ResourceNotFoundException("Send rule not found");
+        }
+        return rule;
     }
 
     public Page<EmailSendRuleDO> getOrgRules(String orgId, Pageable pageable) {
@@ -212,11 +213,11 @@ public class EmailSendService {
     }
 
     @Transactional
-    public List<EmailSendLogDO> executeRule(String ruleId) {
+    public List<EmailSendRecordDO> executeRule(String ruleId) {
         EmailSendRuleDO rule = getRule(ruleId);
         
         // 获取模板并检查状态
-        MarketingEmailTemplateDO template = templateService.getTemplate(rule.getTemplateId());
+        MarketingEmailTemplateDO template = templateQueryService.getTemplate(rule.getTemplateId());
         if (!template.isAvailable()) {
             log.warn("Rule {} skipped: template {} is not available", rule.getId(), template.getId());
             return List.of();
