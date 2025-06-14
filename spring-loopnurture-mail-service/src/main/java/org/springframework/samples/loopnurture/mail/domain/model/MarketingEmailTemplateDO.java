@@ -5,9 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
+import org.springframework.samples.loopnurture.mail.context.UserContext;
 import org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum;
 import org.springframework.samples.loopnurture.mail.domain.model.vo.MarketingEmailTemplateExtendsInfoVO;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 营销邮件模板领域对象
@@ -66,12 +67,12 @@ public class MarketingEmailTemplateDO {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private java.util.Date createdAt;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+    private java.util.Date updatedAt;
 
     /**
      * 创建人ID
@@ -82,6 +83,48 @@ public class MarketingEmailTemplateDO {
      * 更新人ID
      */
     private String updatedBy;
+
+
+    /**************************操作方法**************************/
+
+
+    /**
+     * 修改模板
+     * @param templateName 模板名称
+     * @param contentType 内容类型
+     * @param contentTemplate 模板内容
+     * @param aiStrategyVersion AI策略版本
+     * @param enableStatus 启用状态
+     * @param inputContent 用户输入内容
+     */
+    public void modifyTemplate(String templateName, ContentTypeEnum contentType, String contentTemplate, String aiStrategyVersion, EnableStatusEnum enableStatus, String inputContent) {
+        this.templateName = templateName;
+        this.contentType = contentType;
+        this.contentTemplate = contentTemplate;
+        this.aiStrategyVersion = aiStrategyVersion;
+        this.enableStatus = enableStatus;
+        if (this.extendsInfo == null) {
+            this.extendsInfo = new MarketingEmailTemplateExtendsInfoVO();
+        }
+        this.extendsInfo.setInputContent(inputContent);
+        this.updatedAt = new Date();
+        this.updatedBy = UserContext.getUserId();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**************************查询方法**************************/
 
     /**
      * 检查模板是否是HTML格式

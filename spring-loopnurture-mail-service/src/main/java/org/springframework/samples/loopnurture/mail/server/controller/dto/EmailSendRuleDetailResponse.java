@@ -4,7 +4,8 @@ import lombok.Data;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.time.LocalDateTime;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 邮件发送规则详情响应DTO
@@ -52,27 +53,27 @@ public class EmailSendRuleDetailResponse {
     /**
      * 收件人列表
      */
-    private String recipients;
+    private List<String> recipients;
 
     /**
      * 抄送列表
      */
-    private String cc;
+    private List<String> cc;
 
     /**
      * 密送列表
      */
-    private String bcc;
+    private List<String> bcc;
 
     /**
      * 开始时间
      */
-    private LocalDateTime startTime;
+    private Date startTime;
 
     /**
      * 结束时间
      */
-    private LocalDateTime endTime;
+    private Date endTime;
 
     /**
      * 最大执行次数
@@ -87,27 +88,27 @@ public class EmailSendRuleDetailResponse {
     /**
      * 上次执行时间
      */
-    private LocalDateTime lastExecutionTime;
+    private Date lastExecutionTime;
 
     /**
      * 下次执行时间
      */
-    private LocalDateTime nextExecutionTime;
+    private Date nextExecutionTime;
 
     /**
-     * 是否激活
+     * 启用状态
      */
-    private Boolean isActive;
+    private Integer enableStatus;
 
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     /**
      * 创建人ID

@@ -39,7 +39,22 @@ public class MarketingEmailTemplateExtendsInfoVO {
      */
     private String remark;
 
+    /**
+     * 邮件主题模板（可选）
+     */
     private String subjectTemplate;
-    private String senderName;
-    private String senderEmail;
+
+    /**
+     * 用户输入内容
+     */
+    private String inputContent;
+
+    /** 收件人列表 */
+    private java.util.List<String> recipients;
+
+    /** 抄送列表 */
+    private java.util.List<String> cc;
+
+    /** 密送列表 */
+    private java.util.List<String> bcc;
 } 

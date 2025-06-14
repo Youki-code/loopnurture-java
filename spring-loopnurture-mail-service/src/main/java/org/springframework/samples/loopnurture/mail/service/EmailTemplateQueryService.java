@@ -22,30 +22,12 @@ public class EmailTemplateQueryService {
 
     private final MarketingEmailTemplateRepository templateRepository;
 
-
-    public List<String> queryByTemplateName(String orgCode, String templateName) {
-        return templateRepository.findByOrgCode(orgCode, Pageable.unpaged())
-                .stream()
-                .filter(t -> templateName.equalsIgnoreCase(t.getTemplateName()))
-                .map(MarketingEmailTemplateDO::getTemplateName)
-                .toList();
-    }
-
     public MarketingEmailTemplateDO getTemplate(String templateCode) {
-        MarketingEmailTemplateDO t=templateRepository.findByTemplateCode(templateCode);
-        if(t==null){throw new IllegalArgumentException("Template not found: "+templateCode);}return t;
-    }
-
-    public MarketingEmailTemplateDO getTemplateById(String templateId) {
-        MarketingEmailTemplateDO t = templateRepository.getByTemplateId(templateId);
-        if(t==null){throw new IllegalArgumentException("Template not found: "+templateId);}return t;
-    }
-
-    /**
-     * 兼容旧调用名称
-     */
-    public MarketingEmailTemplateDO getByTemplateId(String templateId){
-        return getTemplateById(templateId);
+        MarketingEmailTemplateDO t = templateRepository.getByTemplateId(templateCode);
+        if (t == null) {
+            throw new IllegalArgumentException("Template not found: " + templateCode);
+        }
+        return t;
     }
 
     public Page<MarketingEmailTemplateDO> pageTemplates(String orgCode, String templateId, String templateName,

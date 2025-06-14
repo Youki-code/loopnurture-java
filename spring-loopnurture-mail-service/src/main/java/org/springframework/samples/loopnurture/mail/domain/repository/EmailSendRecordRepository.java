@@ -3,11 +3,11 @@ package org.springframework.samples.loopnurture.mail.domain.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRecordDO;
+import org.springframework.samples.loopnurture.mail.domain.repository.dto.EmailSendRecordPageQueryDTO;
 import org.springframework.samples.loopnurture.mail.domain.enums.EmailStatusEnum;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 邮件发送记录仓储接口
@@ -28,12 +28,6 @@ public interface EmailSendRecordRepository {
      * @param record 更新的内容
      */
     void update(String id, EmailSendRecordDO record);
-
-    /**
-     * 根据ID查找邮件发送记录
-     * 注意：返回的领域对象中不包含ID信息
-     */
-    EmailSendRecordDO findById(String id);
 
     /**
      * 根据组织编码和状态查询邮件发送记录
@@ -60,10 +54,6 @@ public interface EmailSendRecordRepository {
      */
     long countByOrgCodeAndStatus(String orgCode, EmailStatusEnum status);
 
-    /**
-     * 删除邮件发送记录
-     */
-    void deleteById(String id);
 
     /**
      * 根据组织ID查找记录
@@ -93,4 +83,11 @@ public interface EmailSendRecordRepository {
     long countByOrgIdAndStatusAndSentAtBetween(String orgId, Integer status, LocalDateTime startTime, LocalDateTime endTime);
 
     List<EmailSendRecordDO> findByStatusAndRetryCountLessThanAndCreatedAtBefore(Integer status, int maxRetries, LocalDateTime beforeTime);
+
+    Page<EmailSendRecordDO> pageQuery(EmailSendRecordPageQueryDTO query);
+
+    /**
+     * 根据主键查询发送记录
+     */
+    EmailSendRecordDO findById(String id);
 } 

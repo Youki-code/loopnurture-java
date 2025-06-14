@@ -12,6 +12,13 @@ logging:
         boot: INFO
         web: INFO
 
+eureka:
+  client:
+    register-with-eureka: false  # 作为服务端，不向自己注册
+    fetch-registry: false        # 不拉取注册表，避免连接自身失败警告
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+
 ---
 spring:
   config:

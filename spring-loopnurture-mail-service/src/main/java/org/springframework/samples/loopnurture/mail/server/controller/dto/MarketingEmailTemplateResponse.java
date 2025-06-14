@@ -2,7 +2,7 @@ package org.springframework.samples.loopnurture.mail.server.controller.dto;
 
 import lombok.Data;
 import org.springframework.samples.loopnurture.mail.domain.model.vo.MarketingEmailTemplateExtendsInfoVO;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 营销邮件模板响应DTO
@@ -63,12 +63,12 @@ public class MarketingEmailTemplateResponse {
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     /**
      * 创建人ID

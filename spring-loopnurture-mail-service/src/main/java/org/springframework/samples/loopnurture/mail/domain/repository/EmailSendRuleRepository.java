@@ -3,11 +3,10 @@ package org.springframework.samples.loopnurture.mail.domain.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRuleDO;
-import org.springframework.samples.loopnurture.mail.domain.enums.RuleTypeEnum;
+import org.springframework.samples.loopnurture.mail.domain.repository.dto.EmailSendRulePageQueryDTO;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 邮件发送规则仓储接口
@@ -18,40 +17,17 @@ public interface EmailSendRuleRepository {
      */
     EmailSendRuleDO save(EmailSendRuleDO rule);
 
-    /**
-     * 根据ID查找规则
-     */
-    EmailSendRuleDO findById(String id);
-
-    /**
-     * 根据ID删除规则
-     */
-    void deleteById(String id);
 
     /**
      * 根据组织ID查找规则
      */
     Page<EmailSendRuleDO> findByOrgId(String orgId, Pageable pageable);
 
-    /**
-     * 检查规则ID是否存在
-     */
-    boolean existsById(String id);
-
-    /**
-     * 检查组织下是否存在同名规则
-     */
-    boolean existsByOrgIdAndRuleName(String orgId, String ruleName);
-
-    /**
-     * 查找所有规则
-     */
-    List<EmailSendRuleDO> findAll();
 
     /**
      * 更新规则执行信息
      */
-    void updateExecutionInfo(String id, LocalDateTime lastExecuteTime, LocalDateTime nextExecuteTime, int executedCount);
+    void updateExecutionInfo(String id, Date lastExecuteTime, Date nextExecuteTime, int executedCount);
 
     /**
      * 根据组织编码和规则ID查找规则
@@ -68,15 +44,13 @@ public interface EmailSendRuleRepository {
      */
     Page<EmailSendRuleDO> findByOrgCode(String orgCode, Pageable pageable);
 
-    /**
-     * 检查规则ID是否已存在
-     */
-    boolean existsByOrgCodeAndRuleId(String orgCode, String ruleId);
+
+
 
     /**
      * 查找需要执行的规则
      */
-    List<EmailSendRuleDO> findRulesForExecution(LocalDateTime now);
+    List<EmailSendRuleDO> findRulesForExecution(Date now);
 
     /**
      * 统计组织的规则数量
@@ -85,5 +59,28 @@ public interface EmailSendRuleRepository {
 
     void update(String id, EmailSendRuleDO rule);
 
-    boolean existsByOrgCodeAndRuleName(String orgCode, String ruleName);
+
+    Page<EmailSendRuleDO> pageQuery(EmailSendRulePageQueryDTO query);
+
+    /**
+     * 根据组织编码和规则名称查询规则
+     */
+    EmailSendRuleDO findByOrgCodeAndRuleName(String orgCode, String ruleName);
+
+    /**
+     * 根据 ruleId 逻辑删除（deleted = true）
+     */
+    void deleteByRuleId(String ruleId);
+
+
+
+    /**
+     * 根据业务 ruleId 查询规则（跨组织唯一）
+     */
+    EmailSendRuleDO findByRuleId(String ruleId);
+
+    /**
+     * 查询所有满足执行条件的规则（启用、到达执行时间且未超最大次数）
+     */
+    List<EmailSendRuleDO> findExecutableRules(Date now);
 } 

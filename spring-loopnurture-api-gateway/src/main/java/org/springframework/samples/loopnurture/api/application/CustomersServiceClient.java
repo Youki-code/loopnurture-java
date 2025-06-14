@@ -24,11 +24,11 @@ import reactor.core.publisher.Mono;
  * @author Maciej Szarlinski
  */
 @Component
-public class UsersServiceClient {
+public class CustomersServiceClient {
 
     private final WebClient webClient;
 
-    public UsersServiceClient(WebClient.Builder webClientBuilder) {
+    public CustomersServiceClient(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }
 

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.samples.loopnurture.mail.infra.po.EmailSendRulePO;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Optional;
 /**
  * 邮件发送规则JPA Mapper接口
  */
-public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, String> {
+public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, String>, JpaSpecificationExecutor<EmailSendRulePO> {
     /**
      * 根据组织ID查找规则
      */
@@ -118,4 +119,21 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
     @Modifying
     @Query("UPDATE EmailSendRulePO e SET e.deleted = true WHERE e.id = :id")
     void softDeleteById(@Param("id") String id);
+
+    /**
+     * 根据组织编码和规则名称查找规则
+     */
+    Optional<EmailSendRulePO> findByOrgCodeAndRuleName(String orgCode, String ruleName);
+
+    /**
+     * 根据 ruleId 逻辑删除
+     */
+    @Modifying
+    @Query("UPDATE EmailSendRulePO e SET e.deleted = true WHERE e.ruleId = :ruleId")
+    void softDeleteByRuleId(@Param("ruleId") String ruleId);
+
+    /**
+     * 根据业务 ruleId 查询规则
+     */
+    Optional<EmailSendRulePO> findByRuleId(String ruleId);
 } 

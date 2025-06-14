@@ -3,15 +3,11 @@ package org.springframework.samples.loopnurture.mail.domain.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.samples.loopnurture.mail.domain.model.MarketingEmailTemplateDO;
+import org.springframework.samples.loopnurture.mail.domain.repository.dto.MarketingEmailTemplatePageQueryDTO;
 import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.ArrayList;
-import jakarta.persistence.criteria.Predicate;
 
 /**
  * 营销邮件模板领域仓储接口
@@ -93,4 +89,10 @@ public interface MarketingEmailTemplateRepository {
      * 根据组织编码和模板名称查询模板列表
      */
     List<MarketingEmailTemplateDO> findByOrgCodeAndTemplateName(String orgCode, String templateName);
+
+    /**
+     * 通用分页查询
+     */
+    Page<MarketingEmailTemplateDO> pageQuery(
+            MarketingEmailTemplatePageQueryDTO query);
 } 

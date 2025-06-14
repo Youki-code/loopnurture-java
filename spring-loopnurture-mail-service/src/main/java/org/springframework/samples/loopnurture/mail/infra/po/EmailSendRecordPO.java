@@ -6,9 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 邮件发送记录持久化对象
@@ -33,23 +31,8 @@ public class EmailSendRecordPO {
     @Column(name = "template_id")
     private String templateId;
 
-    @Column(name = "sender")
-    private String sender;
-
-    @Column(name = "recipient")
-    private String recipient;
-
-    @Column(name = "cc")
-    private String cc;
-
-    @Column(name = "bcc")
-    private String bcc;
-
-    @Column(name = "subject")
-    private String subject;
-
-    @Column(name = "content")
-    private String content;
+    @Column(name = "extends_info")
+    private String extendsInfo;
 
     @Column(name = "variables")
     private String variables;
@@ -57,26 +40,14 @@ public class EmailSendRecordPO {
     @Column(name = "status")
     private Integer status;
 
-    @Column(name = "error_message")
-    private String errorMessage;
-
-    @Column(name = "retry_count")
-    private Integer retryCount;
-
     @Column(name = "sent_at")
-    private LocalDateTime sentAt;
+    private Date sentAt;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Date createdAt;
 
     @Column(name = "created_by")
     private String createdBy;
-
-    @Column(name = "updated_by")
-    private String updatedBy;
 
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;

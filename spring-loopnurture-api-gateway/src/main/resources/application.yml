@@ -16,31 +16,18 @@ spring:
             statuses: SERVICE_UNAVAILABLE
             methods: POST
       routes:
-        - id: vets-service
-          uri: lb://vets-service
-          predicates:
-            - Path=/api/vet/**
-          filters:
-            - StripPrefix=2
-        - id: visits-service
-          uri: lb://visits-service
-          predicates:
-            - Path=/api/visit/**
-          filters:
-            - StripPrefix=2
         - id: users-service
           uri: lb://users-service
           predicates:
-            - Path=/api/customer/**
+            - Path=/api/users/**
           filters:
             - StripPrefix=2
-        - id: genai-service
-          uri: lb://genai-service
+        - id: mail-service
+          uri: lb://mail-service
           predicates:
-            - Path=/api/genai/**
+            - Path=/api/mail/**
           filters:
             - StripPrefix=2
-            - CircuitBreaker=name=genaiCircuitBreaker,fallbackUri=/fallback
 
 ---
 spring:

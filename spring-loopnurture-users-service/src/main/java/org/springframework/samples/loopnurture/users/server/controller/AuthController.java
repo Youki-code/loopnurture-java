@@ -10,6 +10,7 @@ import org.springframework.samples.loopnurture.users.server.controller.dto.ApiRe
 import org.springframework.samples.loopnurture.users.server.controller.dto.LoginRequest;
 import org.springframework.samples.loopnurture.users.server.controller.dto.LoginResponse;
 import org.springframework.samples.loopnurture.users.server.controller.dto.TokenValidationResponse;
+import org.springframework.samples.loopnurture.users.server.controller.dto.ValidateTokenRequest;
 
 import jakarta.validation.Valid;
 
@@ -51,13 +52,13 @@ public class AuthController {
      * 验证JWT令牌
      * 供其他服务验证用户令牌的有效性
      *
-     * @param token 令牌
+     * @param request 验证请求
      * @return 验证结果，包含用户信息
      */
     @Operation(summary = "验证JWT令牌", description = "供其他服务验证用户令牌的有效性")
     @PostMapping("/validate")
-    public ApiResponse<TokenValidationResponse> validateToken(@RequestParam String token) {
-        return ApiResponse.ok(userService.validateToken(token));
+    public ApiResponse<TokenValidationResponse> validateToken(@Valid @RequestBody ValidateTokenRequest request) {
+        return ApiResponse.ok(userService.validateToken(request.getToken()));
     }
 
     /**

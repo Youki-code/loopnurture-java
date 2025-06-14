@@ -1,16 +1,17 @@
 package org.springframework.samples.loopnurture.mail.server.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.samples.loopnurture.mail.annotation.RequireLogin;
-import org.springframework.samples.loopnurture.mail.context.UserContext;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRuleDO;
-import org.springframework.samples.loopnurture.mail.domain.model.MarketingEmailTemplateDO;
 import org.springframework.samples.loopnurture.mail.service.EmailSendRuleOperateService;
-import org.springframework.samples.loopnurture.mail.service.EmailTemplateQueryService;
-import org.springframework.samples.loopnurture.mail.server.controller.dto.*;
+import org.springframework.samples.loopnurture.mail.server.controller.dto.ApiResponse;
+import org.springframework.samples.loopnurture.mail.server.controller.dto.CreateEmailSendRuleRequest;
+import org.springframework.samples.loopnurture.mail.server.controller.dto.CreateEmailSendRuleResponse;
+import org.springframework.samples.loopnurture.mail.server.controller.dto.DeleteEmailSendRuleRequest;
+import org.springframework.samples.loopnurture.mail.server.controller.dto.ExecuteEmailSendRuleRequest;
+import org.springframework.samples.loopnurture.mail.server.controller.dto.UpdateEmailSendRuleRequest;
 
 import jakarta.validation.Valid;
 
@@ -19,40 +20,33 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v1/email/rules")
 @RequiredArgsConstructor
 public class EmailSendRuleOperateController {
-    private final EmailSendRuleOperateService emailSendRuleService;
-    private final UserContext userContext;
-    private final EmailTemplateQueryService emailTemplateQueryService;
+    private final EmailSendRuleOperateService emailSendRuleOperateService;
 
     @RequireLogin
     @PostMapping("/createRule")
     public ApiResponse<CreateEmailSendRuleResponse> createRule(@Valid @RequestBody CreateEmailSendRuleRequest request) {
-        // 判断templateId是否存在
-        MarketingEmailTemplateDO template = emailTemplateQueryService.getByTemplateId(request.getTemplateId());
-        if (template == null) {
-            return ApiResponse.error(400, "Template not found");
-        }
-        EmailSendRuleDO savedRule = emailSendRuleService.createRule(request);
+        EmailSendRuleDO savedRule = emailSendRuleOperateService.createRule(request);
         return ApiResponse.ok(new CreateEmailSendRuleResponse(savedRule.getRuleId()));
     }
 
     @RequireLogin
     @PostMapping("/modifyRule")
     public ApiResponse<Void> modifyRule(@Valid @RequestBody UpdateEmailSendRuleRequest request) {
-        emailSendRuleService.modifyRule(request);
+        emailSendRuleOperateService.modifyRule(request);
         return ApiResponse.ok(null);
     }
 
     @RequireLogin
     @PostMapping("/deleteRule")
     public ApiResponse<Void> deleteRule(@Valid @RequestBody DeleteEmailSendRuleRequest request) {
-        emailSendRuleService.deleteRule(request.getRuleId());
+        emailSendRuleOperateService.deleteRule(request.getRuleId());
         return ApiResponse.ok(null);
     }
 
     @RequireLogin
     @PostMapping("/executeRule")
     public ApiResponse<Void> executeRule(@Valid @RequestBody ExecuteEmailSendRuleRequest request) {
-        emailSendRuleService.executeRule(request.getRuleId());
+        emailSendRuleOperateService.executeRule(request.getRuleId());
         return ApiResponse.ok(null);
     }
 

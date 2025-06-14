@@ -9,12 +9,12 @@ import org.springframework.samples.loopnurture.mail.domain.enums.EmailStatusEnum
 import org.springframework.samples.loopnurture.mail.infra.converter.EmailSendRecordConverter;
 import org.springframework.samples.loopnurture.mail.infra.mapper.JpaEmailSendRecordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.UUID;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.samples.loopnurture.mail.domain.repository.dto.EmailSendRecordPageQueryDTO;
 
 /**
  * 邮件发送记录仓储实现类
@@ -82,11 +82,6 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
     }
 
     @Override
-    public void deleteById(String id) {
-        emailSendRecordMapper.softDeleteById(id);
-    }
-
-    @Override
     public long countByOrgIdAndStatusAndSendTimeBetween(String orgId, Integer status, LocalDateTime startTime, LocalDateTime endTime) {
         return emailSendRecordMapper.countByOrgIdAndStatusAndSentAtBetween(orgId, status, startTime, endTime);
     }
@@ -137,5 +132,11 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
     public Page<EmailSendRecordDO> findByOrgId(String orgId, Pageable pageable) {
         return emailSendRecordMapper.findByOrgCode(orgId, pageable)
                 .map(emailSendRecordConverter::toDO);
+    }
+
+    @Override
+    public Page<EmailSendRecordDO> pageQuery(EmailSendRecordPageQueryDTO query) {
+        Pageable pageable = PageRequest.of(query.getPageNum(), query.getPageSize());
+        return emailSendRecordMapper.findAll(pageable).map(emailSendRecordConverter::toDO);
     }
 } 

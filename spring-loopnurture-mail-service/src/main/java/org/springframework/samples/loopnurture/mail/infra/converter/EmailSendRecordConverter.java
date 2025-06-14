@@ -10,8 +10,8 @@ import org.springframework.samples.loopnurture.mail.infra.po.EmailSendRecordPO;
 import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.samples.loopnurture.mail.domain.model.vo.EmailSendRecordExtendsInfoVO;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,24 +38,14 @@ public class EmailSendRecordConverter {
         EmailSendRecordDO entity = new EmailSendRecordDO();
         entity.setOrgCode(po.getOrgCode());
         entity.setTemplateId(po.getTemplateId());
-        entity.setSender(po.getSender());
-        entity.setRecipient(po.getRecipient());
-        entity.setCc(po.getCc());
-        entity.setBcc(po.getBcc());
-        entity.setSubject(po.getSubject());
-        entity.setContent(po.getContent());
         entity.setStatus(po.getStatus() != null ? EmailStatusEnum.fromValue(po.getStatus()) : null);
-        entity.setErrorMessage(po.getErrorMessage());
-        entity.setRetryCount(po.getRetryCount());
         entity.setSentAt(po.getSentAt());
         entity.setCreatedAt(po.getCreatedAt());
-        entity.setUpdatedAt(po.getUpdatedAt());
         entity.setCreatedBy(po.getCreatedBy());
-        entity.setUpdatedBy(po.getUpdatedBy());
 
-        if (po.getVariables() != null) {
-            entity.setVariables(parseVariables(po.getVariables()));
-        }
+        EmailSendRecordExtendsInfoVO info = parseExtendsInfo(po.getExtendsInfo());
+
+        entity.setExtendsInfo(info);
 
         return entity;
     }
@@ -74,23 +64,15 @@ public class EmailSendRecordConverter {
         po.setId(id); // 仅在基础设施层处理ID
         po.setOrgCode(entity.getOrgCode());
         po.setTemplateId(entity.getTemplateId());
-        po.setSender(entity.getSender());
-        po.setRecipient(entity.getRecipient());
-        po.setCc(entity.getCc());
-        po.setBcc(entity.getBcc());
-        po.setSubject(entity.getSubject());
-        po.setContent(entity.getContent());
         po.setStatus(entity.getStatus() != null ? entity.getStatus().getCode() : null);
-        po.setErrorMessage(entity.getErrorMessage());
-        po.setRetryCount(entity.getRetryCount());
         po.setSentAt(entity.getSentAt());
         po.setCreatedAt(entity.getCreatedAt());
-        po.setUpdatedAt(entity.getUpdatedAt());
         po.setCreatedBy(entity.getCreatedBy());
-        po.setUpdatedBy(entity.getUpdatedBy());
 
-        if (entity.getVariables() != null) {
-            po.setVariables(serializeVariables(entity.getVariables()));
+        EmailSendRecordExtendsInfoVO info = entity.getExtendsInfo();
+
+        if (info != null) {
+            po.setExtendsInfo(serializeExtendsInfo(info));
         }
 
         return po;
@@ -124,6 +106,28 @@ public class EmailSendRecordConverter {
             return objectMapper.writeValueAsString(variables);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize variables: {}", variables, e);
+            return null;
+        }
+    }
+
+    private EmailSendRecordExtendsInfoVO parseExtendsInfo(String json) {
+        if (!StringUtils.hasText(json)) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(json, EmailSendRecordExtendsInfoVO.class);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse extendsInfo: {}", json, e);
+            return null;
+        }
+    }
+
+    private String serializeExtendsInfo(EmailSendRecordExtendsInfoVO info) {
+        if (info == null) return null;
+        try {
+            return objectMapper.writeValueAsString(info);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize extendsInfo", e);
             return null;
         }
     }

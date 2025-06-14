@@ -21,12 +21,7 @@ scrape_configs:
   static_configs:
   - targets: ['users-service:8081']
 
-- job_name: visits-service
+- job_name: mail-service
   metrics_path: /actuator/prometheus
   static_configs:
-  - targets: ['visits-service:8082']
-
-- job_name: vets-service
-  metrics_path: /actuator/prometheus
-  static_configs:
-  - targets: ['vets-service:8083']
+  - targets: ['mail-service:8082']

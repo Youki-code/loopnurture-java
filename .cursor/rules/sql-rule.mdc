@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # SQL 命名和结构规范
 
 ## 适用范围

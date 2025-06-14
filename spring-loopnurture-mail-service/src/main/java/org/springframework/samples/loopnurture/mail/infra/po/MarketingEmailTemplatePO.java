@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 营销邮件模板持久化对象
@@ -79,14 +79,14 @@ public class MarketingEmailTemplatePO {
      */
     @CreationTimestamp
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     /**
      * 更新时间
      */
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     /**
      * 创建人ID

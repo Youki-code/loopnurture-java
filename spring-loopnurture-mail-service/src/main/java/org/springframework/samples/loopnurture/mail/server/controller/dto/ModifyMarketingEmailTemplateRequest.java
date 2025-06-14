@@ -56,8 +56,5 @@ public class ModifyMarketingEmailTemplateRequest {
     @Size(max = 50, message = "AI strategy version length cannot exceed 50")
     private String aiStrategyVersion;
 
-    /**
-     * 扩展信息
-     */
-    private Map<String, Object> extendsInfo;
+
 } 

@@ -17,6 +17,9 @@ public class UserContext {
     private String orgName;
     private String token;
 
+    /** 当上下文不存在时代表系统调用用户ID */
+    private static final String SYSTEM_USER_ID = "SYSTEM";
+
     /* ---------- 静态便捷方法 ---------- */
 
     public static void set(UserContext ctx) {
@@ -34,7 +37,7 @@ public class UserContext {
     /** 当前用户 ID */
     public static String getUserId() {
         UserContext c = get();
-        return c != null ? c.getUserId() : null;
+        return c != null ? c.getUserId() : SYSTEM_USER_ID;
     }
 
     /** 当前组织编码 */

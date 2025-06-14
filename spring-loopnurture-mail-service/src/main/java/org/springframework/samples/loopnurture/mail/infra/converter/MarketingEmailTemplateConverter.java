@@ -16,6 +16,7 @@ import org.springframework.samples.loopnurture.mail.server.controller.dto.Market
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -29,24 +30,6 @@ public class MarketingEmailTemplateConverter {
     private final ObjectMapper objectMapper;
     
 
-    /**
-     * 将修改请求DTO转换为领域对象
-     */
-    public MarketingEmailTemplateDO toEntity(ModifyMarketingEmailTemplateRequest request) {
-        if (request == null) {
-            return null;
-        }
-        
-        MarketingEmailTemplateDO entity = new MarketingEmailTemplateDO();
-        entity.setTemplateId(request.getTemplateId());
-        entity.setTemplateName(request.getTemplateName());
-        entity.setContentType(org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum.fromCode(request.getContentType()));
-        entity.setContentTemplate(request.getContentTemplate());
-        entity.setAiStrategyVersion(request.getAiStrategyVersion());
-        entity.setExtendsInfo(convertToExtendsInfo(request.getExtendsInfo()));
-        entity.setEnableStatus(org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum.fromCode(request.getEnableStatus()));
-        return entity;
-    }
 
     /**
      * 将领域对象转换为响应DTO
@@ -159,7 +142,7 @@ public class MarketingEmailTemplateConverter {
             LocalDateTime.now().format(TEMPLATE_NAME_DATE_FORMATTER));
     }
 
-    private MarketingEmailTemplateExtendsInfoVO convertToExtendsInfo(Object extendsInfo) {
+    private MarketingEmailTemplateExtendsInfoVO   convertToExtendsInfo(Object extendsInfo) {
         if (extendsInfo == null) {
             return null;
         }

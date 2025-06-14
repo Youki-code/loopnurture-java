@@ -3,7 +3,7 @@ package org.springframework.samples.loopnurture.mail.server.controller.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 更新邮件发送规则请求DTO
@@ -72,12 +72,12 @@ public class UpdateEmailSendRuleRequest {
     /**
      * 开始时间
      */
-    private LocalDateTime startTime;
+    private Date startTime;
 
     /**
      * 结束时间
      */
-    private LocalDateTime endTime;
+    private Date endTime;
 
     /**
      * 最大执行次数

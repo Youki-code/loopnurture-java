@@ -1,0 +1,72 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+==================================================
+Mail-Module Rules (mail-rule.mdc)
+==================================================
+
+[base]
+base_package = "org.springframework.samples.loopnurture.mail"
+no_fqn_in_code = true
+
+[directory_structure]
+domain_model          = "domain/model/"
+domain_vo             = "domain/model/vo/"
+domain_enum           = "domain/enums/"
+domain_repository     = "domain/repository/"
+infra_mapper          = "infra/mapper/"
+infra_repository_impl = "infra/repository/"
+infra_po              = "infra/po/"
+infra_converter       = "infra/converter/"
+service_layer         = "service/"
+controller_layer      = "server/controller/"
+dto_layer             = "server/controller/dto/"
+aspect_layer          = "aspect/"
+context_layer         = "context/"
+exception_layer       = "exception/"
+annotation_layer      = "annotation/"
+
+[naming_conventions]
+controller_suffix         = "Controller"
+service_suffix            = "Service"
+repository_suffix         = "Repository"
+jpa_mapper_suffix         = "JpaMapper"
+po_suffix                 = "PO"
+do_suffix                 = "DO"
+vo_suffix                 = "VO"
+dto_suffix                = "DTO"
+enum_suffix               = "Enum"
+extends_info_vo_pattern   = "*ExtendsInfoVO"
+record_class_prefix       = "EmailSendRecord"
+rule_class_prefix         = "EmailSendRule"
+template_class_prefix     = "MarketingEmailTemplate"
+
+[service_layer]
+no_service_interface = true
+
+[data_access_layer]
+interaction_order = [
+    "Service -> *Repository -> Jpa*Mapper -> Database",
+    "Service 不得直接调用 Jpa*Mapper",
+    "不得跨层调用"
+]
+repository_interface_dir  = "domain/repository/"
+repository_impl_dir       = "infra/repository/"
+no_impl_subdirectory      = true
+jpa_mapper_dir            = "infra/mapper/"
+converter_dir             = "infra/converter/"
+
+[persistence_object]
+po_enum_as_basic_type = true
+audit_fields = ["created_at", "sent_at", "deleted"]
+
+[exception_handling]
+unified_exception_handling = true
+
+[logging]
+unified_logging = true
+
+[test]
+need_test_for = ["RepositoryImpl", "Service", "Controller"]

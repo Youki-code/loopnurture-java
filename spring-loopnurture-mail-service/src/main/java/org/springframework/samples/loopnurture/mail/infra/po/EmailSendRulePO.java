@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 邮件发送规则持久化对象
@@ -42,29 +42,17 @@ public class EmailSendRulePO {
     @Column(name = "rule_type")
     private Integer ruleType;
 
-    @Column(name = "cron_expression")
-    private String cronExpression;
-
-    @Column(name = "fixed_rate")
-    private Long fixedRate;
-
-    @Column(name = "fixed_delay")
-    private Long fixedDelay;
-
-    @Column(name = "recipients")
-    private String recipients;
-
-    @Column(name = "cc")
-    private String cc;
-
-    @Column(name = "bcc")
-    private String bcc;
+    /**
+     * 扩展信息(JSON)
+     */
+    @Column(name = "extends_info")
+    private String extendsInfo;
 
     @Column(name = "start_time")
-    private LocalDateTime startTime;
+    private Date startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endTime;
+    private Date endTime;
 
     @Column(name = "max_executions")
     private Integer maxExecutions;
@@ -73,28 +61,19 @@ public class EmailSendRulePO {
     private Integer executionCount;
 
     @Column(name = "last_execution_time")
-    private LocalDateTime lastExecutionTime;
+    private Date lastExecutionTime;
 
     @Column(name = "next_execution_time")
-    private LocalDateTime nextExecutionTime;
+    private Date nextExecutionTime;
 
-    @Column(name = "is_active")
-    private Boolean isActive;
-
-    @Column(name = "description")
-    private String description;
-
-    /**
-     * 用户过滤条件 JSON 字符串
-     */
-    @Column(name = "user_query")
-    private String userQuery;
+    @Column(name = "enable_status")
+    private Integer enableStatus;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     @Column(name = "created_by")
     private String createdBy;

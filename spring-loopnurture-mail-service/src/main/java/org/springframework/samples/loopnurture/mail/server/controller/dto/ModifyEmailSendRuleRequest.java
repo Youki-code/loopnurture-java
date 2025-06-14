@@ -83,4 +83,9 @@ public class ModifyEmailSendRuleRequest {
      * 最大执行次数
      */
     private Integer maxExecutions;
+
+    /**
+     * 启用状态
+     */
+    private Integer enableStatus;
 } 

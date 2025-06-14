@@ -87,20 +87,14 @@ CREATE TABLE email_send_rule (
     rule_name VARCHAR(100) NOT NULL,            -- 规则名称
     template_id VARCHAR(50) NOT NULL,           -- 模板编码
     rule_type SMALLINT NOT NULL,                -- 规则类型：1=IMMEDIATE, 2=CRON, 3=FIXED_RATE, 4=FIXED_DELAY
-    cron_expression VARCHAR(100),               -- Cron表达式（规则类型为CRON时使用）
-    fixed_rate BIGINT,                         -- 固定频率，单位：毫秒（规则类型为FIXED_RATE时使用）
-    fixed_delay BIGINT,                        -- 固定延迟，单位：毫秒（规则类型为FIXED_DELAY时使用）
-    recipients TEXT,                            -- 收件人列表，多个用逗号分隔
-    cc TEXT,                                    -- 抄送列表，多个用逗号分隔
-    bcc TEXT,                                   -- 密送列表，多个用逗号分隔
+    extends_info TEXT,                          -- 扩展信息（JSON格式）
     start_time TIMESTAMP,                       -- 规则生效开始时间
     end_time TIMESTAMP,                         -- 规则生效结束时间
     max_executions INTEGER,                     -- 最大执行次数，null表示无限制
     execution_count INTEGER DEFAULT 0,          -- 已执行次数
     last_execution_time TIMESTAMP,              -- 上次执行时间
     next_execution_time TIMESTAMP,              -- 下次执行时间
-    is_active BOOLEAN DEFAULT true,             -- 是否启用
-    description TEXT,                           -- 规则描述
+    enable_status SMALLINT NOT NULL DEFAULT 1,  -- 启用状态：1=ENABLED, 0=DISABLED
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by VARCHAR(36) NOT NULL,            -- 创建人ID

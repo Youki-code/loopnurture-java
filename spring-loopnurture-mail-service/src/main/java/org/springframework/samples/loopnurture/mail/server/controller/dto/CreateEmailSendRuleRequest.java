@@ -3,7 +3,7 @@ package org.springframework.samples.loopnurture.mail.server.controller.dto;
 import lombok.Data;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -66,15 +66,21 @@ public class CreateEmailSendRuleRequest {
     /**
      * 开始时间
      */
-    private LocalDateTime startTime;
+    private Date startTime;
 
     /**
      * 结束时间
      */
-    private LocalDateTime endTime;
+    private Date endTime;
 
     /**
      * 最大执行次数
      */
     private Integer maxExecutions;
+
+    /**
+     * 规则描述
+     */
+    @Size(max = 255, message = "Description length cannot exceed 255")
+    private String description;
 } 

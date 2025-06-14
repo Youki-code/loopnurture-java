@@ -13,6 +13,8 @@ import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnu
 import org.springframework.samples.loopnurture.mail.infra.converter.MarketingEmailTemplateConverter;
 import org.springframework.samples.loopnurture.mail.infra.mapper.JpaMarketingEmailTemplateMapper;
 import org.springframework.samples.loopnurture.mail.infra.po.MarketingEmailTemplatePO;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.samples.loopnurture.mail.domain.repository.dto.MarketingEmailTemplatePageQueryDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -143,6 +145,31 @@ public class MarketingEmailTemplateRepositoryImpl implements MarketingEmailTempl
                 .stream()
                 .map(templateConverter::toDO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<MarketingEmailTemplateDO> pageQuery(MarketingEmailTemplatePageQueryDTO query) {
+        Pageable pageable = PageRequest.of(query.getPageNum(), query.getPageSize());
+
+        return templateMapper.findAll((root, q, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (query.getOrgCode() != null && !query.getOrgCode().isBlank()) {
+                predicates.add(cb.equal(root.get("orgCode"), query.getOrgCode()));
+            }
+            if (query.getTemplateId() != null && !query.getTemplateId().isBlank()) {
+                predicates.add(cb.equal(root.get("templateId"), query.getTemplateId()));
+            }
+            if (query.getTemplateName() != null && !query.getTemplateName().isBlank()) {
+                predicates.add(cb.like(root.get("templateName"), "%" + query.getTemplateName() + "%"));
+            }
+            if (query.getContentType() != null) {
+                predicates.add(cb.equal(root.get("contentType"), query.getContentType()));
+            }
+            if (query.getEnableStatusList() != null && !query.getEnableStatusList().isEmpty()) {
+                predicates.add(root.get("enableStatus").in(query.getEnableStatusList()));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        }, pageable).map(templateConverter::toDO);
     }
 
     // 以下方法可按需扩展，如删除或按Specification查询

@@ -6,10 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import org.springframework.samples.loopnurture.mail.context.UserContext;
+import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
 import org.springframework.samples.loopnurture.mail.domain.enums.RuleTypeEnum;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.samples.loopnurture.mail.domain.model.vo.EmailSendRuleExtendsInfoVO;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 邮件发送规则领域对象
@@ -58,44 +62,20 @@ public class EmailSendRuleDO {
     private Integer ruleType;
 
     /**
-     * Cron表达式（定时规则）
+     * 扩展信息
      */
-    private String cronExpression;
+    private EmailSendRuleExtendsInfoVO extendsInfo;
 
-    /**
-     * 固定频率（毫秒）
-     */
-    private Long fixedRate;
-
-    /**
-     * 固定延迟（毫秒）
-     */
-    private Long fixedDelay;
-
-    /**
-     * 收件人列表
-     */
-    private String recipients;
-
-    /**
-     * 抄送列表
-     */
-    private String cc;
-
-    /**
-     * 密送列表
-     */
-    private String bcc;
 
     /**
      * 开始时间
      */
-    private LocalDateTime startTime;
+    private Date startTime;
 
     /**
      * 结束时间
      */
-    private LocalDateTime endTime;
+    private Date endTime;
 
     /**
      * 最大执行次数
@@ -110,38 +90,28 @@ public class EmailSendRuleDO {
     /**
      * 上次执行时间
      */
-    private LocalDateTime lastExecutionTime;
+    private Date lastExecutionTime;
 
     /**
      * 下次执行时间
      */
-    private LocalDateTime nextExecutionTime;
+    private Date nextExecutionTime;
 
     /**
      * 是否激活
      */
-    private Boolean isActive;
+    private EnableStatusEnum enableStatus;
 
-    /**
-     * 规则描述
-     */
-    private String description;
-
-    /**
-     * 用户查询条件
-     */
-    @Builder.Default
-    private Map<String, Object> userQuery = new HashMap<>();
 
     /**
      * 创建时间
      */
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     /**
      * 更新时间
      */
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     /**
      * 创建人ID
@@ -153,21 +123,51 @@ public class EmailSendRuleDO {
      */
     private String updatedBy;
 
+
+    /**************************操作方法**************************/
+
+    public void modifyRule(String ruleName, String templateId, Integer ruleType,  Date startTime, Date endTime, Integer maxExecutions, EnableStatusEnum enableStatus,String description,List<String> recipients,List<String> cc,List<String> bcc,String cronExpression,Long fixedRate,Long fixedDelay) {
+        this.ruleName = ruleName;
+        this.templateId = templateId;
+        this.ruleType = ruleType;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.maxExecutions = maxExecutions;
+        this.enableStatus = enableStatus;
+        if(this.extendsInfo==null){
+            this.extendsInfo = new EmailSendRuleExtendsInfoVO();
+        }
+        this.extendsInfo.setDescription(description);
+        this.extendsInfo.setRecipients(recipients);
+        this.extendsInfo.setCc(cc);
+        this.extendsInfo.setBcc(bcc);
+        this.extendsInfo.setCronExpression(cronExpression);
+        this.extendsInfo.setFixedRate(fixedRate);
+        this.extendsInfo.setFixedDelay(fixedDelay);
+        this.updatedAt = new Date();
+        this.updatedBy = UserContext.getUserId();
+
+    }
+
+
+
+    /**************************查询方法**************************/
+
     /**
      * 检查规则是否可执行
      *
      * @return true 如果规则可以执行
      */
     public boolean isExecutable() {
-        if (!isActive) {
+        if (enableStatus != EnableStatusEnum.ENABLED) {
             return false;
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        if (startTime != null && now.isBefore(startTime)) {
+        Date now = new Date();
+        if (startTime != null && now.before(startTime)) {
             return false;
         }
-        if (endTime != null && now.isAfter(endTime)) {
+        if (endTime != null && now.after(endTime)) {
             return false;
         }
         if (maxExecutions != null && executionCount != null && executionCount >= maxExecutions) {
@@ -182,8 +182,8 @@ public class EmailSendRuleDO {
      *
      * @return true 如果规则启用
      */
-    public boolean isActive() {
-        return isActive != null && isActive;
+    public boolean isEnable() {
+        return enableStatus != null && enableStatus.equals(EnableStatusEnum.ENABLED);
     }
 
     /**
@@ -191,10 +191,14 @@ public class EmailSendRuleDO {
      *
      * @param nextTime 下次执行时间
      */
-    public void recordExecution(LocalDateTime nextTime) {
-        this.lastExecutionTime = LocalDateTime.now();
+    public void recordExecution(Date nextTime) {
+        this.lastExecutionTime = new Date();
         this.nextExecutionTime = nextTime;
-        this.executionCount = (this.executionCount == null ? 0 : this.executionCount) + 1;
+        if (executionCount == null) {
+            executionCount = 1;
+        } else {
+            executionCount++;
+        }
     }
 
     /**
@@ -233,21 +237,4 @@ public class EmailSendRuleDO {
         return ruleType != null && ruleType.equals(RuleTypeEnum.IMMEDIATE.getCode());
     }
 
-    /**
-     * 获取用户查询条件
-     *
-     * @return 用户查询条件
-     */
-    public Map<String, Object> getUserQuery() {
-        return userQuery;
-    }
-
-    /**
-     * 设置用户查询条件
-     *
-     * @param userQuery 用户查询条件
-     */
-    public void setUserQuery(Map<String, Object> userQuery) {
-        this.userQuery = userQuery;
-    }
 } 

@@ -8,11 +8,16 @@ import org.springframework.samples.loopnurture.mail.domain.repository.MarketingE
 import org.springframework.samples.loopnurture.mail.exception.ResourceNotFoundException;
 import org.springframework.samples.loopnurture.mail.exception.ValidationException;
 import org.springframework.samples.loopnurture.mail.context.UserContext;
+import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRuleDO;
 import org.springframework.samples.loopnurture.mail.domain.model.MarketingEmailTemplateDO;
+import org.springframework.samples.loopnurture.mail.domain.model.vo.EmailSendRuleExtendsInfoVO;
 import org.springframework.samples.loopnurture.mail.server.controller.dto.CreateEmailSendRuleRequest;
 import org.springframework.samples.loopnurture.mail.server.controller.dto.UpdateEmailSendRuleRequest;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -38,27 +43,34 @@ public class EmailSendRuleOperateService {
         String orgCode = UserContext.getOrgCode();
         checkDuplicateName(orgCode, request.getRuleName(), null);
 
-        EmailSendRuleDO rule = EmailSendRuleDO.builder()
-                .id(UUID.randomUUID().toString())
-                .orgCode(orgCode)
-                .ruleId(UUID.randomUUID().toString())
-                .ruleName(request.getRuleName())
-                .templateId(request.getTemplateId())
-                .ruleType(request.getRuleType())
+        // ruleId 生成规则：时间yyMMHHmmss + UUID
+        String ruleId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMHHmmss")) + UUID.randomUUID().toString();
+        // name没有的话设置成ruleId
+        EmailSendRuleExtendsInfoVO extendsInfo = EmailSendRuleExtendsInfoVO.builder()
+                .recipients(request.getRecipients())
+                .cc(request.getCc())
+                .bcc(request.getBcc())
+                .description(request.getDescription())
                 .cronExpression(request.getCronExpression())
                 .fixedRate(request.getFixedRate())
                 .fixedDelay(request.getFixedDelay())
-                .recipients(request.getRecipients() != null ? String.join(",", request.getRecipients()) : null)
-                .cc(request.getCc() != null ? String.join(",", request.getCc()) : null)
-                .bcc(request.getBcc() != null ? String.join(",", request.getBcc()) : null)
+                .build();
+        EmailSendRuleDO rule = EmailSendRuleDO.builder()
+                .orgCode(orgCode)
+                .ruleId(ruleId)
+                .ruleName(request.getRuleName()!=null?request.getRuleName():ruleId)
+                .templateId(request.getTemplateId())
+                .ruleType(request.getRuleType())
+                .extendsInfo(extendsInfo)
                 .startTime(request.getStartTime())
                 .endTime(request.getEndTime())
                 .maxExecutions(request.getMaxExecutions())
                 .executionCount(0)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(new Date())
+                .updatedAt(new Date())
                 .createdBy(UserContext.getUserId())
-                .isActive(true)
+                .updatedBy(UserContext.getUserId())
+                .enableStatus(EnableStatusEnum.ENABLED)
                 .build();
 
         return ruleRepository.save(rule);
@@ -66,34 +78,21 @@ public class EmailSendRuleOperateService {
 
     @Transactional
     public EmailSendRuleDO modifyRule(UpdateEmailSendRuleRequest request) {
-        EmailSendRuleDO rule = ruleRepository.findById(request.getRuleId());
+        EmailSendRuleDO rule = ruleRepository.findByRuleId(request.getRuleId());
         if(rule==null){
             throw new ResourceNotFoundException("Rule not found");
         }
 
         checkDuplicateName(rule.getOrgCode(), request.getRuleName(), rule.getId());
 
-        rule.setRuleName(request.getRuleName());
-        rule.setTemplateId(request.getTemplateId());
-        rule.setRuleType(request.getRuleType());
-        rule.setCronExpression(request.getCronExpression());
-        rule.setFixedRate(request.getFixedRate());
-        rule.setFixedDelay(request.getFixedDelay());
-        rule.setRecipients(request.getRecipients() != null ? String.join(",", request.getRecipients()) : null);
-        rule.setCc(request.getCc() != null ? String.join(",", request.getCc()) : null);
-        rule.setBcc(request.getBcc() != null ? String.join(",", request.getBcc()) : null);
-        rule.setStartTime(request.getStartTime());
-        rule.setEndTime(request.getEndTime());
-        rule.setMaxExecutions(request.getMaxExecutions());
-        rule.setUpdatedAt(LocalDateTime.now());
-        rule.setUpdatedBy(UserContext.getUserId());
-
+        rule.modifyRule(request.getRuleName(), request.getTemplateId(), request.getRuleType(), request.getStartTime(), request.getEndTime(), request.getMaxExecutions(), EnableStatusEnum.fromCode(request.getEnableStatus()), null, request.getRecipients(), request.getCc(), request.getBcc(), request.getCronExpression(), request.getFixedRate(), request.getFixedDelay());
+        
         return ruleRepository.save(rule);
     }
 
     @Transactional
     public void deleteRule(String ruleId) {
-        ruleRepository.deleteById(ruleId);
+        ruleRepository.deleteByRuleId(ruleId);
     }
 
     @Transactional
@@ -103,8 +102,8 @@ public class EmailSendRuleOperateService {
 
     private void checkDuplicateName(String orgCode, String ruleName, String excludeId) {
         if (ruleName == null) return;
-        boolean exists = ruleRepository.existsByOrgCodeAndRuleName(orgCode, ruleName);
-        if (exists && excludeId == null) {
+        EmailSendRuleDO emailSendRuleDO = ruleRepository.findByOrgCodeAndRuleName(orgCode, ruleName);
+        if (emailSendRuleDO != null && !emailSendRuleDO.getId().equals(excludeId)) {
             throw new ValidationException("Rule name already exists");
         }
     }

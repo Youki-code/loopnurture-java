@@ -11,7 +11,7 @@ import org.springframework.samples.loopnurture.mail.domain.repository.EmailSendR
 import org.springframework.samples.loopnurture.mail.exception.ResourceNotFoundException;
 import org.springframework.samples.loopnurture.mail.exception.ValidationException;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,14 +29,14 @@ public class EmailSendRuleService {
     @Transactional
     public EmailSendRuleDO createRule(EmailSendRuleDO rule) {
         // 检查规则名称是否已存在
-        if (ruleRepository.existsByOrgCodeAndRuleName(rule.getOrgCode(), rule.getRuleName())) {
+        if (ruleRepository.findByOrgCodeAndRuleName(rule.getOrgCode(), rule.getRuleName()) != null) {
             throw new ValidationException("Rule name already exists");
         }
 
         // 设置初始状态
         rule.setExecutionCount(0);
-        rule.setCreatedAt(LocalDateTime.now());
-        rule.setUpdatedAt(LocalDateTime.now());
+        rule.setCreatedAt(new Date());
+        rule.setUpdatedAt(new Date());
 
         return ruleRepository.save(rule);
     }
@@ -48,22 +48,22 @@ public class EmailSendRuleService {
     public EmailSendRuleDO modifyRule(UpdateEmailSendRuleRequest request) {
         EmailSendRuleDO rule = getRule(request.getRuleId());
         // 检查规则是否存在
-        if (!ruleRepository.existsById(rule.getId())) {
+        if (rule == null) {
             throw new ResourceNotFoundException("Rule not found");
         }
 
         // 检查规则名称是否已存在（排除自身）
-        EmailSendRuleDO existingRule = ruleRepository.findByOrgCodeAndRuleId(rule.getOrgCode(), rule.getRuleId());
+        EmailSendRuleDO existingRule = ruleRepository.findByOrgCodeAndRuleName(rule.getOrgCode(), rule.getRuleName());
         if(existingRule==null){
             throw new ResourceNotFoundException("Rule not found");
         }
         
         if (!existingRule.getId().equals(rule.getId()) && 
-            ruleRepository.existsByOrgCodeAndRuleName(rule.getOrgCode(), rule.getRuleName())) {
+            ruleRepository.findByOrgCodeAndRuleName(rule.getOrgCode(), rule.getRuleName()) != null) {
             throw new ValidationException("Rule name already exists");
         }
 
-        rule.setUpdatedAt(LocalDateTime.now());
+        rule.setUpdatedAt(new Date());
         return ruleRepository.save(rule);
     }
 
@@ -72,17 +72,18 @@ public class EmailSendRuleService {
      */
     @Transactional
     public void deleteRule(String ruleId) {
-        if (!ruleRepository.existsById(ruleId)) {
+        EmailSendRuleDO exists = ruleRepository.findByRuleId(ruleId);
+        if (exists == null) {
             throw new ResourceNotFoundException("Rule not found");
         }
-        ruleRepository.deleteById(ruleId);
+        ruleRepository.deleteByRuleId(ruleId);
     }
 
     /**
      * 获取规则详情
      */
     public EmailSendRuleDO getRule(String ruleId) {
-        EmailSendRuleDO rule = ruleRepository.findById(ruleId);
+        EmailSendRuleDO rule = ruleRepository.findByRuleId(ruleId);
         if(rule==null){
             throw new ResourceNotFoundException("Rule not found");
         }
@@ -100,7 +101,7 @@ public class EmailSendRuleService {
      * 检查同组织下是否存在同名规则
      */
     public boolean ruleNameExists(String orgCode, String ruleName) {
-        return ruleRepository.existsByOrgCodeAndRuleName(orgCode, ruleName);
+        return ruleRepository.findByOrgCodeAndRuleName(orgCode, ruleName) != null;
     }
 
     /**
@@ -116,8 +117,8 @@ public class EmailSendRuleService {
         // TODO: 实现规则执行逻辑
         
         // 更新执行信息
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nextExecutionTime = calculateNextExecutionTime(rule);
+        Date now = new Date();
+        Date nextExecutionTime = calculateNextExecutionTime(rule);
         rule.recordExecution(nextExecutionTime);
         ruleRepository.save(rule);
     }
@@ -125,41 +126,16 @@ public class EmailSendRuleService {
     /**
      * 计算下次执行时间
      */
-    private LocalDateTime calculateNextExecutionTime(EmailSendRuleDO rule) {
+    private Date calculateNextExecutionTime(EmailSendRuleDO rule) {
         // TODO: 根据规则类型实现具体的计算逻辑
-        return LocalDateTime.now().plusHours(1);
+        return new Date(System.currentTimeMillis() + 3600_000);
     }
 
     /**
      * 获取需要执行的规则列表
      */
-    public List<EmailSendRuleDO> findRulesForExecution(LocalDateTime now) {
+    public List<EmailSendRuleDO> findRulesForExecution(Date now) {
         return ruleRepository.findRulesForExecution(now);
     }
 
-    /**
-     * 创建规则（DTO 版）
-     */
-    @Transactional
-    public EmailSendRuleDO createRule(org.springframework.samples.loopnurture.mail.server.controller.dto.CreateEmailSendRuleRequest request) {
-        EmailSendRuleDO rule = EmailSendRuleDO.builder()
-                .orgCode(org.springframework.samples.loopnurture.mail.context.UserContext.getOrgCode())
-                .ruleId(java.util.UUID.randomUUID().toString())
-                .ruleName(request.getRuleName())
-                .templateId(request.getTemplateId())
-                .ruleType(request.getRuleType())
-                .cronExpression(request.getCronExpression())
-                .fixedRate(request.getFixedRate())
-                .fixedDelay(request.getFixedDelay())
-                .recipients(request.getRecipients() != null ? String.join(",", request.getRecipients()) : null)
-                .cc(request.getCc() != null ? String.join(",", request.getCc()) : null)
-                .bcc(request.getBcc() != null ? String.join(",", request.getBcc()) : null)
-                .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
-                .maxExecutions(request.getMaxExecutions())
-                .createdBy(org.springframework.samples.loopnurture.mail.context.UserContext.getUserId())
-                .isActive(true)
-                .build();
-        return createRule(rule);
-    }
 } 

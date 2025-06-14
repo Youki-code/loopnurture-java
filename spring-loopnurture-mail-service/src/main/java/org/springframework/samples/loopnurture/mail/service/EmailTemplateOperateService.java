@@ -3,7 +3,6 @@ package org.springframework.samples.loopnurture.mail.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import jakarta.validation.ValidationException;
 
@@ -11,10 +10,12 @@ import org.springframework.samples.loopnurture.mail.domain.model.MarketingEmailT
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.samples.loopnurture.mail.context.UserContext;
+import org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum;
 import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
 import org.springframework.samples.loopnurture.mail.domain.repository.MarketingEmailTemplateRepository;
 import org.springframework.samples.loopnurture.mail.infra.converter.MarketingEmailTemplateConverter;
@@ -41,17 +42,17 @@ public class EmailTemplateOperateService {
             throw new ValidationException("Template name already exists");
         }
         // 创建模板，使用 UUID +日期前缀生成唯一模板 ID
-        String templateId =  LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + UUID.randomUUID().toString().substring(0, 8);
+        String templateId =  LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss")) + UUID.randomUUID().toString().substring(0, 8);
         MarketingEmailTemplateDO template = MarketingEmailTemplateDO.builder()
                 .templateId(templateId)
                 .templateName(request.getTemplateName())
-                .contentType(org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum.fromCode(request.getContentType()))
+                .contentType(ContentTypeEnum.fromCode(request.getContentType()))
                 .contentTemplate(request.getContentTemplate())
                 .aiStrategyVersion(request.getAiStrategyVersion())
                 .enableStatus(EnableStatusEnum.ENABLED)
                 .orgCode(UserContext.getOrgCode())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(new Date())
+                .updatedAt(new Date())
                 .createdBy(UserContext.getUserId())
                 .updatedBy(UserContext.getUserId())
                 .build();
@@ -60,52 +61,32 @@ public class EmailTemplateOperateService {
 
     @Transactional
     public MarketingEmailTemplateDO modifyTemplate(ModifyMarketingEmailTemplateRequest request) {
-        MarketingEmailTemplateDO template = templateConverter.toEntity(request);
-        MarketingEmailTemplateDO existing = templateRepository.findByTemplateCode(template.getTemplateCode());
-        if(existing==null){
+
+        // 判断模板是否存在
+        MarketingEmailTemplateDO existing = templateRepository.getByTemplateId(request.getTemplateId());
+        if(existing == null){
             throw new IllegalArgumentException("Template not found");
         }
+        // 判断name是否已存在，排除当前模板
+        List<MarketingEmailTemplateDO> dup = templateRepository.findByOrgCodeAndTemplateName(UserContext.getOrgCode(), request.getTemplateName());
+        dup.stream().filter(t -> !t.getTemplateId().equals(request.getTemplateId())).findFirst().ifPresent(t -> {
+            throw new ValidationException("Template name already exists");
+        });
 
-        if (StringUtils.hasText(template.getTemplateName())) {
-            existing.setTemplateName(template.getTemplateName());
-        }
-        if (template.getContentType() != null) {
-            existing.setContentType(template.getContentType());
-        }
-        if (StringUtils.hasText(template.getContentTemplate())) {
-            existing.setContentTemplate(template.getContentTemplate());
-        }
-        if (StringUtils.hasText(template.getAiStrategyVersion())) {
-            existing.setAiStrategyVersion(template.getAiStrategyVersion());
-        }
-        if (template.getExtendsInfo() != null) {
-            existing.setExtendsInfo(template.getExtendsInfo());
-        }
-
+        // 修改模板，设置输入的所有字段，如果为空则不修改
+        existing.modifyTemplate(request.getTemplateName(), ContentTypeEnum.fromCode(request.getContentType()), request.getContentTemplate(), request.getAiStrategyVersion(), EnableStatusEnum.fromCode(request.getEnableStatus()), request.getInputContent());
         return templateRepository.save(existing);
     }
 
     @Transactional
-    public void deleteTemplateByCode(String templateCode) {
-        MarketingEmailTemplateDO template = templateRepository.findByTemplateCode(templateCode);
+    public void deleteTemplate(String templateId) {
+        // 判断模板是否存在
+        MarketingEmailTemplateDO template = templateRepository.getByTemplateId(templateId);
         if(template==null){
             throw new IllegalArgumentException("Template not found");
         }
         templateRepository.deleteByTemplateId(template.getTemplateId());
     }
 
-    @Transactional
-    public MarketingEmailTemplateDO disableTemplate(String templateCode) {
-        MarketingEmailTemplateDO template = templateRepository.findByTemplateCode(templateCode);
-        if(template==null){
-            throw new IllegalArgumentException("Template not found");
-        }
-        template.setEnableStatus(EnableStatusEnum.DISABLED);
-        return templateRepository.save(template);
-    }
 
-
-    public void deleteTemplate(String templateId) {
-        templateRepository.deleteByTemplateId(templateId);
-    }
 } 
