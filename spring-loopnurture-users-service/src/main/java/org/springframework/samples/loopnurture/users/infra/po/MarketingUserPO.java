@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "marketing_user", indexes = {
     @Index(name = "idx_primary_email", columnList = "primary_email"),
-    @Index(name = "idx_phone", columnList = "phone"),
-    @Index(name = "idx_org_id", columnList = "org_id")
+    @Index(name = "idx_phone", columnList = "phone")
 }, uniqueConstraints = {
     @UniqueConstraint(name = "uk_user_uniq", columnNames = "user_uniq"),
     @UniqueConstraint(name = "uk_oauth_user", columnNames = {"oauth_user_id", "auth_type"})
@@ -27,9 +26,6 @@ public class MarketingUserPO {
      */
     @Column(name = "system_user_id", nullable = false, unique = true)
     private Long systemUserId;
-
-    @Column(name = "org_id")
-    private String orgId;
 
     @Column(name = "user_uniq", nullable = false)
     private String userUniq;
@@ -82,6 +78,9 @@ public class MarketingUserPO {
     @Column(name = "phone_verified", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean phoneVerified;
 
+    @Column(name = "current_org_code")
+    private String currentOrgCode;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -90,10 +89,6 @@ public class MarketingUserPO {
 
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "org_id", insertable = false, updatable = false)
-    private OrganizationPO organization;
 
     @PrePersist
     protected void onCreate() {

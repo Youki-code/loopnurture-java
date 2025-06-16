@@ -25,10 +25,6 @@ public class MarketingUserDO {
      */
     private Long systemUserId;
     
-    /**
-     * 组织ID，用户所属的组织标识符
-     */
-    private String orgId;
     
     /**
      * 用户唯一标识，用于业务层面的唯一标识，如用户名
@@ -112,6 +108,11 @@ public class MarketingUserDO {
     private Boolean phoneVerified;
     
     /**
+     * 当前组织编码，标识用户在多组织场景下当前操作的组织
+     */
+    private String currentOrgCode;
+    
+    /**
      * 记录创建时间
      */
     private LocalDateTime createdAt;
@@ -126,10 +127,6 @@ public class MarketingUserDO {
      */
     private LocalDateTime lastLoginAt;
     
-    /**
-     * 用户所属组织的详细信息
-     */
-    private OrganizationDO organization;
 
     /**
      * 用户扩展信息，包含OAuth相关字段

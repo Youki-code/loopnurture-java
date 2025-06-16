@@ -39,7 +39,7 @@ class UserOrganizationServiceTest {
 
     private UserOrganizationDO testUserOrg;
     private Long testSystemUserId;
-    private String testOrgId;
+    private String testOrgCode;
 
     @BeforeEach
     void setUp() {
@@ -50,12 +50,12 @@ class UserOrganizationServiceTest {
         );
 
         testSystemUserId = 1L;
-        testOrgId = "test-org-id";
+        testOrgCode = "test-org-code";
 
         testUserOrg = new UserOrganizationDO();
         testUserOrg.setId(1L);
         testUserOrg.setSystemUserId(testSystemUserId);
-        testUserOrg.setOrgId(testOrgId);
+        testUserOrg.setOrgCode(testOrgCode);
         testUserOrg.setRole(UserRoleEnum.MEMBER);
         testUserOrg.setCreatedAt(LocalDateTime.now());
         testUserOrg.setUpdatedAt(LocalDateTime.now());
@@ -67,31 +67,31 @@ class UserOrganizationServiceTest {
     void addUserToOrganization_Success() {
         when(userRepository.findBySystemUserId(anyLong())).thenReturn(Optional.of(new MarketingUserDO()));
         when(organizationRepository.findById(anyString())).thenReturn(Optional.of(new OrganizationDO()));
-        when(userOrgRepository.existsBySystemUserIdAndOrgId(anyLong(), anyString())).thenReturn(false);
+        when(userOrgRepository.existsBySystemUserIdAndOrgCode(anyLong(), anyString())).thenReturn(false);
         when(userOrgRepository.save(any(UserOrganizationDO.class))).thenReturn(testUserOrg);
 
         UserOrganizationDO result = userOrgService.addUserToOrganization(
             testSystemUserId,
-            testOrgId,
+            testOrgCode,
             UserRoleEnum.MEMBER,
             "test-user"
         );
 
         assertNotNull(result);
         assertEquals(testSystemUserId, result.getSystemUserId());
-        assertEquals(testOrgId, result.getOrgId());
+        assertEquals(testOrgCode, result.getOrgCode());
         assertEquals(UserRoleEnum.MEMBER, result.getRole());
         verify(userOrgRepository).save(any(UserOrganizationDO.class));
     }
 
     @Test
     void addUserToOrganization_AlreadyExists() {
-        when(userOrgRepository.existsBySystemUserIdAndOrgId(anyLong(), anyString())).thenReturn(true);
+        when(userOrgRepository.existsBySystemUserIdAndOrgCode(anyLong(), anyString())).thenReturn(true);
 
         assertThrows(IllegalStateException.class, () ->
             userOrgService.addUserToOrganization(
                 testSystemUserId,
-                testOrgId,
+                testOrgCode,
                 UserRoleEnum.MEMBER,
                 "test-user"
             )
@@ -101,13 +101,13 @@ class UserOrganizationServiceTest {
 
     @Test
     void updateUserRole_Success() {
-        when(userOrgRepository.findBySystemUserIdAndOrgId(anyLong(), anyString()))
+        when(userOrgRepository.findBySystemUserIdAndOrgCode(anyLong(), anyString()))
             .thenReturn(Optional.of(testUserOrg));
         when(userOrgRepository.save(any(UserOrganizationDO.class))).thenReturn(testUserOrg);
 
         UserOrganizationDO result = userOrgService.updateUserRole(
             testSystemUserId,
-            testOrgId,
+            testOrgCode,
             UserRoleEnum.ADMIN,
             "test-user"
         );
@@ -119,13 +119,13 @@ class UserOrganizationServiceTest {
 
     @Test
     void updateUserRole_NotFound() {
-        when(userOrgRepository.findBySystemUserIdAndOrgId(anyLong(), anyString()))
+        when(userOrgRepository.findBySystemUserIdAndOrgCode(anyLong(), anyString()))
             .thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () ->
             userOrgService.updateUserRole(
                 testSystemUserId,
-                testOrgId,
+                testOrgCode,
                 UserRoleEnum.ADMIN,
                 "test-user"
             )
@@ -135,31 +135,31 @@ class UserOrganizationServiceTest {
 
     @Test
     void removeUserFromOrganization_Success() {
-        when(userOrgRepository.findBySystemUserIdAndOrgId(anyLong(), anyString()))
+        when(userOrgRepository.findBySystemUserIdAndOrgCode(anyLong(), anyString()))
             .thenReturn(Optional.of(testUserOrg));
-        doNothing().when(userOrgRepository).deleteBySystemUserIdAndOrgId(anyLong(), anyString());
+        doNothing().when(userOrgRepository).deleteBySystemUserIdAndOrgCode(anyLong(), anyString());
 
-        userOrgService.removeUserFromOrganization(testSystemUserId, testOrgId);
+        userOrgService.removeUserFromOrganization(testSystemUserId, testOrgCode);
 
-        verify(userOrgRepository).deleteBySystemUserIdAndOrgId(testSystemUserId, testOrgId);
+        verify(userOrgRepository).deleteBySystemUserIdAndOrgCode(testSystemUserId, testOrgCode);
     }
 
     @Test
     void removeUserFromOrganization_NotFound() {
-        when(userOrgRepository.findBySystemUserIdAndOrgId(anyLong(), anyString()))
+        when(userOrgRepository.findBySystemUserIdAndOrgCode(anyLong(), anyString()))
             .thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () ->
-            userOrgService.removeUserFromOrganization(testSystemUserId, testOrgId)
+            userOrgService.removeUserFromOrganization(testSystemUserId, testOrgCode)
         );
-        verify(userOrgRepository, never()).deleteBySystemUserIdAndOrgId(anyLong(), anyString());
+        verify(userOrgRepository, never()).deleteBySystemUserIdAndOrgCode(anyLong(), anyString());
     }
 
     @Test
     void getUserOrganizations_Success() {
         UserOrganizationDO org2 = new UserOrganizationDO();
         org2.setSystemUserId(testSystemUserId);
-        org2.setOrgId("test-org-id-2");
+        org2.setOrgCode("test-org-code-2");
         org2.setRole(UserRoleEnum.VIEWER);
 
         when(userOrgRepository.findBySystemUserId(anyLong()))
@@ -168,21 +168,21 @@ class UserOrganizationServiceTest {
         List<UserOrganizationDO> results = userOrgService.getUserOrganizations(testSystemUserId);
 
         assertEquals(2, results.size());
-        assertEquals(testOrgId, results.get(0).getOrgId());
-        assertEquals("test-org-id-2", results.get(1).getOrgId());
+        assertEquals(testOrgCode, results.get(0).getOrgCode());
+        assertEquals("test-org-code-2", results.get(1).getOrgCode());
     }
 
     @Test
     void getOrganizationUsers_Success() {
         UserOrganizationDO user2 = new UserOrganizationDO();
         user2.setSystemUserId(2L);
-        user2.setOrgId(testOrgId);
+        user2.setOrgCode(testOrgCode);
         user2.setRole(UserRoleEnum.VIEWER);
 
-        when(userOrgRepository.findByOrgId(anyString()))
+        when(userOrgRepository.findByOrgCode(anyString()))
             .thenReturn(Arrays.asList(testUserOrg, user2));
 
-        List<UserOrganizationDO> results = userOrgService.getOrganizationUsers(testOrgId);
+        List<UserOrganizationDO> results = userOrgService.getOrganizationUsers(testOrgCode);
 
         assertEquals(2, results.size());
         assertEquals(testSystemUserId, results.get(0).getSystemUserId());
@@ -191,10 +191,10 @@ class UserOrganizationServiceTest {
 
     @Test
     void getUserRole_Success() {
-        when(userOrgRepository.findBySystemUserIdAndOrgId(anyLong(), anyString()))
+        when(userOrgRepository.findBySystemUserIdAndOrgCode(anyLong(), anyString()))
             .thenReturn(Optional.of(testUserOrg));
 
-        Optional<UserRoleEnum> result = userOrgService.getUserRole(testSystemUserId, testOrgId);
+        Optional<UserRoleEnum> result = userOrgService.getUserRole(testSystemUserId, testOrgCode);
 
         assertTrue(result.isPresent());
         assertEquals(UserRoleEnum.MEMBER, result.get());
@@ -202,10 +202,10 @@ class UserOrganizationServiceTest {
 
     @Test
     void getUserRole_NotFound() {
-        when(userOrgRepository.findBySystemUserIdAndOrgId(anyLong(), anyString()))
+        when(userOrgRepository.findBySystemUserIdAndOrgCode(anyLong(), anyString()))
             .thenReturn(Optional.empty());
 
-        Optional<UserRoleEnum> result = userOrgService.getUserRole(testSystemUserId, testOrgId);
+        Optional<UserRoleEnum> result = userOrgService.getUserRole(testSystemUserId, testOrgCode);
 
         assertTrue(result.isEmpty());
     }

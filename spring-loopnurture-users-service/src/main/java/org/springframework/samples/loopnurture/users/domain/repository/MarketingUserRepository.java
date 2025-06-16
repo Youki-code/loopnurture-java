@@ -53,7 +53,7 @@ public interface MarketingUserRepository {
     Optional<MarketingUserDO> findById(String id);
     Optional<MarketingUserDO> findByPrimaryEmail(String primaryEmail);
     Optional<MarketingUserDO> findByPhone(String phone);
-    List<MarketingUserDO> findByOrgId(String orgId);
+    List<MarketingUserDO> findByOrgCode(String orgCode);
     void deleteById(String id);
     boolean existsByPrimaryEmail(String primaryEmail);
     boolean existsByPhone(String phone);

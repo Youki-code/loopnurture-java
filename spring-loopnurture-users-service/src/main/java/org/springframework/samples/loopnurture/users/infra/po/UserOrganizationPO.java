@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user_organization", indexes = {
     @Index(name = "idx_user_org_user_id", columnList = "system_user_id"),
-    @Index(name = "idx_user_org_org_id", columnList = "org_id")
+    @Index(name = "idx_user_org_org_code", columnList = "org_code")
 }, uniqueConstraints = {
-    @UniqueConstraint(name = "uk_user_org", columnNames = {"system_user_id", "org_id"})
+    @UniqueConstraint(name = "uk_user_org", columnNames = {"system_user_id", "org_code"})
 })
 public class UserOrganizationPO {
     @Id
@@ -23,8 +23,8 @@ public class UserOrganizationPO {
     @Column(name = "system_user_id", nullable = false)
     private Long systemUserId;
 
-    @Column(name = "org_id", nullable = false)
-    private String orgId;
+    @Column(name = "org_code", nullable = false, length = 50)
+    private String orgCode;
 
     @Column(name = "role", nullable = false, columnDefinition = "SMALLINT")
     private Integer role;

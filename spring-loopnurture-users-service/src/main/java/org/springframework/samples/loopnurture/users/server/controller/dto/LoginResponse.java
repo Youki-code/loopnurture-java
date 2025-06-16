@@ -66,9 +66,9 @@ public class LoginResponse {
         private Integer authType;
 
         /**
-         * 组织ID
+         * 组织编码（兼容单组织场景）
          */
-        private String orgId;
+        private String orgCode;
 
         /**
          * 邮箱验证
@@ -94,7 +94,7 @@ public class LoginResponse {
             info.setLanguagePreference(user.getLanguagePreference() != null ? user.getLanguagePreference().toString() : null);
             info.setTimezone(user.getTimezone());
             info.setAuthType(user.getAuthType() != null ? user.getAuthType().getCode() : null);
-            info.setOrgId(user.getOrgId());
+            info.setOrgCode(null);
             info.setEmailVerified(user.getEmailVerified());
             info.setPhoneVerified(user.getPhoneVerified());
             return info;

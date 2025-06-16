@@ -52,7 +52,7 @@ public class OrganizationController {
 
     private OrganizationDTO convertToDTO(OrganizationDO organization) {
         OrganizationDTO dto = new OrganizationDTO();
-        dto.setOrgId(organization.getOrgId());
+        dto.setOrgCode(organization.getOrgCode());
         dto.setOrgName(organization.getOrgName());
         dto.setDescription(organization.getDescription());
         dto.setStatus(organization.getStatus() != null ? organization.getStatus().getCode() : null);

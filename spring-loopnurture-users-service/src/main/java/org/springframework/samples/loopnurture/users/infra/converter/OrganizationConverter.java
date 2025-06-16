@@ -44,7 +44,7 @@ public class OrganizationConverter {
             .maxUsers(organizationDO.getMaxUsers())
             .maxTemplates(organizationDO.getMaxTemplates())
             .maxRules(organizationDO.getMaxRules())
-            .settings(toJsonString(organizationDO.getSettings()))
+            .settings(toJsonString(organizationDO.getExtendsInfo()))
             .createdAt(organizationDO.getCreatedAt())
             .updatedAt(organizationDO.getUpdatedAt())
             .createdBy(organizationDO.getCreatedBy())
@@ -75,7 +75,7 @@ public class OrganizationConverter {
         organizationDO.setMaxUsers(organizationPO.getMaxUsers());
         organizationDO.setMaxTemplates(organizationPO.getMaxTemplates());
         organizationDO.setMaxRules(organizationPO.getMaxRules());
-        organizationDO.setSettings(fromJsonString(organizationPO.getSettings()));
+        organizationDO.setExtendsInfo(fromJsonString(organizationPO.getSettings()));
         organizationDO.setCreatedAt(organizationPO.getCreatedAt());
         organizationDO.setUpdatedAt(organizationPO.getUpdatedAt());
         organizationDO.setCreatedBy(organizationPO.getCreatedBy());

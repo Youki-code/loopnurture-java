@@ -9,10 +9,10 @@ import java.util.Optional;
 @Repository
 public interface JpaUserOrganizationMapper extends JpaRepository<UserOrganizationPO, Long> {
     List<UserOrganizationPO> findBySystemUserId(Long systemUserId);
-    List<UserOrganizationPO> findByOrgId(String orgId);
-    Optional<UserOrganizationPO> findBySystemUserIdAndOrgId(Long systemUserId, String orgId);
-    void deleteBySystemUserIdAndOrgId(Long systemUserId, String orgId);
+    List<UserOrganizationPO> findByOrgCode(String orgCode);
+    Optional<UserOrganizationPO> findBySystemUserIdAndOrgCode(Long systemUserId, String orgCode);
+    void deleteBySystemUserIdAndOrgCode(Long systemUserId, String orgCode);
     void deleteBySystemUserId(Long systemUserId);
-    void deleteByOrgId(String orgId);
-    boolean existsBySystemUserIdAndOrgId(Long systemUserId, String orgId);
+    void deleteByOrgCode(String orgCode);
+    boolean existsBySystemUserIdAndOrgCode(Long systemUserId, String orgCode);
 } 

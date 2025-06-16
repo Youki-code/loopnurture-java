@@ -53,8 +53,8 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
     }
     
     @Override
-    public List<MarketingUserDO> findByOrgId(String orgId) {
-        return jpaMapper.findByOrgId(orgId).stream()
+    public List<MarketingUserDO> findByOrgCode(String orgCode) {
+        return jpaMapper.findByOrgCode(orgCode).stream()
             .map(converter::toDO)
             .collect(Collectors.toList());
     }

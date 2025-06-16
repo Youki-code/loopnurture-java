@@ -34,16 +34,16 @@ class UserOrganizationRepositoryTest {
 
     private UserOrganizationPO testUserOrg;
     private Long testSystemUserId;
-    private String testOrgId;
+    private String testOrgCode;
 
     @BeforeEach
     void setUp() {
         testSystemUserId = 1L;
-        testOrgId = "test-org-id";
+        testOrgCode = "test-org-code";
 
         testUserOrg = new UserOrganizationPO();
         testUserOrg.setSystemUserId(testSystemUserId);
-        testUserOrg.setOrgId(testOrgId);
+        testUserOrg.setOrgCode(testOrgCode);
         testUserOrg.setRole(UserRoleEnum.MEMBER.getCode());
         testUserOrg.setCreatedAt(LocalDateTime.now());
         testUserOrg.setUpdatedAt(LocalDateTime.now());
@@ -61,32 +61,32 @@ class UserOrganizationRepositoryTest {
         assertFalse(results.isEmpty());
         assertEquals(1, results.size());
         assertEquals(testSystemUserId, results.get(0).getSystemUserId());
-        assertEquals(testOrgId, results.get(0).getOrgId());
+        assertEquals(testOrgCode, results.get(0).getOrgCode());
         assertEquals(UserRoleEnum.MEMBER, results.get(0).getRole());
     }
 
     @Test
-    void findByOrgId_Success() {
-        List<UserOrganizationDO> results = repository.findByOrgId(testOrgId);
+    void findByOrgCode_Success() {
+        List<UserOrganizationDO> results = repository.findByOrgCode(testOrgCode);
 
         assertFalse(results.isEmpty());
         assertEquals(1, results.size());
         assertEquals(testSystemUserId, results.get(0).getSystemUserId());
-        assertEquals(testOrgId, results.get(0).getOrgId());
+        assertEquals(testOrgCode, results.get(0).getOrgCode());
     }
 
     @Test
-    void findBySystemUserIdAndOrgId_Success() {
-        Optional<UserOrganizationDO> result = repository.findBySystemUserIdAndOrgId(testSystemUserId, testOrgId);
+    void findBySystemUserIdAndOrgCode_Success() {
+        Optional<UserOrganizationDO> result = repository.findBySystemUserIdAndOrgCode(testSystemUserId, testOrgCode);
 
         assertTrue(result.isPresent());
         assertEquals(testSystemUserId, result.get().getSystemUserId());
-        assertEquals(testOrgId, result.get().getOrgId());
+        assertEquals(testOrgCode, result.get().getOrgCode());
     }
 
     @Test
-    void findBySystemUserIdAndOrgId_NotFound() {
-        Optional<UserOrganizationDO> result = repository.findBySystemUserIdAndOrgId(999L, "non-existent");
+    void findBySystemUserIdAndOrgCode_NotFound() {
+        Optional<UserOrganizationDO> result = repository.findBySystemUserIdAndOrgCode(999L, "non-existent");
 
         assertTrue(result.isEmpty());
     }
@@ -95,7 +95,7 @@ class UserOrganizationRepositoryTest {
     void save_Success() {
         UserOrganizationDO newUserOrg = new UserOrganizationDO();
         newUserOrg.setSystemUserId(2L);
-        newUserOrg.setOrgId("test-org-id-2");
+        newUserOrg.setOrgCode("test-org-code-2");
         newUserOrg.setRole(UserRoleEnum.ADMIN);
         newUserOrg.setCreatedBy("test-user");
         newUserOrg.setUpdatedBy("test-user");
@@ -104,13 +104,13 @@ class UserOrganizationRepositoryTest {
 
         assertNotNull(saved.getId());
         assertEquals(2L, saved.getSystemUserId());
-        assertEquals("test-org-id-2", saved.getOrgId());
+        assertEquals("test-org-code-2", saved.getOrgCode());
         assertEquals(UserRoleEnum.ADMIN, saved.getRole());
     }
 
     @Test
-    void deleteBySystemUserIdAndOrgId_Success() {
-        repository.deleteBySystemUserIdAndOrgId(testSystemUserId, testOrgId);
+    void deleteBySystemUserIdAndOrgCode_Success() {
+        repository.deleteBySystemUserIdAndOrgCode(testSystemUserId, testOrgCode);
 
         Optional<UserOrganizationPO> deleted = Optional.ofNullable(
             entityManager.find(UserOrganizationPO.class, testUserOrg.getId())
@@ -127,22 +127,22 @@ class UserOrganizationRepositoryTest {
     }
 
     @Test
-    void deleteByOrgId_Success() {
-        repository.deleteByOrgId(testOrgId);
+    void deleteByOrgCode_Success() {
+        repository.deleteByOrgCode(testOrgCode);
 
-        List<UserOrganizationDO> remaining = repository.findByOrgId(testOrgId);
+        List<UserOrganizationDO> remaining = repository.findByOrgCode(testOrgCode);
         assertTrue(remaining.isEmpty());
     }
 
     @Test
-    void existsBySystemUserIdAndOrgId_True() {
-        boolean exists = repository.existsBySystemUserIdAndOrgId(testSystemUserId, testOrgId);
+    void existsBySystemUserIdAndOrgCode_True() {
+        boolean exists = repository.existsBySystemUserIdAndOrgCode(testSystemUserId, testOrgCode);
         assertTrue(exists);
     }
 
     @Test
-    void existsBySystemUserIdAndOrgId_False() {
-        boolean exists = repository.existsBySystemUserIdAndOrgId(999L, "non-existent");
+    void existsBySystemUserIdAndOrgCode_False() {
+        boolean exists = repository.existsBySystemUserIdAndOrgCode(999L, "non-existent");
         assertFalse(exists);
     }
 } 

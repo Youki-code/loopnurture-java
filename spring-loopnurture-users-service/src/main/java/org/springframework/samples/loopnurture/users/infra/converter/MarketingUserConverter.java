@@ -29,7 +29,6 @@ public class MarketingUserConverter {
         MarketingUserDO entity = new MarketingUserDO();
         entity.setId(po.getId());
         entity.setSystemUserId(po.getSystemUserId());
-        entity.setOrgId(po.getOrgId());
         entity.setUserUniq(po.getUserUniq());
         entity.setAuthType(AuthTypeEnum.fromCode(po.getAuthType()));
         entity.setOauthUserId(po.getOauthUserId());
@@ -49,6 +48,7 @@ public class MarketingUserConverter {
         entity.setCreatedAt(po.getCreatedAt());
         entity.setUpdatedAt(po.getUpdatedAt());
         entity.setLastLoginAt(po.getLastLoginAt());
+        entity.setCurrentOrgCode(po.getCurrentOrgCode());
 
         // 转换扩展信息
         try {
@@ -73,7 +73,6 @@ public class MarketingUserConverter {
         MarketingUserPO po = new MarketingUserPO();
         po.setId(entity.getId());
         po.setSystemUserId(entity.getSystemUserId());
-        po.setOrgId(entity.getOrgId());
         po.setUserUniq(entity.getUserUniq());
         po.setAuthType(entity.getAuthType().getCode());
         po.setOauthUserId(entity.getOauthUserId());
@@ -93,6 +92,7 @@ public class MarketingUserConverter {
         po.setCreatedAt(entity.getCreatedAt());
         po.setUpdatedAt(entity.getUpdatedAt());
         po.setLastLoginAt(entity.getLastLoginAt());
+        po.setCurrentOrgCode(entity.getCurrentOrgCode());
 
         // 转换扩展信息
         try {

@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 @Data
 public class OrganizationDTO {
     /**
-     * 组织ID
+     * 组织编码
      */
-    private String orgId;
+    private String orgCode;
 
     /**
      * 组织名称

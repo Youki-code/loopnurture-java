@@ -30,15 +30,15 @@ public class UserOrganizationRepositoryImpl implements UserOrganizationRepositor
     }
     
     @Override
-    public List<UserOrganizationDO> findByOrgId(String orgId) {
-        return jpaMapper.findByOrgId(orgId).stream()
+    public List<UserOrganizationDO> findByOrgCode(String orgCode) {
+        return jpaMapper.findByOrgCode(orgCode).stream()
             .map(converter::toDO)
             .collect(Collectors.toList());
     }
     
     @Override
-    public Optional<UserOrganizationDO> findBySystemUserIdAndOrgId(Long systemUserId, String orgId) {
-        return jpaMapper.findBySystemUserIdAndOrgId(systemUserId, orgId)
+    public Optional<UserOrganizationDO> findBySystemUserIdAndOrgCode(Long systemUserId, String orgCode) {
+        return jpaMapper.findBySystemUserIdAndOrgCode(systemUserId, orgCode)
             .map(converter::toDO);
     }
     
@@ -53,8 +53,8 @@ public class UserOrganizationRepositoryImpl implements UserOrganizationRepositor
     
     @Override
     @Transactional
-    public void deleteBySystemUserIdAndOrgId(Long systemUserId, String orgId) {
-        jpaMapper.deleteBySystemUserIdAndOrgId(systemUserId, orgId);
+    public void deleteBySystemUserIdAndOrgCode(Long systemUserId, String orgCode) {
+        jpaMapper.deleteBySystemUserIdAndOrgCode(systemUserId, orgCode);
     }
     
     @Override
@@ -65,12 +65,12 @@ public class UserOrganizationRepositoryImpl implements UserOrganizationRepositor
     
     @Override
     @Transactional
-    public void deleteByOrgId(String orgId) {
-        jpaMapper.deleteByOrgId(orgId);
+    public void deleteByOrgCode(String orgCode) {
+        jpaMapper.deleteByOrgCode(orgCode);
     }
     
     @Override
-    public boolean existsBySystemUserIdAndOrgId(Long systemUserId, String orgId) {
-        return jpaMapper.existsBySystemUserIdAndOrgId(systemUserId, orgId);
+    public boolean existsBySystemUserIdAndOrgCode(Long systemUserId, String orgCode) {
+        return jpaMapper.existsBySystemUserIdAndOrgCode(systemUserId, orgCode);
     }
 } 

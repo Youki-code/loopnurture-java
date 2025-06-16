@@ -20,7 +20,7 @@ public class UserOrganizationConverter {
         UserOrganizationDO entity = new UserOrganizationDO();
         entity.setId(po.getId());
         entity.setSystemUserId(po.getSystemUserId());
-        entity.setOrgId(po.getOrgId());
+        entity.setOrgCode(po.getOrgCode());
         entity.setRole(UserRoleEnum.fromCode(po.getRole()));
         entity.setCreatedAt(po.getCreatedAt());
         entity.setUpdatedAt(po.getUpdatedAt());
@@ -38,7 +38,7 @@ public class UserOrganizationConverter {
         UserOrganizationPO po = new UserOrganizationPO();
         po.setId(entity.getId());
         po.setSystemUserId(entity.getSystemUserId());
-        po.setOrgId(entity.getOrgId());
+        po.setOrgCode(entity.getOrgCode());
         po.setRole(entity.getRole().getCode());
         po.setCreatedAt(entity.getCreatedAt());
         po.setUpdatedAt(entity.getUpdatedAt());

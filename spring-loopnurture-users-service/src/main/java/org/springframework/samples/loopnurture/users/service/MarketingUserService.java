@@ -161,7 +161,7 @@ public class MarketingUserService {
             response.setValid(true);
             response.setUserId(user.getSystemUserId());
             response.setUserUniq(user.getUserUniq());
-            response.setOrgId(user.getOrgId());
+            response.setOrgCode(null);
         } catch (Exception e) {
             response.setValid(false);
             response.setErrorMessage(e.getMessage());
@@ -277,7 +277,7 @@ public class MarketingUserService {
         userInfo.setLanguagePreference(user.getLanguagePreference() != null ? user.getLanguagePreference().getCode() : null);
         userInfo.setTimezone(user.getTimezone());
         userInfo.setAuthType(user.getAuthType() != null ? user.getAuthType().getCode() : null);
-        userInfo.setOrgId(user.getOrgId());
+        userInfo.setOrgCode(null);
         userInfo.setEmailVerified(user.getEmailVerified());
         userInfo.setPhoneVerified(user.getPhoneVerified());
         response.setUserInfo(userInfo);
@@ -314,8 +314,8 @@ public class MarketingUserService {
     }
 
     @Transactional(readOnly = true)
-    public List<MarketingUserDO> findByOrgId(String orgId) {
-        return userRepository.findByOrgId(orgId);
+    public List<MarketingUserDO> findByOrgCode(String orgCode) {
+        return userRepository.findByOrgCode(orgCode);
     }
 
     public MarketingUserDO save(MarketingUserDO user) {

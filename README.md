@@ -121,3 +121,8 @@ docker compose up -d config-server discovery-server api-gateway users-service ma
 
 ## 贡献
 欢迎 PR / Issue 提交改进建议，遵循 Apache 2.0 许可证。 
+
+# 在模块根或项目根执行
+./mvnw clean package -DskipTests
+# 然后重新启动 users-service
+./mvnw -pl spring-loopnurture-users-service spring-boot:run -Dspring-boot.run.profiles=test 

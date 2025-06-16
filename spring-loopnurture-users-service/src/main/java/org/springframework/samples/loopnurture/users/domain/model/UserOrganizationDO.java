@@ -10,8 +10,9 @@ import java.time.LocalDateTime;
  */
 @Data
 public class UserOrganizationDO {
+
     /**
-     * 主键ID
+     * 主键ID，对应 user_organization.id
      */
     private Long id;
 
@@ -21,9 +22,9 @@ public class UserOrganizationDO {
     private Long systemUserId;
 
     /**
-     * 组织ID
+     * 组织编码
      */
-    private String orgId;
+    private String orgCode;
 
     /**
      * 用户在组织中的角色

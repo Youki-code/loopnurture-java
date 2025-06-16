@@ -86,7 +86,7 @@ public class OrganizationDO {
     /**
      * 组织设置，包含配额限制、密码策略、通知设置等
      */
-    private OrganizationSettingsVO settings;
+    private OrganizationSettingsVO extendsInfo;
 
     /**
      * 记录创建时间

@@ -28,7 +28,7 @@ public class TokenValidationResponse {
     private String userUniq;
 
     /**
-     * 组织ID（令牌有效时返回）
+     * 组织编码（令牌有效时返回，单组织场景下使用）
      */
-    private String orgId;
+    private String orgCode;
 } 

@@ -23,7 +23,7 @@ public class UserResponse {
     /**
      * 组织ID
      */
-    private String orgId;
+    private String orgCode;
 
     /**
      * 用户唯一标识
@@ -103,7 +103,7 @@ public class UserResponse {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
         response.setSystemUserId(user.getSystemUserId());
-        response.setOrgId(user.getOrgId());
+        response.setOrgCode(null);
         response.setUserUniq(user.getUserUniq());
         response.setAuthType(user.getAuthType());
         response.setUserType(user.getUserType());
