@@ -38,12 +38,20 @@ public class EmailSendRecordConverter {
         EmailSendRecordDO entity = new EmailSendRecordDO();
         entity.setOrgCode(po.getOrgCode());
         entity.setTemplateId(po.getTemplateId());
-        entity.setStatus(po.getStatus() != null ? EmailStatusEnum.fromValue(po.getStatus()) : null);
-        entity.setSentAt(po.getSentAt());
+        entity.setStatus(po.getStatus() != null ? EmailStatusEnum.fromValue(po.getStatus().intValue()) : null);
+        entity.setSentAt(po.getSendTime());
         entity.setCreatedAt(po.getCreatedAt());
         entity.setCreatedBy(po.getCreatedBy());
 
-        EmailSendRecordExtendsInfoVO info = parseExtendsInfo(po.getExtendsInfo());
+        // 从PO的各个字段构建扩展信息
+        EmailSendRecordExtendsInfoVO info = EmailSendRecordExtendsInfoVO.builder()
+                .subject(po.getSubject())
+                .content(po.getContent())
+                .recipient(po.getRecipients() != null ? java.util.List.of(po.getRecipients().split(",")) : null)
+                .cc(po.getCc() != null ? java.util.List.of(po.getCc().split(",")) : null)
+                .bcc(po.getBcc() != null ? java.util.List.of(po.getBcc().split(",")) : null)
+                .errorMessage(po.getErrorMessage())
+                .build();
 
         entity.setExtendsInfo(info);
 
@@ -64,15 +72,20 @@ public class EmailSendRecordConverter {
         po.setId(id); // 仅在基础设施层处理ID
         po.setOrgCode(entity.getOrgCode());
         po.setTemplateId(entity.getTemplateId());
-        po.setStatus(entity.getStatus() != null ? entity.getStatus().getCode() : null);
-        po.setSentAt(entity.getSentAt());
+        po.setStatus(entity.getStatus() != null ? entity.getStatus().getCode().shortValue() : null);
+        po.setSendTime(entity.getSentAt());
         po.setCreatedAt(entity.getCreatedAt());
         po.setCreatedBy(entity.getCreatedBy());
 
         EmailSendRecordExtendsInfoVO info = entity.getExtendsInfo();
 
         if (info != null) {
-            po.setExtendsInfo(serializeExtendsInfo(info));
+            po.setSubject(info.getSubject());
+            po.setContent(info.getContent());
+            po.setRecipients(info.getRecipient() != null ? String.join(",", info.getRecipient()) : null);
+            po.setCc(info.getCc() != null ? String.join(",", info.getCc()) : null);
+            po.setBcc(info.getBcc() != null ? String.join(",", info.getBcc()) : null);
+            po.setErrorMessage(info.getErrorMessage());
         }
 
         return po;

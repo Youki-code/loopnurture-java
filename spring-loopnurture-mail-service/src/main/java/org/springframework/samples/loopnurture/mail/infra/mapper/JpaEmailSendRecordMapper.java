@@ -23,17 +23,12 @@ public interface JpaEmailSendRecordMapper extends JpaRepository<EmailSendRecordP
     /**
      * 根据组织编码和发送时间范围分页查询
      */
-    Page<EmailSendRecordPO> findByOrgCodeAndSentAtBetween(String orgCode, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<EmailSendRecordPO> findByOrgCodeAndSendTimeBetween(String orgCode, LocalDateTime start, LocalDateTime end, Pageable pageable);
 
     /**
      * 根据组织编码和模板ID分页查询
      */
     Page<EmailSendRecordPO> findByOrgCodeAndTemplateId(String orgCode, String templateId, Pageable pageable);
-
-    /**
-     * 查询需要重试的记录
-     */
-    List<EmailSendRecordPO> findByStatusAndRetryCountLessThan(Integer status, int maxRetries);
 
     /**
      * 统计组织的发送记录数量
@@ -51,38 +46,20 @@ public interface JpaEmailSendRecordMapper extends JpaRepository<EmailSendRecordP
     Page<EmailSendRecordPO> findByTemplateId(String templateId, Pageable pageable);
 
     /**
-     * 查询需要重试的记录
+     * 根据规则ID分页查询
      */
-    @Query("SELECT e FROM EmailSendRecordPO e WHERE e.status = :status AND e.retryCount < :maxRetries " +
-           "AND e.createdAt >= :now")
-    List<EmailSendRecordPO> findRecordsForRetry(@Param("status") Integer status,
-                                               @Param("maxRetries") int maxRetries, 
-                                               @Param("now") LocalDateTime now);
+    Page<EmailSendRecordPO> findByRuleId(String ruleId, Pageable pageable);
 
     /**
      * 统计组织在指定时间范围内的发送记录数量
      */
-    long countByOrgCodeAndStatusAndSentAtBetween(String orgCode, Integer status, 
-                                                LocalDateTime start, LocalDateTime end);
-
-    Page<EmailSendRecordPO> findByRuleId(String ruleId, Pageable pageable);
-
-    @Query("SELECT e FROM EmailSendRecordPO e WHERE e.retryCount <= :maxRetryCount " +
-           "AND e.status = 0 AND e.nextRetryTime <= :currentTime")
-    List<EmailSendRecordPO> findRecordsForRetry(@Param("maxRetryCount") int maxRetryCount,
-                                               @Param("currentTime") LocalDateTime currentTime);
-
     long countByOrgCodeAndStatusAndSendTimeBetween(String orgCode, Integer status,
                                                   LocalDateTime startTime, LocalDateTime endTime);
 
-    // 新增：根据组织ID统计发送记录
-    long countByOrgIdAndStatusAndSentAtBetween(String orgId, Integer status,
-                                               LocalDateTime start, LocalDateTime end);
-
-    // 新增：按状态、重试次数和创建时间查询
-    List<EmailSendRecordPO> findByStatusAndRetryCountLessThanAndCreatedAtBefore(Integer status,
-                                                                               int maxRetries,
-                                                                               LocalDateTime beforeTime);
+    /**
+     * 根据状态查询发送记录
+     */
+    List<EmailSendRecordPO> findByStatus(Integer status);
 
     /**
      * 逻辑删除发送记录

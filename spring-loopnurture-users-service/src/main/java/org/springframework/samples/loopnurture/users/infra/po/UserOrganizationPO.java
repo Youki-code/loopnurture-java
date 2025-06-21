@@ -27,7 +27,7 @@ public class UserOrganizationPO {
     private String orgCode;
 
     @Column(name = "role", nullable = false, columnDefinition = "SMALLINT")
-    private Integer role;
+    private Short role;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

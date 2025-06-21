@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.samples.loopnurture.mail.domain.repository.dto.EmailSendRecordPageQueryDTO;
+import java.util.ArrayList;
 
 /**
  * 邮件发送记录仓储实现类
@@ -58,7 +59,7 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
 
     @Override
     public Page<EmailSendRecordDO> findByOrgCodeAndSentAtBetween(String orgCode, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable) {
-        return emailSendRecordMapper.findByOrgCodeAndSentAtBetween(orgCode, startTime, endTime, pageable)
+        return emailSendRecordMapper.findByOrgCodeAndSendTimeBetween(orgCode, startTime, endTime, pageable)
                 .map(emailSendRecordConverter::toDO);
     }
 
@@ -70,10 +71,9 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
 
     @Override
     public List<EmailSendRecordDO> findRetryableRecords(int maxRetries) {
-        return emailSendRecordMapper.findByStatusAndRetryCountLessThan(EmailStatusEnum.FAILED.getCode(), maxRetries)
-                .stream()
-                .map(emailSendRecordConverter::toDO)
-                .collect(Collectors.toList());
+        // 由于数据库表中没有retryCount字段，暂时返回空列表
+        // TODO: 如果需要重试功能，需要在数据库表中添加retryCount字段
+        return new ArrayList<>();
     }
 
     @Override
@@ -83,7 +83,7 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
 
     @Override
     public long countByOrgIdAndStatusAndSendTimeBetween(String orgId, Integer status, LocalDateTime startTime, LocalDateTime endTime) {
-        return emailSendRecordMapper.countByOrgIdAndStatusAndSentAtBetween(orgId, status, startTime, endTime);
+        return emailSendRecordMapper.countByOrgCodeAndStatusAndSendTimeBetween(orgId, status, startTime, endTime);
     }
 
     @Override
@@ -93,14 +93,17 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
     }
 
     @Override
-    public List<EmailSendRecordDO> findRecordsForRetry(int maxRetries, LocalDateTime beforeTime) {
-        return emailSendRecordMapper.findByStatusAndRetryCountLessThanAndCreatedAtBefore(
-                EmailStatusEnum.FAILED.getCode(),
-                maxRetries,
-                beforeTime
-            ).stream()
-            .map(emailSendRecordConverter::toDO)
-            .collect(Collectors.toList());
+    public List<EmailSendRecordDO> findRecordsForRetry(int maxRetryCount, LocalDateTime beforeTime) {
+        // 由于数据库表中没有retryCount字段，暂时返回空列表
+        // TODO: 如果需要重试功能，需要在数据库表中添加retryCount字段
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<EmailSendRecordDO> findByStatusAndRetryCountLessThanAndCreatedAtBefore(Integer status, int maxRetries, LocalDateTime beforeTime) {
+        // 由于数据库表中没有retryCount字段，暂时返回空列表
+        // TODO: 如果需要重试功能，需要在数据库表中添加retryCount字段
+        return new ArrayList<>();
     }
 
     @Override
@@ -111,15 +114,7 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
 
     @Override
     public long countByOrgIdAndStatusAndSentAtBetween(String orgId, Integer status, LocalDateTime startTime, LocalDateTime endTime) {
-        return emailSendRecordMapper.countByOrgIdAndStatusAndSentAtBetween(orgId, status, startTime, endTime);
-    }
-
-    @Override
-    public List<EmailSendRecordDO> findByStatusAndRetryCountLessThanAndCreatedAtBefore(Integer status, int maxRetries, LocalDateTime beforeTime) {
-        return emailSendRecordMapper.findByStatusAndRetryCountLessThanAndCreatedAtBefore(status, maxRetries, beforeTime)
-            .stream()
-            .map(emailSendRecordConverter::toDO)
-            .collect(Collectors.toList());
+        return emailSendRecordMapper.countByOrgCodeAndStatusAndSendTimeBetween(orgId, status, startTime, endTime);
     }
 
     @Override

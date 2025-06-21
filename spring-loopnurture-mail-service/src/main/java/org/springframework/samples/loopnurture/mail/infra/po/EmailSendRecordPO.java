@@ -22,32 +22,53 @@ import java.util.Date;
 public class EmailSendRecordPO {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(name = "org_code")
     private String orgCode;
 
+    @Column(name = "rule_id")
+    private String ruleId;
+
     @Column(name = "template_id")
     private String templateId;
 
-    @Column(name = "extends_info")
-    private String extendsInfo;
+    @Column(name = "subject")
+    private String subject;
 
-    @Column(name = "variables")
-    private String variables;
+    @Column(name = "content")
+    private String content;
 
-    @Column(name = "status")
-    private Integer status;
+    @Column(name = "recipients")
+    private String recipients;
 
-    @Column(name = "sent_at")
-    private Date sentAt;
+    @Column(name = "cc")
+    private String cc;
+
+    @Column(name = "bcc")
+    private String bcc;
+
+    @Column(name = "status", columnDefinition = "SMALLINT")
+    private Short status;
+
+    @Column(name = "error_message")
+    private String errorMessage;
+
+    @Column(name = "send_time")
+    private Date sendTime;
 
     @Column(name = "created_at")
     private Date createdAt;
 
+    @Column(name = "updated_at")
+    private Date updatedAt;
+
     @Column(name = "created_by")
     private String createdBy;
+
+    @Column(name = "updated_by")
+    private String updatedBy;
 
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = false;

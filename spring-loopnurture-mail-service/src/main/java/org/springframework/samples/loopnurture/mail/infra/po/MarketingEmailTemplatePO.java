@@ -23,7 +23,7 @@ public class MarketingEmailTemplatePO {
      * 主键ID
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     /**
@@ -47,8 +47,8 @@ public class MarketingEmailTemplatePO {
     /**
      * 内容类型：1-文本，2-HTML
      */
-    @Column(name = "content_type")
-    private Integer contentType;
+    @Column(name = "content_type", columnDefinition = "SMALLINT")
+    private Short contentType;
 
     /**
      * 模板内容
@@ -65,8 +65,8 @@ public class MarketingEmailTemplatePO {
     /**
      * 启用状态：1-启用，0-禁用
      */
-    @Column(name = "enable_status")
-    private Integer enableStatus;
+    @Column(name = "enable_status", columnDefinition = "SMALLINT")
+    private Short enableStatus;
 
     /**
      * 扩展信息（JSON格式）

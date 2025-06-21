@@ -31,7 +31,7 @@ public class MarketingUserPO {
     private String userUniq;
 
     @Column(name = "auth_type", nullable = false, columnDefinition = "SMALLINT")
-    private Integer authType;
+    private Short authType;
 
     @Column(name = "oauth_user_id")
     private String oauthUserId;
@@ -40,7 +40,7 @@ public class MarketingUserPO {
     private String password;
 
     @Column(name = "user_type", columnDefinition = "SMALLINT")
-    private Integer userType;
+    private Short userType;
 
     @Column(name = "extends_info", columnDefinition = "TEXT")
     private String extendsInfo;
@@ -70,7 +70,7 @@ public class MarketingUserPO {
     private String timezone;
 
     @Column(name = "account_status", columnDefinition = "SMALLINT")
-    private Integer accountStatus;
+    private Short accountStatus;
 
     @Column(name = "email_verified", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean emailVerified;

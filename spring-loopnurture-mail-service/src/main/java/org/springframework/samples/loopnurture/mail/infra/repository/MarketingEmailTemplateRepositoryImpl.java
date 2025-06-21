@@ -40,7 +40,7 @@ public class MarketingEmailTemplateRepositoryImpl implements MarketingEmailTempl
 
     @Override
     public MarketingEmailTemplateDO findByOrgCodeAndTemplateCode(String orgCode, String templateCode) {
-        return templateMapper.findByOrgCodeAndTemplateCode(orgCode, templateCode).map(templateConverter::toDO).orElse(null);
+        return templateMapper.findByOrgCodeAndTemplateId(orgCode, templateCode).map(templateConverter::toDO).orElse(null);
     }
 
 
@@ -126,7 +126,7 @@ public class MarketingEmailTemplateRepositoryImpl implements MarketingEmailTempl
 
     @Override
     public MarketingEmailTemplateDO findByTemplateCode(String templateCode) {
-        return templateMapper.findByTemplateCode(templateCode).map(templateConverter::toDO).orElse(null);
+        return templateMapper.findByTemplateId(templateCode).map(templateConverter::toDO).orElse(null);
     }
 
     @Override

@@ -69,6 +69,7 @@ class MarketingUserServiceTest {
         testRequest.setUserUniq("testuser");
         testRequest.setPassword("password");
         testRequest.setAuthType(AuthTypeEnum.PASSWORD.getCode());
+        testRequest.setPrimaryEmail("test@example.com");
     }
 
     @Test
@@ -111,13 +112,16 @@ class MarketingUserServiceTest {
         oauthUser.setUserUniq("oauth_user");
         oauthUser.setAuthType(AuthTypeEnum.GOOGLE_OAUTH);
         oauthUser.setOauthUserId("google_123");
+        oauthUser.setPrimaryEmail("oauth@example.com");
+        oauthUser.setEmailVerified(false);
+        oauthUser.setPhoneVerified(false);
         
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setAuthType(AuthTypeEnum.GOOGLE_OAUTH.getCode());
         loginRequest.setOauthUserId("google_123");
         loginRequest.setOauthAccessToken("oauth_token");
 
-        when(marketingUserRepository.findByOAuthInfo(anyString(), anyInt()))
+        when(marketingUserRepository.findByOAuthInfo(anyString(), eq(AuthTypeEnum.GOOGLE_OAUTH.getCode())))
             .thenReturn(Optional.of(oauthUser));
         when(jwtUtils.generateToken(any(MarketingUserDO.class))).thenReturn("test.jwt.token");
 

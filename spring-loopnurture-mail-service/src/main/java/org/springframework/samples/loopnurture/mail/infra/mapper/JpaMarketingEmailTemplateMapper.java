@@ -30,27 +30,12 @@ public interface JpaMarketingEmailTemplateMapper extends JpaRepository<Marketing
     long countByOrgCodeAndEnableStatus(String orgCode, Integer enableStatus);
 
     /**
-     * 根据模板代码查找模板
-     */
-    Optional<MarketingEmailTemplatePO> findByTemplateCode(String templateCode);
-
-    /**
-     * 根据组织编码和模板代码查找模板
-     */
-    Optional<MarketingEmailTemplatePO> findByOrgCodeAndTemplateCode(String orgCode, String templateCode);
-
-    /**
-     * 检查模板代码是否已存在
-     */
-    boolean existsByTemplateCode(String templateCode);
-
-    /**
      * 统计组织的模板数量
      */
     long countByOrgCode(String orgCode);
 
     @org.springframework.data.jpa.repository.Modifying
-    @org.springframework.data.jpa.repository.Query("update MarketingEmailTemplatePO set deleted = true where template_id = :templateId")
+    @org.springframework.data.jpa.repository.Query("update MarketingEmailTemplatePO set deleted = true where templateId = :templateId")
     void softDeleteByTemplateId(@Param("templateId") String templateId);
 
     /**

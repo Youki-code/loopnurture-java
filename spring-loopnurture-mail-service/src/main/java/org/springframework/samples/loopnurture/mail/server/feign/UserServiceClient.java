@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "user-service", url = "${user.service.url}")
+@FeignClient(name = "user-service", url = "${services.user.url}")
 public interface UserServiceClient {
 
     @PostMapping("/api/v1/auth/validate")

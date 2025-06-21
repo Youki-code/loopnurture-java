@@ -17,25 +17,66 @@ import java.util.Optional;
  * 邮件发送规则JPA Mapper接口
  */
 public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, String>, JpaSpecificationExecutor<EmailSendRulePO> {
+    
     /**
-     * 根据组织ID查找规则
+     * 根据组织编码查找规则
      */
-    List<EmailSendRulePO> findByOrgId(String orgId);
+    List<EmailSendRulePO> findByOrgCode(String orgCode);
 
     /**
      * 分页查询组织的所有规则
      */
-    Page<EmailSendRulePO> findByOrgId(String orgId, Pageable pageable);
+    Page<EmailSendRulePO> findByOrgCode(String orgCode, Pageable pageable);
 
     /**
-     * 根据组织ID和规则名称查找规则
+     * 根据组织编码和规则名称查找规则
      */
-    Optional<EmailSendRulePO> findByOrgIdAndRuleName(String orgId, String ruleName);
+    Optional<EmailSendRulePO> findByOrgCodeAndRuleName(String orgCode, String ruleName);
+
+    /**
+     * 根据组织编码和规则ID查找规则
+     */
+    Optional<EmailSendRulePO> findByOrgCodeAndRuleId(String orgCode, String ruleId);
+
+    /**
+     * 根据组织编码和启用状态分页查询规则
+     */
+    Page<EmailSendRulePO> findByOrgCodeAndEnableStatus(String orgCode, Integer enableStatus, Pageable pageable);
+    
+    /**
+     * 根据组织编码和启用状态查找规则
+     */
+    List<EmailSendRulePO> findByOrgCodeAndEnableStatus(String orgCode, Integer enableStatus);
+
+    /**
+     * 根据组织编码查找激活的规则
+     */
+    List<EmailSendRulePO> findByOrgCodeAndEnableStatusTrue(String orgCode);
+
+    /**
+     * 根据组织编码统计规则数量
+     */
+    long countByOrgCode(String orgCode);
+
+    /**
+     * 检查组织编码和规则名称是否已存在
+     */
+    boolean existsByOrgCodeAndRuleName(String orgCode, String ruleName);
+
+    /**
+     * 检查组织编码和规则ID是否已存在
+     */
+    boolean existsByOrgCodeAndRuleId(String orgCode, String ruleId);
+
+    /**
+     * 根据业务 ruleId 查询规则
+     */
+    Optional<EmailSendRulePO> findByRuleId(String ruleId);
 
     /**
      * 查找需要执行的规则
      */
-    @Query("SELECT e FROM EmailSendRulePO e WHERE e.isActive = true " +
+    @Query("SELECT e FROM EmailSendRulePO e WHERE e.enableStatus = 1 " +
             "AND (e.startTime IS NULL OR e.startTime <= :now) " +
             "AND (e.endTime IS NULL OR e.endTime >= :now) " +
             "AND (e.maxExecutions IS NULL OR e.executionCount < e.maxExecutions) " +
@@ -43,12 +84,23 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
     List<EmailSendRulePO> findRulesForExecution(@Param("now") LocalDateTime now);
 
     /**
-     * 检查规则名称是否已存在
+     * 查找所有激活且下次执行时间小于等于当前时间的规则
      */
-    boolean existsByOrgIdAndRuleName(String orgId, String ruleName);
+    @Query("SELECT e FROM EmailSendRulePO e WHERE e.enableStatus = 1 " +
+            "AND e.nextExecutionTime <= :now")
+    List<EmailSendRulePO> findByEnableStatusTrueAndNextExecutionTimeLessThanEqual(@Param("now") LocalDateTime now);
 
     /**
-     * 更新规则执行信息
+     * 根据组织编码、启用状态和当前时间查找需要执行的规则
+     */
+    @Query("SELECT e FROM EmailSendRulePO e WHERE e.orgCode = :orgCode " +
+           "AND e.enableStatus = :enableStatus AND e.nextExecutionTime <= :currentTime")
+    List<EmailSendRulePO> findRulesForExecution(@Param("orgCode") String orgCode,
+                                               @Param("enableStatus") Integer enableStatus,
+                                               @Param("currentTime") LocalDateTime currentTime);
+
+    /**
+     * 更新规则执行信息（根据ID）
      */
     @Modifying
     @Query("UPDATE EmailSendRulePO e SET e.lastExecutionTime = :lastExecutionTime, " +
@@ -60,45 +112,8 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
                              @Param("executionCount") int executionCount);
 
     /**
-     * 根据组织代码和规则ID查找规则
+     * 更新规则执行信息（根据ruleId）
      */
-    Optional<EmailSendRulePO> findByOrgCodeAndRuleId(String orgCode, String ruleId);
-
-    /**
-     * 根据组织代码查找所有激活的规则
-     */
-    List<EmailSendRulePO> findByOrgCodeAndIsActiveTrue(String orgCode);
-
-    /**
-     * 根据组织代码分页查询规则
-     */
-    Page<EmailSendRulePO> findByOrgCode(String orgCode, Pageable pageable);
-
-    /**
-     * 检查组织代码和规则ID是否已存在
-     */
-    boolean existsByOrgCodeAndRuleId(String orgCode, String ruleId);
-
-    /**
-     * 查找所有激活且下次执行时间小于等于当前时间的规则
-     */
-    @Query("SELECT e FROM EmailSendRulePO e WHERE e.isActive = true " +
-            "AND e.nextExecutionTime <= :now")
-    List<EmailSendRulePO> findByIsActiveTrueAndNextExecutionTimeLessThanEqual(@Param("now") LocalDateTime now);
-
-    /**
-     * 根据组织代码统计规则数量
-     */
-    long countByOrgCode(String orgCode);
-
-    List<EmailSendRulePO> findByOrgCode(String orgCode);
-    
-    Page<EmailSendRulePO> findByOrgCodeAndEnableStatus(String orgCode, Integer enableStatus, Pageable pageable);
-    
-    List<EmailSendRulePO> findByOrgCodeAndEnableStatus(String orgCode, Integer enableStatus);
-    
-    boolean existsByOrgCodeAndRuleName(String orgCode, String ruleName);
-    
     @Modifying
     @Query("UPDATE EmailSendRulePO e SET e.lastExecutionTime = :lastExecutionTime, " +
            "e.nextExecutionTime = :nextExecutionTime, e.executionCount = e.executionCount + 1 " +
@@ -106,24 +121,13 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
     void updateExecutionInfo(@Param("ruleId") String ruleId,
                            @Param("lastExecutionTime") LocalDateTime lastExecutionTime,
                            @Param("nextExecutionTime") LocalDateTime nextExecutionTime);
-    
-    @Query("SELECT e FROM EmailSendRulePO e WHERE e.orgCode = :orgCode " +
-           "AND e.enableStatus = :enableStatus AND e.nextExecutionTime <= :currentTime")
-    List<EmailSendRulePO> findRulesForExecution(@Param("orgCode") String orgCode,
-                                               @Param("enableStatus") Integer enableStatus,
-                                               @Param("currentTime") LocalDateTime currentTime);
 
     /**
-     * 逻辑删除规则
+     * 逻辑删除规则（根据ID）
      */
     @Modifying
     @Query("UPDATE EmailSendRulePO e SET e.deleted = true WHERE e.id = :id")
     void softDeleteById(@Param("id") String id);
-
-    /**
-     * 根据组织编码和规则名称查找规则
-     */
-    Optional<EmailSendRulePO> findByOrgCodeAndRuleName(String orgCode, String ruleName);
 
     /**
      * 根据 ruleId 逻辑删除
@@ -131,9 +135,4 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
     @Modifying
     @Query("UPDATE EmailSendRulePO e SET e.deleted = true WHERE e.ruleId = :ruleId")
     void softDeleteByRuleId(@Param("ruleId") String ruleId);
-
-    /**
-     * 根据业务 ruleId 查询规则
-     */
-    Optional<EmailSendRulePO> findByRuleId(String ruleId);
 } 

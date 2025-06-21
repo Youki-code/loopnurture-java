@@ -90,7 +90,7 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
 
     @Override
     public Optional<MarketingUserDO> findByOAuthInfo(String oauthUserId, Integer authType) {
-        return jpaMapper.findByOauthUserIdAndAuthType(oauthUserId, authType)
+        return jpaMapper.findByOauthUserIdAndAuthType(oauthUserId, authType != null ? authType.shortValue() : null)
             .map(converter::toDO);
     }
 

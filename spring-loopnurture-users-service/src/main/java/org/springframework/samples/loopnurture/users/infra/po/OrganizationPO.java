@@ -31,10 +31,10 @@ public class OrganizationPO {
     private String orgName;
 
     @Column(name = "org_type", columnDefinition = "SMALLINT")
-    private Integer orgType;
+    private Short orgType;
 
     @Column(name = "org_status", columnDefinition = "SMALLINT")
-    private Integer status;
+    private Short status;
 
     @Column(name = "description")
     private String description;

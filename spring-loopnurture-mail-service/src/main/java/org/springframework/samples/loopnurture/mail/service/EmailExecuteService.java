@@ -29,7 +29,6 @@ public class EmailExecuteService {
     /**
      * 查询所有已启用且到达执行时间且未超出最大次数的规则并逐一执行。
      */
-    @Transactional
     public void executeDueRules() {
         Date now = new Date();
         List<EmailSendRuleDO> dueRules = ruleRepository.findExecutableRules(now);
@@ -43,10 +42,25 @@ public class EmailExecuteService {
     }
 
     /**
-     * 执行单条规则
+     * 执行单条规则 - 使用@Transactional注解
      */
     @Transactional
     public void executeRule(String ruleId) {
+        log.info("Starting transaction for rule: {}", ruleId);
+        
+        try {
+            executeRuleInternal(ruleId);
+            log.info("Transaction completed successfully for rule: {}", ruleId);
+        } catch (Exception e) {
+            log.error("Error executing rule {} - transaction will be rolled back", ruleId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * 内部执行规则逻辑
+     */
+    private void executeRuleInternal(String ruleId) {
         EmailSendRuleDO rule = ruleRepository.findByRuleId(ruleId);
         if (rule == null) {
             log.warn("Rule {} not found", ruleId);

@@ -20,8 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtAuthInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/api/users/register",
-                        "/api/users/login",
+                        "/api/v1/auth/**",
+                        "/api/v1/users/register",
                         "/error",
                         "/swagger-ui/**",
                         "/v3/api-docs/**"

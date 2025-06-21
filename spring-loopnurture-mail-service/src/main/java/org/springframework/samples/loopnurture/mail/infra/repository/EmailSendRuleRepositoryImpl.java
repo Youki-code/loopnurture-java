@@ -54,7 +54,7 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
 
     @Override
     public List<EmailSendRuleDO> findActiveRulesByOrgCode(String orgCode) {
-        return emailSendRuleMapper.findByOrgCodeAndIsActiveTrue(orgCode)
+        return emailSendRuleMapper.findByOrgCodeAndEnableStatus(orgCode, 1)
                 .stream()
                 .map(emailSendRuleConverter::toDO)
                 .collect(Collectors.toList());
@@ -75,7 +75,7 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
     @Override
     public List<EmailSendRuleDO> findRulesForExecution(Date now) {
         LocalDateTime ldt = toLocalDateTime(now);
-        return emailSendRuleMapper.findByIsActiveTrueAndNextExecutionTimeLessThanEqual(ldt)
+        return emailSendRuleMapper.findByEnableStatusTrueAndNextExecutionTimeLessThanEqual(ldt)
                 .stream()
                 .map(emailSendRuleConverter::toDO)
                 .collect(Collectors.toList());
@@ -100,7 +100,7 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
 
     @Override
     public Page<EmailSendRuleDO> findByOrgId(String orgId, Pageable pageable) {
-        return emailSendRuleMapper.findByOrgId(orgId, pageable)
+        return emailSendRuleMapper.findByOrgCode(orgId, pageable)
                 .map(emailSendRuleConverter::toDO);
     }
 

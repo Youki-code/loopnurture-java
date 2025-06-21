@@ -24,7 +24,7 @@ import java.util.Date;
 public class EmailSendRulePO {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(name = "org_code")
@@ -39,8 +39,8 @@ public class EmailSendRulePO {
     @Column(name = "template_id")
     private String templateId;
 
-    @Column(name = "rule_type")
-    private Integer ruleType;
+    @Column(name = "rule_type", columnDefinition = "SMALLINT")
+    private Short ruleType;
 
     /**
      * 扩展信息(JSON)
@@ -66,8 +66,8 @@ public class EmailSendRulePO {
     @Column(name = "next_execution_time")
     private Date nextExecutionTime;
 
-    @Column(name = "enable_status")
-    private Integer enableStatus;
+    @Column(name = "enable_status", columnDefinition = "SMALLINT")
+    private Short enableStatus;
 
     @Column(name = "created_at")
     private Date createdAt;

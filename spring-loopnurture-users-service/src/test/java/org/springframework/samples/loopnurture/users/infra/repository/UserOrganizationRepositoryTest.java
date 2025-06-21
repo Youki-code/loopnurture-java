@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import(UserOrganizationConverter.class)
+@Import({UserOrganizationConverter.class, UserOrganizationRepositoryImpl.class})
 class UserOrganizationRepositoryTest {
 
     @Autowired
@@ -44,7 +44,7 @@ class UserOrganizationRepositoryTest {
         testUserOrg = new UserOrganizationPO();
         testUserOrg.setSystemUserId(testSystemUserId);
         testUserOrg.setOrgCode(testOrgCode);
-        testUserOrg.setRole(UserRoleEnum.MEMBER.getCode());
+        testUserOrg.setRole(UserRoleEnum.MEMBER.getCode().shortValue());
         testUserOrg.setCreatedAt(LocalDateTime.now());
         testUserOrg.setUpdatedAt(LocalDateTime.now());
         testUserOrg.setCreatedBy("test-user");

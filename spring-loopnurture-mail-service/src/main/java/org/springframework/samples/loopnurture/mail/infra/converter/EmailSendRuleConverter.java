@@ -33,7 +33,7 @@ public class EmailSendRuleConverter {
         entity.setRuleId(po.getRuleId());
         entity.setRuleName(po.getRuleName());
         entity.setTemplateId(po.getTemplateId());
-        entity.setRuleType(po.getRuleType());
+        entity.setRuleType(po.getRuleType() != null ? po.getRuleType().intValue() : null);
         entity.setStartTime(po.getStartTime());
         entity.setEndTime(po.getEndTime());
         entity.setMaxExecutions(po.getMaxExecutions());
@@ -56,7 +56,7 @@ public class EmailSendRuleConverter {
         }
 
         // 启用状态
-        entity.setEnableStatus(org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum.fromCode(po.getEnableStatus()));
+        entity.setEnableStatus(org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum.fromCode(po.getEnableStatus() != null ? po.getEnableStatus().intValue() : null));
 
         return entity;
     }
@@ -75,7 +75,7 @@ public class EmailSendRuleConverter {
         po.setRuleId(entity.getRuleId());
         po.setRuleName(entity.getRuleName());
         po.setTemplateId(entity.getTemplateId());
-        po.setRuleType(entity.getRuleType());
+        po.setRuleType(entity.getRuleType() != null ? entity.getRuleType().shortValue() : null);
         po.setStartTime(entity.getStartTime());
         po.setEndTime(entity.getEndTime());
         po.setMaxExecutions(entity.getMaxExecutions());
@@ -97,7 +97,7 @@ public class EmailSendRuleConverter {
         }
 
         // 启用状态
-        po.setEnableStatus(entity.getEnableStatus() != null ? entity.getEnableStatus().getCode() : null);
+        po.setEnableStatus(entity.getEnableStatus() != null ? entity.getEnableStatus().getCode().shortValue() : null);
 
         return po;
     }

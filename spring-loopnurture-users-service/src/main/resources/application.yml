@@ -2,12 +2,19 @@ spring:
   application:
     name: users-service
   config:
-    import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888/}
+    import: optional:configserver:http://localhost:8888
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://db.cilxaqxdcffzpggwjphz.supabase.co:5432/postgres
-    username: postgres
+    url: jdbc:postgresql://aws-0-us-west-1.pooler.supabase.com:6543/postgres
+    username: postgres.cilxaqxdcffzpggwjphz
     password: loopnurture1a2b3c4d!
+    hikari:
+      pool-name: UsersServiceHikariCP
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -16,6 +23,20 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        # 禁用类型检查，允许SMALLINT和INTEGER之间的转换
+        jdbc:
+          time_zone: UTC
+        # 配置类型映射
+        types:
+          preferred-instant-jdbc-type: TIMESTAMP
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: false
+    # 如果数据库已存在表，设置为true
+    baseline-on-new-schema: true
 
 server:
   port: 8081
@@ -23,10 +44,3 @@ server:
 jwt:
   secret: loopnurture_jwt_secret_key_please_change_in_production
   expiration: 86400 # 24 hours in seconds
-
----
-spring:
-  config:
-    activate:
-      on-profile: docker
-    import: configserver:http://config-server:8888

@@ -33,8 +33,8 @@ public class OrganizationConverter {
             .id(organizationDO.getId())
             .orgCode(organizationDO.getOrgCode())
             .orgName(organizationDO.getOrgName())
-            .orgType(organizationDO.getOrgType().getCode())
-            .status(organizationDO.getStatus().getCode())
+            .orgType(organizationDO.getOrgType() != null ? organizationDO.getOrgType().getCode().shortValue() : null)
+            .status(organizationDO.getStatus() != null ? organizationDO.getStatus().getCode().shortValue() : null)
             .description(organizationDO.getDescription())
             .address(organizationDO.getAddress())
             .phone(organizationDO.getPhone())
@@ -64,8 +64,8 @@ public class OrganizationConverter {
         organizationDO.setId(organizationPO.getId());
         organizationDO.setOrgCode(organizationPO.getOrgCode());
         organizationDO.setOrgName(organizationPO.getOrgName());
-        organizationDO.setOrgType(OrganizationTypeEnum.fromCode(organizationPO.getOrgType()));
-        organizationDO.setStatus(OrganizationStatusEnum.fromCode(organizationPO.getStatus()));
+        organizationDO.setOrgType(OrganizationTypeEnum.fromCode(organizationPO.getOrgType() != null ? organizationPO.getOrgType().intValue() : null));
+        organizationDO.setStatus(OrganizationStatusEnum.fromCode(organizationPO.getStatus() != null ? organizationPO.getStatus().intValue() : null));
         organizationDO.setDescription(organizationPO.getDescription());
         organizationDO.setAddress(organizationPO.getAddress());
         organizationDO.setPhone(organizationPO.getPhone());

@@ -67,10 +67,10 @@ public class MarketingEmailTemplateConverter {
             .orgCode(po.getOrgCode())
             .templateId(po.getTemplateId())
             .templateName(po.getTemplateName())
-            .contentType(org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum.fromCode(po.getContentType()))
+            .contentType(org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum.fromCode(po.getContentType() != null ? po.getContentType().intValue() : null))
             .contentTemplate(po.getContentTemplate())
             .aiStrategyVersion(po.getAiStrategyVersion())
-            .enableStatus(org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum.fromCode(po.getEnableStatus()));
+            .enableStatus(org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum.fromCode(po.getEnableStatus() != null ? po.getEnableStatus().intValue() : null));
 
         try {
             if (StringUtils.hasText(po.getExtendsInfo())) {
@@ -100,10 +100,10 @@ public class MarketingEmailTemplateConverter {
         po.setOrgCode(entity.getOrgCode());
         po.setTemplateId(entity.getTemplateId());
         po.setTemplateName(entity.getTemplateName());
-        po.setContentType(entity.getContentType()!=null?entity.getContentType().getCode():null);
+        po.setContentType(entity.getContentType()!=null?entity.getContentType().getCode().shortValue():null);
         po.setContentTemplate(entity.getContentTemplate());
         po.setAiStrategyVersion(entity.getAiStrategyVersion());
-        po.setEnableStatus(entity.getEnableStatus()!=null?entity.getEnableStatus().getCode():null);
+        po.setEnableStatus(entity.getEnableStatus()!=null?entity.getEnableStatus().getCode().shortValue():null);
         
         try {
             if (entity.getExtendsInfo() != null) {

@@ -21,7 +21,7 @@ public class UserOrganizationConverter {
         entity.setId(po.getId());
         entity.setSystemUserId(po.getSystemUserId());
         entity.setOrgCode(po.getOrgCode());
-        entity.setRole(UserRoleEnum.fromCode(po.getRole()));
+        entity.setRole(UserRoleEnum.fromCode(po.getRole() != null ? po.getRole().intValue() : null));
         entity.setCreatedAt(po.getCreatedAt());
         entity.setUpdatedAt(po.getUpdatedAt());
         entity.setCreatedBy(po.getCreatedBy());
@@ -39,7 +39,7 @@ public class UserOrganizationConverter {
         po.setId(entity.getId());
         po.setSystemUserId(entity.getSystemUserId());
         po.setOrgCode(entity.getOrgCode());
-        po.setRole(entity.getRole().getCode());
+        po.setRole(entity.getRole() != null ? entity.getRole().getCode().shortValue() : null);
         po.setCreatedAt(entity.getCreatedAt());
         po.setUpdatedAt(entity.getUpdatedAt());
         po.setCreatedBy(entity.getCreatedBy());

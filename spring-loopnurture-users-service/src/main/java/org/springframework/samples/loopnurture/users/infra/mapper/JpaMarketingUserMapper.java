@@ -16,5 +16,5 @@ public interface JpaMarketingUserMapper extends JpaRepository<MarketingUserPO, S
     boolean existsByUserUniq(String userUniq);
     boolean existsByPrimaryEmail(String primaryEmail);
     boolean existsByPhone(String phone);
-    Optional<MarketingUserPO> findByOauthUserIdAndAuthType(String oauthUserId, Integer authType);
+    Optional<MarketingUserPO> findByOauthUserIdAndAuthType(String oauthUserId, Short authType);
 } 
