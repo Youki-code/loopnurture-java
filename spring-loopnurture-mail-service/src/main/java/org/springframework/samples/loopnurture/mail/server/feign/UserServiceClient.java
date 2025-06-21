@@ -1,15 +1,13 @@
 package org.springframework.samples.loopnurture.mail.server.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "user-service", url = "${user.service.url}")
 public interface UserServiceClient {
 
-    @GetMapping("/api/v1/users/validate-token")
-    boolean validateToken(@RequestHeader("Authorization") String token);
-
-    @GetMapping("/api/v1/users/current")
-    String getCurrentUser(@RequestHeader("Authorization") String token);
+    @PostMapping("/api/v1/auth/validate")
+    org.springframework.samples.loopnurture.mail.server.feign.dto.TokenValidationResponse validateToken(
+            @RequestBody org.springframework.samples.loopnurture.mail.server.feign.dto.ValidateTokenRequest request);
 } 

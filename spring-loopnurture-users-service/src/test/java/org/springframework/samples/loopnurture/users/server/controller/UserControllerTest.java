@@ -14,7 +14,6 @@ import org.springframework.samples.loopnurture.users.domain.model.MarketingUserD
 import org.springframework.samples.loopnurture.users.service.MarketingUserService;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.samples.loopnurture.users.server.controller.dto.*;
-import org.springframework.samples.loopnurture.users.config.TestConfig;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
@@ -26,7 +25,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@Import(TestConfig.class)
 @ActiveProfiles("test")
 class UserControllerTest {
 
@@ -38,6 +36,9 @@ class UserControllerTest {
 
     @MockBean
     private MarketingUserService userService;
+
+    @MockBean
+    private org.springframework.samples.loopnurture.users.server.config.JwtUtils jwtUtils;
 
     private MarketingUserDO testUser;
     private UserRegistrationRequest registrationRequest;

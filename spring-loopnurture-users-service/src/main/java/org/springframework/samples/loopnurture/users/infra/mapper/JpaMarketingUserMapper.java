@@ -12,9 +12,9 @@ public interface JpaMarketingUserMapper extends JpaRepository<MarketingUserPO, S
     Optional<MarketingUserPO> findByUserUniq(String userUniq);
     Optional<MarketingUserPO> findByPrimaryEmail(String primaryEmail);
     Optional<MarketingUserPO> findByPhone(String phone);
-    List<MarketingUserPO> findByOrgCode(String orgCode);
+    List<MarketingUserPO> findByCurrentOrgCode(String orgCode);
     boolean existsByUserUniq(String userUniq);
     boolean existsByPrimaryEmail(String primaryEmail);
     boolean existsByPhone(String phone);
-    Optional<MarketingUserPO> findByOauthUserIdAndAuthType(String oauthUserId, String authType);
+    Optional<MarketingUserPO> findByOauthUserIdAndAuthType(String oauthUserId, Integer authType);
 } 

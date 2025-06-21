@@ -127,7 +127,7 @@ public class MarketingUserService {
                 throw new LoginFailedException("Invalid password");
             }
         } else {
-            user = userRepository.findByOAuthInfo(request.getOauthUserId(), authType.name())
+            user = userRepository.findByOAuthInfo(request.getOauthUserId(), authType.getCode())
                 .orElseThrow(() -> new LoginFailedException("OAuth user not found"));
             
             // Update OAuth token if provided

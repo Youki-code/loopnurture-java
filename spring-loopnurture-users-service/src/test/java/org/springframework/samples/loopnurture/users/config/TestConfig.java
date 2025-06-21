@@ -12,20 +12,17 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.context.annotation.ComponentScan;
 
 @TestConfiguration
-@EntityScan(basePackages = "org.springframework.samples.loopnurture.users.infra.po")
-@EnableJpaRepositories(basePackages = "org.springframework.samples.loopnurture.users.infra.mapper")
-@EnableTransactionManagement
 @ComponentScan(basePackages = {
     "org.springframework.samples.loopnurture.users.service",
-    "org.springframework.samples.loopnurture.users.infra.repository",
     "org.springframework.samples.loopnurture.users.infra.converter"
 })
 public class TestConfig {
     @MockBean
     private DiscoveryClient discoveryClient;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    // Removed passwordEncoder bean to avoid duplication with SecurityConfig during tests
+
+    // Removed repository mock beans to avoid duplication with @MockBean declarations
+    // in individual tests, which would otherwise cause ApplicationContext startup
+    // errors due to multiple beans of the same type.
 } 

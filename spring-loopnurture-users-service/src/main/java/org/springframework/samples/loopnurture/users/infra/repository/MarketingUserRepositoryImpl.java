@@ -54,7 +54,7 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
     
     @Override
     public List<MarketingUserDO> findByOrgCode(String orgCode) {
-        return jpaMapper.findByOrgCode(orgCode).stream()
+        return jpaMapper.findByCurrentOrgCode(orgCode).stream()
             .map(converter::toDO)
             .collect(Collectors.toList());
     }
@@ -89,7 +89,7 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
     }
 
     @Override
-    public Optional<MarketingUserDO> findByOAuthInfo(String oauthUserId, String authType) {
+    public Optional<MarketingUserDO> findByOAuthInfo(String oauthUserId, Integer authType) {
         return jpaMapper.findByOauthUserIdAndAuthType(oauthUserId, authType)
             .map(converter::toDO);
     }

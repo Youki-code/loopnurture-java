@@ -22,7 +22,7 @@ import org.springframework.samples.loopnurture.users.config.TestConfig;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
@@ -117,7 +117,7 @@ class MarketingUserServiceTest {
         loginRequest.setOauthUserId("google_123");
         loginRequest.setOauthAccessToken("oauth_token");
 
-        when(marketingUserRepository.findByOAuthInfo(anyString(), anyString()))
+        when(marketingUserRepository.findByOAuthInfo(anyString(), anyInt()))
             .thenReturn(Optional.of(oauthUser));
         when(jwtUtils.generateToken(any(MarketingUserDO.class))).thenReturn("test.jwt.token");
 

@@ -23,7 +23,7 @@ public interface MarketingUserRepository {
      * @param authType 认证类型
      * @return 用户信息（如果存在）
      */
-    Optional<MarketingUserDO> findByOAuthInfo(String oauthUserId, String authType);
+    Optional<MarketingUserDO> findByOAuthInfo(String oauthUserId, Integer authType);
 
     /**
      * 根据用户唯一标识查询用户

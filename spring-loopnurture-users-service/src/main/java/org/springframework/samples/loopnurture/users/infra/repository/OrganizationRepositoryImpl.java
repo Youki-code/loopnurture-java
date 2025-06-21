@@ -28,7 +28,7 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
 
     @Override
     public List<OrganizationDO> findByUserId(Long systemUserId) {
-        List<OrganizationPO> pos = jpaOrganizationMapper.findByUserId(systemUserId);
+        List<OrganizationPO> pos = jpaOrganizationMapper.findBySystemUserId(systemUserId);
         return pos.stream()
             .map(organizationConverter::toDO)
             .collect(Collectors.toList());

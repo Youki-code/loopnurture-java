@@ -1,5 +1,20 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
+# Import Style Rules
+# 导入风格规范
+
+[import_style]
+# 代码中禁止直接使用类的全限定名，必须在文件顶部通过 import 引入后再使用简写类名。
+# Disallow using fully-qualified class names in method bodies or fields; classes must be referenced via an explicit import statement at the top of the file.
+no_fully_qualified_usage = true
+
+# 例外情况 / Exceptions
+# - 注解表达式中引用注解（如 @Around("@annotation(...)")）时可使用全限定名，便于 AOP 表达式匹配
+# - Java 9+ module-info.java 中的 exports / opens 声明
+exceptions = [
+    "aop_pointcut_expression",
+    "module_info_exports"
+]

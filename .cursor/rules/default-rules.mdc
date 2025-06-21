@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 # Cursor Default Rules
 # 默认规则文件 / Default Rules File

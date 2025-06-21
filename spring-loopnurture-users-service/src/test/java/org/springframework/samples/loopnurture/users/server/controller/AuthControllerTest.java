@@ -16,7 +16,6 @@ import org.springframework.samples.loopnurture.users.server.controller.dto.Login
 import org.springframework.samples.loopnurture.users.server.controller.dto.TokenValidationRequest;
 import org.springframework.samples.loopnurture.users.server.controller.dto.TokenValidationResponse;
 import org.springframework.samples.loopnurture.users.infra.utils.RsaUtils;
-import org.springframework.samples.loopnurture.users.config.TestConfig;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -28,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.mockito.Mockito.verify;
 
 @WebMvcTest(AuthController.class)
-@Import(TestConfig.class)
 @ActiveProfiles("test")
 class AuthControllerTest {
 
@@ -37,6 +35,9 @@ class AuthControllerTest {
 
     @MockBean
     private MarketingUserService marketingUserService;
+
+    @MockBean
+    private org.springframework.samples.loopnurture.users.server.config.JwtUtils jwtUtils;
 
     @MockBean
     private RsaUtils rsaUtils;

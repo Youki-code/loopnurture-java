@@ -1,5 +1,6 @@
 package org.springframework.samples.loopnurture.mail.aspect;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -7,27 +8,40 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import org.springframework.samples.loopnurture.mail.context.UserContext;
 import org.springframework.samples.loopnurture.mail.exception.UnauthorizedException;
+import org.springframework.samples.loopnurture.mail.server.feign.UserServiceClient;
+import org.springframework.samples.loopnurture.mail.server.feign.dto.ValidateTokenRequest;
+import org.springframework.samples.loopnurture.mail.server.feign.dto.TokenValidationResponse;
+import org.springframework.util.StringUtils;
 
 @Aspect
 @Component
 @RequiredArgsConstructor
 public class RequireLoginAspect {
-    /**
-     * 伪代码：从安全上下文或请求头中解析用户信息。
-     * 这里只演示 ThreadLocal 生命周期管理。
-     */
+
+    private final HttpServletRequest request;
+    private final UserServiceClient userServiceClient;
+
     @Around("@annotation(org.springframework.samples.loopnurture.mail.annotation.RequireLogin)")
     public Object bindAndClearUserContext(ProceedingJoinPoint pjp) throws Throwable {
-        // TODO 从实际认证信息构建 UserContext
+        String token = request.getHeader("Authorization");
+        if (!StringUtils.hasText(token)) {
+            throw new UnauthorizedException("缺少 Authorization 头，请先登录");
+        }
+
+        // 调用 Users-Service 校验 token
+        TokenValidationResponse resp = userServiceClient.validateToken(new ValidateTokenRequest(token));
+        if (resp == null || !resp.isValid()) {
+            throw new UnauthorizedException("无效或已过期的 Token");
+        }
+
+        // 将校验结果写入 UserContext，供后续业务代码使用
         UserContext ctx = new UserContext();
-        ctx.setUserId("demoUser");
-        ctx.setOrgCode("demoOrg");
+        ctx.setToken(token);
+        ctx.setUserId(resp.getUserId());
+        ctx.setOrgCode(resp.getOrgCode());
 
         UserContext.set(ctx);
         try {
-            if (ctx.getUserId() == null) {
-                throw new UnauthorizedException("用户未登录");
-            }
             return pjp.proceed();
         } finally {
             UserContext.clear();
