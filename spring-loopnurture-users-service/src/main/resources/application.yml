@@ -15,6 +15,8 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+      data-source-properties:
+        prepareThreshold: 0  # 禁用 PostgreSQL 服务器端 prepared statement，避免 "already exists" 错误
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -44,3 +46,9 @@ server:
 jwt:
   secret: loopnurture_jwt_secret_key_please_change_in_production
   expiration: 86400 # 24 hours in seconds
+
+# Disable Zipkin reporter locally
+management:
+  tracing:
+    zipkin:
+      enabled: false

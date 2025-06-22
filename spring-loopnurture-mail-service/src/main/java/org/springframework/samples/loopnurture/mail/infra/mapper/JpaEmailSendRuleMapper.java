@@ -49,11 +49,6 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
     List<EmailSendRulePO> findByOrgCodeAndEnableStatus(String orgCode, Integer enableStatus);
 
     /**
-     * 根据组织编码查找激活的规则
-     */
-    List<EmailSendRulePO> findByOrgCodeAndEnableStatusTrue(String orgCode);
-
-    /**
      * 根据组织编码统计规则数量
      */
     long countByOrgCode(String orgCode);
@@ -84,11 +79,10 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
     List<EmailSendRulePO> findRulesForExecution(@Param("now") LocalDateTime now);
 
     /**
-     * 查找所有激活且下次执行时间小于等于当前时间的规则
+     * 查询启用状态=1 且 nextExecutionTime<=now 的规则
      */
-    @Query("SELECT e FROM EmailSendRulePO e WHERE e.enableStatus = 1 " +
-            "AND e.nextExecutionTime <= :now")
-    List<EmailSendRulePO> findByEnableStatusTrueAndNextExecutionTimeLessThanEqual(@Param("now") LocalDateTime now);
+    @Query("SELECT e FROM EmailSendRulePO e WHERE e.enableStatus = 1 AND e.nextExecutionTime <= :now")
+    List<EmailSendRulePO> findEnabledRulesDue(@Param("now") LocalDateTime now);
 
     /**
      * 根据组织编码、启用状态和当前时间查找需要执行的规则

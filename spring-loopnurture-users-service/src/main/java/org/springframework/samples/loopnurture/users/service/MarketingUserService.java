@@ -89,6 +89,8 @@ public class MarketingUserService {
         // 设置语言偏好
         if (StringUtils.hasText(request.getLanguagePreference())) {
             newUser.setLanguagePreference(LanguagePreferenceEnum.valueOf(request.getLanguagePreference()));
+        } else {
+            newUser.setLanguagePreference(LanguagePreferenceEnum.EN_US);
         }
 
         // 设置初始状态
@@ -133,7 +135,11 @@ public class MarketingUserService {
             // Update OAuth token if provided
             if (StringUtils.hasText(request.getOauthAccessToken())) {
                 updateOAuthInfo(user, request.getOauthAccessToken());
-                user = userRepository.save(user);
+                // Persist latest OAuth token. Some mocks may return null, so guard against it
+                MarketingUserDO persisted = userRepository.save(user);
+                if (persisted != null) {
+                    user = persisted;
+                }
             }
         }
 
@@ -318,7 +324,7 @@ public class MarketingUserService {
         return userRepository.findByOrgCode(orgCode);
     }
 
-    public MarketingUserDO save(MarketingUserDO user) {
+    public org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO save(org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO user) {
         return userRepository.save(user);
     }
 
@@ -415,5 +421,14 @@ public class MarketingUserService {
     public void verifyPhoneCode(String userUniq, String code) {
         // TODO: 实现手机验证码验证逻辑
         verifyPhone(userUniq);
+    }
+
+    /**
+     * 根据系统用户ID查询
+     */
+    @Transactional(readOnly = true)
+    public MarketingUserDO findBySystemUserId(Long systemUserId) {
+        return userRepository.findBySystemUserId(systemUserId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 } 

@@ -95,7 +95,7 @@ public class UserResponse {
      */
     private LocalDateTime createdAt;
 
-    public static UserResponse fromDO(MarketingUserDO user) {
+    public static UserResponse fromDO(org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO user) {
         if (user == null) {
             return null;
         }

@@ -1,4 +1,4 @@
-package org.springframework.samples.loopnurture.users.config;
+package org.springframework.samples.loopnurture.users.infra.config;
 
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;

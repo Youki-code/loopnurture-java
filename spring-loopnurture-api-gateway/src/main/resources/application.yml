@@ -29,9 +29,19 @@ spring:
           filters:
             - StripPrefix=2
 
+management:
+  tracing:
+    zipkin:
+      enabled: false
+
 ---
 spring:
   config:
     activate:
       on-profile: docker
     import: configserver:http://config-server:8888
+
+management:
+  tracing:
+    zipkin:
+      enabled: false

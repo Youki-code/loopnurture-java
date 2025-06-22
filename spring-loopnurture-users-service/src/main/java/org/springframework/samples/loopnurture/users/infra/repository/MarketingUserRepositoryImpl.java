@@ -60,7 +60,7 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
     }
     
     @Override
-    public MarketingUserDO save(MarketingUserDO user) {
+    public org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO save(org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO user) {
         return converter.toDO(
             jpaMapper.save(
                 converter.toPO(user)

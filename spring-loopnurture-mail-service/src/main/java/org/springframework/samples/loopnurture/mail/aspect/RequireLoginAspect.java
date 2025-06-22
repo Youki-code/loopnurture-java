@@ -21,7 +21,7 @@ public class RequireLoginAspect {
     private final HttpServletRequest request;
     private final UserServiceClient userServiceClient;
 
-    @Around("@annotation(org.springframework.samples.loopnurture.mail.annotation.RequireLogin)")
+    @Around("@annotation(org.springframework.samples.loopnurture.mail.annotation.RequireLogin) || @within(org.springframework.samples.loopnurture.mail.annotation.RequireLogin)")
     public Object bindAndClearUserContext(ProceedingJoinPoint pjp) throws Throwable {
         String token = request.getHeader("Authorization");
         if (!StringUtils.hasText(token)) {

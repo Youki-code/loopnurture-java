@@ -42,6 +42,12 @@ jwt:
   secret: test_jwt_secret_key_for_testing_purposes_only
   expiration: 3600000
 
+# Disable Zipkin reporter during tests
+management:
+  tracing:
+    zipkin:
+      enabled: false
+
 rsa:
   private-key: |
     -----BEGIN PRIVATE KEY-----

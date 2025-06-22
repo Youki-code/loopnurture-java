@@ -40,7 +40,10 @@ public class MarketingUserConverter {
         entity.setBackupEmail(po.getBackupEmail());
         entity.setPhone(po.getPhone());
         entity.setTelephone(po.getTelephone());
-        entity.setLanguagePreference(LanguagePreferenceEnum.valueOf(po.getLanguagePreference()));
+        // 语言偏好可能为空，因此需要进行空值判断
+        if (po.getLanguagePreference() != null) {
+            entity.setLanguagePreference(LanguagePreferenceEnum.valueOf(po.getLanguagePreference()));
+        }
         entity.setTimezone(po.getTimezone());
         entity.setAccountStatus(AccountStatusEnum.fromCode(po.getAccountStatus() != null ? po.getAccountStatus().intValue() : null));
         entity.setEmailVerified(po.getEmailVerified());
@@ -65,7 +68,7 @@ public class MarketingUserConverter {
     /**
      * DO转换为PO
      */
-    public MarketingUserPO toPO(MarketingUserDO entity) {
+    public MarketingUserPO toPO(org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO entity) {
         if (entity == null) {
             return null;
         }
@@ -84,7 +87,12 @@ public class MarketingUserConverter {
         po.setBackupEmail(entity.getBackupEmail());
         po.setPhone(entity.getPhone());
         po.setTelephone(entity.getTelephone());
-        po.setLanguagePreference(entity.getLanguagePreference().name());
+        // 语言偏好可能为空，因此需要进行空值判断
+        if (entity.getLanguagePreference() != null) {
+            po.setLanguagePreference(entity.getLanguagePreference().name());
+        } else {
+            po.setLanguagePreference(null);
+        }
         po.setTimezone(entity.getTimezone());
         po.setAccountStatus(entity.getAccountStatus() != null ? entity.getAccountStatus().getCode().shortValue() : null);
         po.setEmailVerified(entity.getEmailVerified());

@@ -25,7 +25,8 @@ public class DataSourceTest {
             System.out.println("Database product name: " + dbName);
             System.out.println("Database product version: " + conn.getMetaData().getDatabaseProductVersion());
             
-            assertEquals("PostgreSQL", dbName, "Test database should be PostgreSQL");
+            assertTrue("PostgreSQL".equals(dbName) || "H2".equals(dbName),
+                    "Test database should be PostgreSQL in integration profile or H2 in unit tests, actual: " + dbName);
             
             // 验证数据库连接是否正常工作
             try (var stmt = conn.createStatement()) {

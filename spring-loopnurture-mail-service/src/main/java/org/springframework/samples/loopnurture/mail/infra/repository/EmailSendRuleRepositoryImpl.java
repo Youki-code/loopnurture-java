@@ -75,7 +75,7 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
     @Override
     public List<EmailSendRuleDO> findRulesForExecution(Date now) {
         LocalDateTime ldt = toLocalDateTime(now);
-        return emailSendRuleMapper.findByEnableStatusTrueAndNextExecutionTimeLessThanEqual(ldt)
+        return emailSendRuleMapper.findEnabledRulesDue(ldt)
                 .stream()
                 .map(emailSendRuleConverter::toDO)
                 .collect(Collectors.toList());
@@ -106,7 +106,9 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
 
     @Override
     public Page<EmailSendRuleDO> pageQuery(EmailSendRulePageQueryDTO query){
-        Pageable pageable = PageRequest.of(query.getPageNum(), query.getPageSize());
+        // PageRequest 以 0 开始计数，而前端传入的 pageNum 约定为从 1 开始，需做 -1 转换
+        int pageIndex = Math.max(query.getPageNum() - 1, 0);
+        Pageable pageable = PageRequest.of(pageIndex, query.getPageSize());
 
         Specification<EmailSendRulePO> spec = (root, cq, cb) -> {
             List<Predicate> predicates = new ArrayList<>();

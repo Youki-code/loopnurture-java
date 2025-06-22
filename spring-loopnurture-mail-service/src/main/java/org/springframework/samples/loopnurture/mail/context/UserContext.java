@@ -37,12 +37,12 @@ public class UserContext {
     /** 当前用户 ID */
     public static String getUserId() {
         UserContext c = get();
-        return c != null ? c.getUserId() : SYSTEM_USER_ID;
+        return c != null ? c.userId : SYSTEM_USER_ID;
     }
 
     /** 当前组织编码 */
     public static String getOrgCode() {
         UserContext c = get();
-        return c != null ? c.getOrgCode() : null;
+        return c != null ? c.orgCode : null;
     }
 } 

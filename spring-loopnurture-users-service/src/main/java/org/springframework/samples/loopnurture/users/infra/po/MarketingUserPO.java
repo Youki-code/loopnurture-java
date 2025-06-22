@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 })
 public class MarketingUserPO {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
     private String id;
 

@@ -23,10 +23,20 @@ eureka:
     wait-time-in-ms-when-sync-empty: 0
     port: 8761
 
+management:
+  tracing:
+    zipkin:
+      enabled: false
+
 ---
 spring:
   config:
     activate:
       on-profile: docker
     import: configserver:http://config-server:8888
+
+management:
+  tracing:
+    zipkin:
+      enabled: false
 

@@ -39,12 +39,12 @@
 
 | 步骤 | 模块 | 端口 | 备注 |
 |------|------|------|------|
-| 1 | spring-loopnurture-config-server | 8888 | 提供集中化配置；其他服务依赖 |
-| 2 | spring-loopnurture-discovery-server | 8761 | 服务注册发现；依赖 config-server |
+| 1 | spring-loopnurture-config-server | 8888 | 提供集中化配置；其他服务依赖 | http://localhost:8888/
+| 2 | spring-loopnurture-discovery-server | 8761 | 服务注册发现；依赖 config-server | http://localhost:8761/
 | 3 | spring-loopnurture-users-service | 8081 | 业务服务 |
 | 3 | spring-loopnurture-mail-service | 8082 | 业务服务 |
-| 4 | spring-loopnurture-api-gateway | 8080 | 对外网关；依赖 discovery-server |
-| 5 | (可选) spring-loopnurture-admin-server | 9090 | 监控面板 |
+| 4 | spring-loopnurture-api-gateway | 8080 | 对外网关；依赖 discovery-server | 暂时没做
+| 5 | (可选) spring-loopnurture-admin-server | 9090 | 监控面板 | 暂时没做
 
 示例启动脚本（dev 环境）：
 

@@ -4,3 +4,8 @@ spring:
       server:
         git:
           uri: https://github.com/Youki-code/loopnurture-java
+
+management:
+  tracing:
+    zipkin:
+      enabled: false

@@ -39,7 +39,7 @@ public interface MarketingUserRepository {
      * @param user 用户信息
      * @return 保存后的用户信息
      */
-    MarketingUserDO save(MarketingUserDO user);
+    org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO save(org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO user);
 
     /**
      * 检查用户唯一标识是否已存在

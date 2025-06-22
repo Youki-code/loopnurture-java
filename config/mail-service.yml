@@ -26,6 +26,15 @@ spring:
           time_zone: UTC
         temp:
           use_jdbc_metadata_defaults: false
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Youki-code/loopnurture-java
+          default-label: develop
+          searchPaths: config
+          clone-on-start: true
+          basedir: ./config-local-cache
 
 sendgrid:
   api-key: ${SENDGRID_API_KEY}

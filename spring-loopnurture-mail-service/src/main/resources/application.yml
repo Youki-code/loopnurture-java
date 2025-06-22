@@ -14,6 +14,8 @@ spring:
       leak-detection-threshold: 60000
       validation-timeout: 5000
       auto-commit: true
+      data-source-properties:
+        prepareThreshold: 0  # 禁用服务器端 prepared statement，避免重复声明
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -68,4 +70,10 @@ services:
 # 添加缺失的配置
 user:
   service:
-    url: http://localhost:8081 
+    url: http://localhost:8081
+
+# Disable Zipkin reporter locally
+management:
+  tracing:
+    zipkin:
+      enabled: false 

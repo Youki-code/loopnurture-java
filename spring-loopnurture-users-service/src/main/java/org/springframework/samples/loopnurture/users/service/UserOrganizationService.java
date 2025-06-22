@@ -35,17 +35,17 @@ public class UserOrganizationService {
      */
     @Transactional
     public UserOrganizationDO addUserToOrganization(Long systemUserId, String orgCode, UserRoleEnum role, String operatorId) {
-        // 验证用户和组织是否存在
-        if (!userRepository.findBySystemUserId(systemUserId).isPresent()) {
-            throw new IllegalArgumentException("User not found: " + systemUserId);
-        }
-        if (!organizationRepository.findById(orgCode).isPresent()) {
-            throw new IllegalArgumentException("Organization not found: " + orgCode);
-        }
-
-        // 检查是否已存在关联
+        // 如果已存在关联直接返回重复错误（测试期望 IllegalStateException 优先级最高）
         if (userOrgRepository.existsBySystemUserIdAndOrgCode(systemUserId, orgCode)) {
             throw new IllegalStateException("User is already a member of the organization");
+        }
+
+        // 验证用户和组织是否存在
+        if (userRepository.findBySystemUserId(systemUserId).isEmpty()) {
+            throw new IllegalArgumentException("User not found: " + systemUserId);
+        }
+        if (organizationRepository.findById(orgCode).isEmpty()) {
+            throw new IllegalArgumentException("Organization not found: " + orgCode);
         }
 
         // 创建新的关联

@@ -34,6 +34,11 @@ public class MarketingEmailTemplateRepositoryImpl implements MarketingEmailTempl
     @Override
     public MarketingEmailTemplateDO save(MarketingEmailTemplateDO template) {
         MarketingEmailTemplatePO po = templateConverter.toPO(template);
+        // 如果主键为空，尝试根据 templateId 找到现有记录，确保执行更新而不是插入
+        if (po.getId() == null && po.getTemplateId() != null) {
+            templateMapper.findByTemplateId(po.getTemplateId())
+                    .ifPresent(existing -> po.setId(existing.getId()));
+        }
         return templateConverter.toDO(templateMapper.save(po));
     }
 
@@ -149,7 +154,8 @@ public class MarketingEmailTemplateRepositoryImpl implements MarketingEmailTempl
 
     @Override
     public Page<MarketingEmailTemplateDO> pageQuery(MarketingEmailTemplatePageQueryDTO query) {
-        Pageable pageable = PageRequest.of(query.getPageNum(), query.getPageSize());
+        int pageIndex = Math.max(query.getPageNum() - 1, 0);
+        Pageable pageable = PageRequest.of(pageIndex, query.getPageSize());
 
         return templateMapper.findAll((root, q, cb) -> {
             List<Predicate> predicates = new ArrayList<>();

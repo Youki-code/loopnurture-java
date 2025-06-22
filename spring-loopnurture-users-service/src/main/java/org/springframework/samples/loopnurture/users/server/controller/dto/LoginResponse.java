@@ -83,7 +83,7 @@ public class LoginResponse {
         /**
          * 从DO对象创建UserInfo
          */
-        public static UserInfo fromDO(MarketingUserDO user) {
+        public static UserInfo fromDO(org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO user) {
             UserInfo info = new UserInfo();
             info.setSystemUserId(user.getSystemUserId());
             info.setUserUniq(user.getUserUniq());
