@@ -9,6 +9,9 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 /**
  * 组织持久化对象
  */
@@ -17,12 +20,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@org.hibernate.annotations.Where(clause = "deleted = false")
 @Table(name = "organization")
 public class OrganizationPO {
     
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private String id;
+    private Long id;
 
     @Column(name = "org_code", unique = true)
     private String orgCode;
@@ -36,12 +41,6 @@ public class OrganizationPO {
     @Column(name = "org_status", columnDefinition = "SMALLINT")
     private Short status;
 
-    @Column(name = "description")
-    private String description;
-
-    @Column(name = "address")
-    private String address;
-
     @Column(name = "phone")
     private String phone;
 
@@ -50,9 +49,6 @@ public class OrganizationPO {
 
     @Column(name = "website")
     private String website;
-
-    @Column(name = "logo_url")
-    private String logoUrl;
 
     @Column(name = "max_users")
     private Integer maxUsers;
@@ -63,8 +59,9 @@ public class OrganizationPO {
     @Column(name = "max_rules")
     private Integer maxRules;
 
-    @Column(name = "settings", columnDefinition = "jsonb")
-    private String settings;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "extends_info", columnDefinition = "jsonb")
+    private String extendsInfo;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -73,10 +70,13 @@ public class OrganizationPO {
     private LocalDateTime updatedAt;
 
     @Column(name = "created_by", nullable = false)
-    private String createdBy;
+    private Long createdBy;
 
     @Column(name = "updated_by", nullable = false)
-    private String updatedBy;
+    private Long updatedBy;
+
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
 
     @PrePersist
     public void prePersist() {
@@ -86,6 +86,7 @@ public class OrganizationPO {
         if (updatedAt == null) {
             updatedAt = LocalDateTime.now();
         }
+        if (deleted == null) deleted = false;
     }
 
     @PreUpdate

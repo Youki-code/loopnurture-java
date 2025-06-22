@@ -54,19 +54,19 @@ public class UserOrganizationRepositoryImpl implements UserOrganizationRepositor
     @Override
     @Transactional
     public void deleteBySystemUserIdAndOrgCode(Long systemUserId, String orgCode) {
-        jpaMapper.deleteBySystemUserIdAndOrgCode(systemUserId, orgCode);
+        jpaMapper.softDeleteBySystemUserIdAndOrgCode(systemUserId, orgCode);
     }
     
     @Override
     @Transactional
     public void deleteBySystemUserId(Long systemUserId) {
-        jpaMapper.deleteBySystemUserId(systemUserId);
+        jpaMapper.softDeleteBySystemUserId(systemUserId);
     }
     
     @Override
     @Transactional
     public void deleteByOrgCode(String orgCode) {
-        jpaMapper.deleteByOrgCode(orgCode);
+        jpaMapper.softDeleteByOrgCode(orgCode);
     }
     
     @Override

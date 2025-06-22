@@ -15,11 +15,6 @@ import java.time.LocalDateTime;
 @Data
 public class MarketingUserDO {
     /**
-     * 用户ID，系统生成的唯一标识符
-     */
-    private String id;
-    
-    /**
      * 系统用户ID，使用雪花算法生成的全局唯一ID
      * 用于在整个系统中唯一标识一个用户
      */
@@ -88,7 +83,7 @@ public class MarketingUserDO {
     private LanguagePreferenceEnum languagePreference;
     
     /**
-     * 用户时区，如 "Asia/Shanghai"
+     * 用户时区
      */
     private String timezone;
     
@@ -108,9 +103,16 @@ public class MarketingUserDO {
     private Boolean phoneVerified;
     
     /**
-     * 当前组织编码，标识用户在多组织场景下当前操作的组织
+     * 当前组织编码
+     * 在多组织场景下标识当前激活的组织
      */
     private String currentOrgCode;
+    
+    /**
+     * 用户扩展信息
+     * 存储OAuth信息等扩展字段
+     */
+    private MarketingUserExtendsVO extendInfo;
     
     /**
      * 记录创建时间
@@ -123,15 +125,9 @@ public class MarketingUserDO {
     private LocalDateTime updatedAt;
     
     /**
-     * 用户最后登录时间
+     * 最后登录时间
      */
     private LocalDateTime lastLoginAt;
-    
-
-    /**
-     * 用户扩展信息，包含OAuth相关字段
-     */
-    private MarketingUserExtendsVO extendInfo;
 
     /**
      * 获取有效的用户显示名称

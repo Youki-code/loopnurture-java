@@ -60,19 +60,19 @@ public class MarketingEmailTemplateDO {
     private EnableStatusEnum enableStatus;
 
     /**
-     * 扩展信息
+     * 扩展信息（JSON格式）
      */
     private MarketingEmailTemplateExtendsInfoVO extendsInfo;
 
     /**
      * 创建时间
      */
-    private java.util.Date createdAt;
+    private Date createdAt;
 
     /**
      * 更新时间
      */
-    private java.util.Date updatedAt;
+    private Date updatedAt;
 
     /**
      * 创建人ID
@@ -111,18 +111,97 @@ public class MarketingEmailTemplateDO {
         this.updatedBy = UserContext.getUserId();
     }
 
+    /**
+     * 渲染模板内容
+     * @param variables 模板变量
+     * @return 渲染后的内容
+     */
+    public String renderContent(java.util.Map<String, Object> variables) {
+        if (contentTemplate == null || contentTemplate.trim().isEmpty()) {
+            return "";
+        }
+        
+        String result = contentTemplate;
+        if (variables != null) {
+            for (java.util.Map.Entry<String, Object> entry : variables.entrySet()) {
+                String key = "\\{\\{" + entry.getKey() + "\\}\\}";
+                String value = entry.getValue() != null ? entry.getValue().toString() : "";
+                result = result.replaceAll(key, value);
+            }
+        }
+        
+        return result;
+    }
 
+    /**
+     * 验证模板配置
+     */
+    public void validate() {
+        if (orgCode == null || orgCode.trim().isEmpty()) {
+            throw new IllegalArgumentException("组织编码不能为空");
+        }
+        
+        if (templateId == null || templateId.trim().isEmpty()) {
+            throw new IllegalArgumentException("模板ID不能为空");
+        }
+        
+        if (templateName == null || templateName.trim().isEmpty()) {
+            throw new IllegalArgumentException("模板名称不能为空");
+        }
+        
+        if (contentType == null) {
+            throw new IllegalArgumentException("内容类型不能为空");
+        }
+        
+        if (contentTemplate == null || contentTemplate.trim().isEmpty()) {
+            throw new IllegalArgumentException("模板内容不能为空");
+        }
+    }
 
+    /**
+     * 启用模板
+     */
+    public void enable() {
+        this.enableStatus = EnableStatusEnum.ENABLED;
+    }
 
+    /**
+     * 禁用模板
+     */
+    public void disable() {
+        this.enableStatus = EnableStatusEnum.DISABLED;
+    }
 
+    /**
+     * 检查模板是否可用
+     */
+    public boolean isEnabled() {
+        return enableStatus == EnableStatusEnum.ENABLED;
+    }
 
-
-
-
-
-
-
-
+    /**
+     * 创建新模板时的初始化
+     */
+    public static MarketingEmailTemplateDO create(String orgCode, String templateId, 
+                                                String templateName, ContentTypeEnum contentType,
+                                                String contentTemplate, String aiStrategyVersion) {
+        MarketingEmailTemplateDO template = MarketingEmailTemplateDO.builder()
+                .orgCode(orgCode)
+                .templateId(templateId)
+                .templateName(templateName)
+                .contentType(contentType)
+                .contentTemplate(contentTemplate)
+                .aiStrategyVersion(aiStrategyVersion)
+                .enableStatus(EnableStatusEnum.ENABLED)
+                .createdAt(new Date())
+                .updatedAt(new Date())
+                .createdBy(UserContext.getUserId())
+                .updatedBy(UserContext.getUserId())
+                .build();
+        
+        template.validate();
+        return template;
+    }
 
     /**************************查询方法**************************/
 
@@ -133,15 +212,6 @@ public class MarketingEmailTemplateDO {
      */
     public boolean isHtml() {
         return contentType == ContentTypeEnum.HTML;
-    }
-
-    /**
-     * 检查模板是否启用
-     *
-     * @return true 如果是启用状态
-     */
-    public boolean isEnabled() {
-        return enableStatus == EnableStatusEnum.ENABLED;
     }
 
     /**

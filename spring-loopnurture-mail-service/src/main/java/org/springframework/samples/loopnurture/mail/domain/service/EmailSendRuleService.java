@@ -54,12 +54,7 @@ public class EmailSendRuleService {
 
         // 检查规则名称是否已存在（排除自身）
         EmailSendRuleDO existingRule = ruleRepository.findByOrgCodeAndRuleName(rule.getOrgCode(), rule.getRuleName());
-        if(existingRule==null){
-            throw new ResourceNotFoundException("Rule not found");
-        }
-        
-        if (!existingRule.getId().equals(rule.getId()) && 
-            ruleRepository.findByOrgCodeAndRuleName(rule.getOrgCode(), rule.getRuleName()) != null) {
+        if (existingRule != null && !existingRule.getRuleId().equals(rule.getRuleId())) {
             throw new ValidationException("Rule name already exists");
         }
 
@@ -110,7 +105,7 @@ public class EmailSendRuleService {
     @Transactional
     public void executeRule(String ruleId) {
         EmailSendRuleDO rule = getRule(ruleId);
-        if (!rule.isExecutable()) {
+        if (!rule.canExecute()) {
             throw new ValidationException("Rule is not executable");
         }
 
@@ -119,7 +114,7 @@ public class EmailSendRuleService {
         // 更新执行信息
         Date now = new Date();
         Date nextExecutionTime = calculateNextExecutionTime(rule);
-        rule.recordExecution(nextExecutionTime);
+        rule.updateExecutionInfo(now, nextExecutionTime);
         ruleRepository.save(rule);
     }
 

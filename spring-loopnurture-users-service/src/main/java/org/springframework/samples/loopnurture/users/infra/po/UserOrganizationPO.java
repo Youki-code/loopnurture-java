@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Entity
+@org.hibernate.annotations.Where(clause = "deleted = false")
 @Table(name = "user_organization", indexes = {
     @Index(name = "idx_user_org_user_id", columnList = "system_user_id"),
     @Index(name = "idx_user_org_org_code", columnList = "org_code")
@@ -41,10 +42,14 @@ public class UserOrganizationPO {
     @Column(name = "updated_by", nullable = false)
     private String updatedBy;
 
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (deleted == null) deleted = false;
     }
 
     @PreUpdate

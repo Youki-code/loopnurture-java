@@ -18,12 +18,14 @@ public interface OrganizationRepository {
     List<OrganizationDO> findByUserId(Long systemUserId);
 
     /**
-     * 根据组织ID查询组织详情
-     *
-     * @param orgId 组织ID
-     * @return 组织详情
+     * 根据组织代码查询组织，如果不存在返回 null
      */
-    Optional<OrganizationDO> findById(String orgId);
+    OrganizationDO findByOrgCode(String orgCode);
+
+    /**
+     * 检查组织代码是否存在
+     */
+    boolean existsByOrgCode(String orgCode);
 
     /**
      * 查询所有组织
@@ -36,17 +38,7 @@ public interface OrganizationRepository {
     OrganizationDO save(OrganizationDO organization);
 
     /**
-     * 删除组织
+     * 软删除组织（按组织编码）
      */
-    void deleteById(String orgId);
-
-    /**
-     * 根据组织代码查询组织
-     */
-    Optional<OrganizationDO> findByOrgCode(String orgCode);
-
-    /**
-     * 检查组织代码是否存在
-     */
-    boolean existsByOrgCode(String orgCode);
+    void deleteByOrgCode(String orgCode);
 } 

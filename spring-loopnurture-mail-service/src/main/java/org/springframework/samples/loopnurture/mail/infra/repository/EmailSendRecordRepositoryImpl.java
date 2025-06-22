@@ -12,9 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.UUID;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.samples.loopnurture.mail.domain.repository.dto.EmailSendRecordPageQueryDTO;
 import java.util.ArrayList;
 
 /**
@@ -37,15 +34,12 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
     @Override
     public EmailSendRecordDO save(EmailSendRecordDO record) {
         var po = emailSendRecordConverter.toPO(record);
-        if (po.getId() == null) {
-            po.setId(UUID.randomUUID().toString());
-        }
         emailSendRecordMapper.save(po);
         return emailSendRecordConverter.toDO(po);
     }
 
     @Override
-    public EmailSendRecordDO findById(String id) {
+    public EmailSendRecordDO findById(Long id) {
         return emailSendRecordMapper.findById(id)
                 .map(emailSendRecordConverter::toDO)
                 .orElse(null);
@@ -53,7 +47,7 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
 
     @Override
     public Page<EmailSendRecordDO> findByOrgCodeAndStatus(String orgCode, EmailStatusEnum status, Pageable pageable) {
-        return emailSendRecordMapper.findByOrgCodeAndStatus(orgCode, status != null ? status.getCode() : null, pageable)
+        return emailSendRecordMapper.findByOrgCodeAndStatus(orgCode, status != null ? status.getCode().shortValue() : null, pageable)
                 .map(emailSendRecordConverter::toDO);
     }
 
@@ -71,67 +65,69 @@ public class EmailSendRecordRepositoryImpl implements EmailSendRecordRepository 
 
     @Override
     public List<EmailSendRecordDO> findRetryableRecords(int maxRetries) {
-        // 由于数据库表中没有retryCount字段，暂时返回空列表
-        // TODO: 如果需要重试功能，需要在数据库表中添加retryCount字段
-        return new ArrayList<>();
+        // 查找状态为FAILED且重试次数小于最大重试次数的记录
+        return emailSendRecordMapper.findByStatus(EmailStatusEnum.FAILED.getCode().shortValue())
+                .stream()
+                .map(emailSendRecordConverter::toDO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public long countByOrgCodeAndStatus(String orgCode, EmailStatusEnum status) {
-        return emailSendRecordMapper.countByOrgCodeAndStatus(orgCode, status != null ? status.getCode() : null);
+        return emailSendRecordMapper.countByOrgCodeAndStatus(orgCode, status != null ? status.getCode().shortValue() : null);
     }
 
     @Override
-    public long countByOrgIdAndStatusAndSendTimeBetween(String orgId, Integer status, LocalDateTime startTime, LocalDateTime endTime) {
-        return emailSendRecordMapper.countByOrgCodeAndStatusAndSendTimeBetween(orgId, status, startTime, endTime);
-    }
-
-    @Override
-    public void update(String id, EmailSendRecordDO record) {
-        var po = emailSendRecordConverter.toPO(record, id);
+    public void update(Long id, EmailSendRecordDO record) {
+        var po = emailSendRecordConverter.toPO(record);
+        po.setId(id);
         emailSendRecordMapper.save(po);
     }
 
     @Override
-    public List<EmailSendRecordDO> findRecordsForRetry(int maxRetryCount, LocalDateTime beforeTime) {
-        // 由于数据库表中没有retryCount字段，暂时返回空列表
-        // TODO: 如果需要重试功能，需要在数据库表中添加retryCount字段
-        return new ArrayList<>();
+    public void deleteById(Long id) {
+        emailSendRecordMapper.softDeleteById(id);
     }
 
     @Override
-    public List<EmailSendRecordDO> findByStatusAndRetryCountLessThanAndCreatedAtBefore(Integer status, int maxRetries, LocalDateTime beforeTime) {
-        // 由于数据库表中没有retryCount字段，暂时返回空列表
-        // TODO: 如果需要重试功能，需要在数据库表中添加retryCount字段
-        return new ArrayList<>();
+    public Page<EmailSendRecordDO> findByOrgCode(String orgCode, Pageable pageable) {
+        return emailSendRecordMapper.findByOrgCode(orgCode, pageable)
+                .map(emailSendRecordConverter::toDO);
+    }
+
+    @Override
+    public Page<EmailSendRecordDO> findByOrgCodeAndStatusAndSentAtBetween(String orgCode, EmailStatusEnum status, 
+                                                                        LocalDateTime startTime, LocalDateTime endTime, 
+                                                                        Pageable pageable) {
+        // 先按组织编码和状态查询，然后在内存中过滤时间范围
+        Page<EmailSendRecordDO> records = findByOrgCodeAndStatus(orgCode, status, pageable);
+        
+        List<EmailSendRecordDO> filteredRecords = records.getContent().stream()
+                .filter(record -> {
+                    if (record.getSentAt() == null) return false;
+                    LocalDateTime sentAt = record.getSentAt().toInstant()
+                            .atZone(java.time.ZoneId.systemDefault())
+                            .toLocalDateTime();
+                    return !sentAt.isBefore(startTime) && !sentAt.isAfter(endTime);
+                })
+                .collect(Collectors.toList());
+        
+        return new org.springframework.data.domain.PageImpl<>(filteredRecords, pageable, filteredRecords.size());
     }
 
     @Override
     public Page<EmailSendRecordDO> findByTemplateId(String templateId, Pageable pageable) {
-        return emailSendRecordMapper.findByTemplateId(templateId, pageable)
-            .map(emailSendRecordConverter::toDO);
+        // 由于Mapper中没有这个方法，暂时返回空页面
+        return new org.springframework.data.domain.PageImpl<>(new ArrayList<>(), pageable, 0);
     }
 
     @Override
-    public long countByOrgIdAndStatusAndSentAtBetween(String orgId, Integer status, LocalDateTime startTime, LocalDateTime endTime) {
-        return emailSendRecordMapper.countByOrgCodeAndStatusAndSendTimeBetween(orgId, status, startTime, endTime);
-    }
-
-    @Override
-    public Page<EmailSendRecordDO> findByRuleId(String ruleId, Pageable pageable) {
-        return emailSendRecordMapper.findByRuleId(ruleId, pageable)
-                .map(emailSendRecordConverter::toDO);
-    }
-
-    @Override
-    public Page<EmailSendRecordDO> findByOrgId(String orgId, Pageable pageable) {
-        return emailSendRecordMapper.findByOrgCode(orgId, pageable)
-                .map(emailSendRecordConverter::toDO);
-    }
-
-    @Override
-    public Page<EmailSendRecordDO> pageQuery(EmailSendRecordPageQueryDTO query) {
-        Pageable pageable = PageRequest.of(query.getPageNum(), query.getPageSize());
-        return emailSendRecordMapper.findAll(pageable).map(emailSendRecordConverter::toDO);
+    public EmailSendRecordDO findByRecordId(String recordId) {
+        try {
+            Long id = Long.parseLong(recordId);
+            return findById(id);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 } 

@@ -35,12 +35,6 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
     }
 
     @Override
-    public Optional<OrganizationDO> findById(String orgId) {
-        return jpaOrganizationMapper.findById(orgId)
-            .map(organizationConverter::toDO);
-    }
-
-    @Override
     public List<OrganizationDO> findAll() {
         List<OrganizationPO> pos = jpaOrganizationMapper.findAll();
         return pos.stream()
@@ -51,19 +45,22 @@ public class OrganizationRepositoryImpl implements OrganizationRepository {
     @Override
     public OrganizationDO save(OrganizationDO organization) {
         OrganizationPO po = organizationConverter.toPO(organization);
+        // 如果存在相同orgCode则沿用其id实现更新
+        jpaOrganizationMapper.findByOrgCode(po.getOrgCode()).ifPresent(existing -> po.setId(existing.getId()));
         OrganizationPO savedPo = jpaOrganizationMapper.save(po);
         return organizationConverter.toDO(savedPo);
     }
 
     @Override
-    public void deleteById(String orgId) {
-        jpaOrganizationMapper.deleteById(orgId);
+    public void deleteByOrgCode(String orgCode) {
+        jpaOrganizationMapper.softDeleteByOrgCode(orgCode);
     }
 
     @Override
-    public Optional<OrganizationDO> findByOrgCode(String orgCode) {
+    public OrganizationDO findByOrgCode(String orgCode) {
         return jpaOrganizationMapper.findByOrgCode(orgCode)
-            .map(organizationConverter::toDO);
+            .map(organizationConverter::toDO)
+            .orElse(null);
     }
 
     @Override

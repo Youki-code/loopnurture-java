@@ -18,6 +18,12 @@ import org.springframework.samples.loopnurture.users.server.controller.dto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.samples.loopnurture.users.service.OrganizationService;
+import org.springframework.samples.loopnurture.users.service.UserOrganizationService;
+import org.springframework.samples.loopnurture.users.domain.enums.OrganizationTypeEnum;
+import org.springframework.samples.loopnurture.users.domain.enums.OrganizationStatusEnum;
+import org.springframework.samples.loopnurture.users.domain.enums.UserRoleEnum;
+import org.springframework.samples.loopnurture.users.domain.model.OrganizationDO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +41,8 @@ public class MarketingUserService {
     private final JwtUtils jwtUtils;
     private final PasswordEncoder passwordEncoder;
     private final RsaUtils rsaUtils;
+    private final OrganizationService organizationService;
+    private final UserOrganizationService userOrganizationService;
 
     /**
      * 用户注册
@@ -100,7 +108,27 @@ public class MarketingUserService {
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setUpdatedAt(LocalDateTime.now());
 
-        return userRepository.save(newUser);
+        // -------- 创建默认组织 --------
+        String defaultOrgCode = "org_" + newUser.getSystemUserId();
+        OrganizationDO defaultOrg = new OrganizationDO();
+        defaultOrg.setOrgCode(defaultOrgCode);
+        defaultOrg.setOrgName(newUser.getNickname() != null ? newUser.getNickname() + "'s Org" : newUser.getUserUniq() + "'s Org");
+        defaultOrg.setOrgType(OrganizationTypeEnum.PERSONAL);
+        defaultOrg.setStatus(OrganizationStatusEnum.ACTIVE);
+        defaultOrg.setCreatedAt(LocalDateTime.now());
+        defaultOrg.setUpdatedAt(LocalDateTime.now());
+        defaultOrg.setCreatedBy(newUser.getSystemUserId());
+        defaultOrg.setUpdatedBy(newUser.getSystemUserId());
+        organizationService.createOrganization(defaultOrg);
+
+        // 将用户加入默认组织并设置当前组织
+        newUser.setCurrentOrgCode(defaultOrgCode);
+
+        // 先保存用户，再建立关联，确保用户ID存在
+        MarketingUserDO savedUser = userRepository.save(newUser);
+        userOrganizationService.addUserToOrganization(savedUser.getSystemUserId(), defaultOrgCode, UserRoleEnum.ADMIN, String.valueOf(savedUser.getSystemUserId()));
+
+        return savedUser;
     }
 
     /**
@@ -305,7 +333,7 @@ public class MarketingUserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<MarketingUserDO> findById(String id) {
+    public Optional<MarketingUserDO> findById(Long id) {
         return userRepository.findById(id);
     }
 
@@ -328,7 +356,7 @@ public class MarketingUserService {
         return userRepository.save(user);
     }
 
-    public void deleteById(String id) {
+    public void deleteById(Long id) {
         userRepository.deleteById(id);
     }
 

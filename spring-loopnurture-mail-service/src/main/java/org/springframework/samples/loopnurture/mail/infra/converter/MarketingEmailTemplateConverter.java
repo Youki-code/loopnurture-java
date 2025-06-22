@@ -12,6 +12,8 @@ import org.springframework.samples.loopnurture.mail.infra.po.MarketingEmailTempl
 import org.springframework.samples.loopnurture.mail.server.controller.dto.CreateMarketingEmailTemplateRequest;
 import org.springframework.samples.loopnurture.mail.server.controller.dto.ModifyMarketingEmailTemplateRequest;
 import org.springframework.samples.loopnurture.mail.server.controller.dto.MarketingEmailTemplateResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -21,16 +23,16 @@ import java.util.UUID;
 
 /**
  * 营销邮件模板转换器
+ * 负责在领域对象和持久化对象之间进行转换
  */
 @Component
 @RequiredArgsConstructor
 public class MarketingEmailTemplateConverter {
     
-    private static final DateTimeFormatter TEMPLATE_NAME_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
     private final ObjectMapper objectMapper;
+    private static final Logger log = LoggerFactory.getLogger(MarketingEmailTemplateConverter.class);
+    private static final DateTimeFormatter TEMPLATE_NAME_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
     
-
-
     /**
      * 将领域对象转换为响应DTO
      */
@@ -63,29 +65,29 @@ public class MarketingEmailTemplateConverter {
             return null;
         }
 
-        MarketingEmailTemplateDO.MarketingEmailTemplateDOBuilder builder = MarketingEmailTemplateDO.builder()
-            .orgCode(po.getOrgCode())
-            .templateId(po.getTemplateId())
-            .templateName(po.getTemplateName())
-            .contentType(org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum.fromCode(po.getContentType() != null ? po.getContentType().intValue() : null))
-            .contentTemplate(po.getContentTemplate())
-            .aiStrategyVersion(po.getAiStrategyVersion())
-            .enableStatus(org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum.fromCode(po.getEnableStatus() != null ? po.getEnableStatus().intValue() : null));
+        MarketingEmailTemplateDO entity = new MarketingEmailTemplateDO();
+        entity.setOrgCode(po.getOrgCode());
+        entity.setTemplateId(po.getTemplateId());
+        entity.setTemplateName(po.getTemplateName());
+        entity.setContentType(po.getContentType() != null ? org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum.fromCode(po.getContentType().intValue()) : null);
+        entity.setContentTemplate(po.getContentTemplate());
+        entity.setAiStrategyVersion(po.getAiStrategyVersion());
+        entity.setEnableStatus(po.getEnableStatus() != null ? org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum.fromCode(po.getEnableStatus().intValue()) : null);
+        entity.setCreatedAt(po.getCreatedAt());
+        entity.setUpdatedAt(po.getUpdatedAt());
+        entity.setCreatedBy(po.getCreatedBy());
+        entity.setUpdatedBy(po.getUpdatedBy());
 
-        try {
-            if (StringUtils.hasText(po.getExtendsInfo())) {
-                builder.extendsInfo(objectMapper.readValue(po.getExtendsInfo(), MarketingEmailTemplateExtendsInfoVO.class));
+        // 扩展信息 JSON -> VO
+        if (StringUtils.hasText(po.getExtendsInfo())) {
+            try {
+                entity.setExtendsInfo(objectMapper.readValue(po.getExtendsInfo(), MarketingEmailTemplateExtendsInfoVO.class));
+            } catch (JsonProcessingException e) {
+                log.error("Failed to parse extendsInfo JSON: {}", po.getExtendsInfo(), e);
             }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to deserialize extends info", e);
         }
 
-        return builder
-            .createdAt(po.getCreatedAt())
-            .updatedAt(po.getUpdatedAt())
-            .createdBy(po.getCreatedBy())
-            .updatedBy(po.getUpdatedBy())
-            .build();
+        return entity;
     }
 
     /**

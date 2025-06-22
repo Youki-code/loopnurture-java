@@ -22,14 +22,14 @@ import java.util.Date;
 public class EmailSendRecordPO {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "org_code")
     private String orgCode;
 
     @Column(name = "rule_id")
-    private String ruleId;
+    private Long ruleId;
 
     @Column(name = "template_id")
     private String templateId;
@@ -49,7 +49,7 @@ public class EmailSendRecordPO {
     @Column(name = "bcc")
     private String bcc;
 
-    @Column(name = "status", columnDefinition = "SMALLINT")
+    @Column(name = "send_status", columnDefinition = "SMALLINT")
     private Short status;
 
     @Column(name = "error_message")

@@ -29,7 +29,7 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
     }
     
     @Override
-    public Optional<MarketingUserDO> findById(String id) {
+    public Optional<MarketingUserDO> findById(Long id) {
         return jpaMapper.findById(id)
             .map(converter::toDO);
     }
@@ -60,17 +60,19 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
     }
     
     @Override
-    public org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO save(org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO user) {
-        return converter.toDO(
-            jpaMapper.save(
-                converter.toPO(user)
-            )
-        );
+    public MarketingUserDO save(MarketingUserDO user) {
+        var po = converter.toPO(user);
+        // If this is an update, we need to attach existing ID to prevent JPA from INSERTing again
+        if (po.getId() == null && po.getSystemUserId() != null) {
+            jpaMapper.findBySystemUserId(po.getSystemUserId()).ifPresent(existing -> po.setId(existing.getId()));
+        }
+        var savedPo = jpaMapper.save(po);
+        return converter.toDO(savedPo);
     }
     
     @Override
-    public void deleteById(String id) {
-        jpaMapper.deleteById(id);
+    public void deleteById(Long id) {
+        jpaMapper.softDeleteById(id);
     }
     
     @Override
@@ -90,7 +92,7 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
 
     @Override
     public Optional<MarketingUserDO> findByOAuthInfo(String oauthUserId, Integer authType) {
-        return jpaMapper.findByOauthUserIdAndAuthType(oauthUserId, authType != null ? authType.shortValue() : null)
+        return jpaMapper.findByOauthUserIdAndAuthType(oauthUserId, authType.shortValue())
             .map(converter::toDO);
     }
 
@@ -98,5 +100,10 @@ public class MarketingUserRepositoryImpl implements MarketingUserRepository {
     public Optional<MarketingUserDO> findBySystemUserId(Long systemUserId) {
         return jpaMapper.findBySystemUserId(systemUserId)
             .map(converter::toDO);
+    }
+
+    @Override
+    public void softDeleteBySystemUserId(Long systemUserId) {
+        jpaMapper.softDeleteBySystemUserId(systemUserId);
     }
 } 

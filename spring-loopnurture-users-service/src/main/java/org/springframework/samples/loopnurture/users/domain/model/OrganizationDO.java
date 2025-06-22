@@ -14,11 +14,6 @@ import java.time.LocalDateTime;
 @Data
 public class OrganizationDO {
     /**
-     * 组织ID，系统生成的唯一标识符
-     */
-    private String id;
-
-    /**
      * 组织代码
      */
     private String orgCode;
@@ -39,16 +34,6 @@ public class OrganizationDO {
     private OrganizationStatusEnum status;
 
     /**
-     * 组织描述
-     */
-    private String description;
-
-    /**
-     * 组织地址
-     */
-    private String address;
-
-    /**
      * 联系电话
      */
     private String phone;
@@ -62,11 +47,6 @@ public class OrganizationDO {
      * 组织网站
      */
     private String website;
-
-    /**
-     * 组织Logo URL
-     */
-    private String logoUrl;
 
     /**
      * 最大用户数
@@ -101,14 +81,10 @@ public class OrganizationDO {
     /**
      * 创建人ID，关联marketing_user.id
      */
-    private String createdBy;
+    private Long createdBy;
 
     /**
      * 最后修改人ID，关联marketing_user.id
      */
-    private String updatedBy;
-
-    public String getOrgId() {
-        return id;
-    }
+    private Long updatedBy;
 } 

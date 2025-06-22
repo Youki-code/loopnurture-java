@@ -32,11 +32,6 @@ import java.util.List;
 @Setter
 public class EmailSendRuleDO {
     /**
-     * 主键ID
-     */
-    private String id;
-
-    /**
      * 组织编码
      */
     private String orgCode;
@@ -126,115 +121,147 @@ public class EmailSendRuleDO {
 
     /**************************操作方法**************************/
 
-    public void modifyRule(String ruleName, String templateId, Integer ruleType,  Date startTime, Date endTime, Integer maxExecutions, EnableStatusEnum enableStatus,String description,List<String> recipients,List<String> cc,List<String> bcc,String cronExpression,Long fixedRate,Long fixedDelay) {
-        this.ruleName = ruleName;
-        this.templateId = templateId;
-        this.ruleType = ruleType;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.maxExecutions = maxExecutions;
-        this.enableStatus = enableStatus;
-        if(this.extendsInfo==null){
-            this.extendsInfo = new EmailSendRuleExtendsInfoVO();
-        }
-        this.extendsInfo.setDescription(description);
-        this.extendsInfo.setRecipients(recipients);
-        this.extendsInfo.setCc(cc);
-        this.extendsInfo.setBcc(bcc);
-        this.extendsInfo.setCronExpression(cronExpression);
-        this.extendsInfo.setFixedRate(fixedRate);
-        this.extendsInfo.setFixedDelay(fixedDelay);
-        this.updatedAt = new Date();
-        this.updatedBy = UserContext.getUserId();
-
-    }
-
-
-
-    /**************************查询方法**************************/
-
     /**
-     * 检查规则是否可执行
-     *
-     * @return true 如果规则可以执行
+     * 检查规则是否可以执行
      */
-    public boolean isExecutable() {
+    public boolean canExecute() {
         if (enableStatus != EnableStatusEnum.ENABLED) {
             return false;
         }
 
         Date now = new Date();
+        
+        // 检查开始时间
         if (startTime != null && now.before(startTime)) {
             return false;
         }
+        
+        // 检查结束时间
         if (endTime != null && now.after(endTime)) {
             return false;
         }
+        
+        // 检查最大执行次数
         if (maxExecutions != null && executionCount != null && executionCount >= maxExecutions) {
             return false;
         }
-
+        
         return true;
     }
 
     /**
-     * 检查规则是否启用
-     *
-     * @return true 如果规则启用
+     * 更新执行信息
      */
-    public boolean isEnable() {
-        return enableStatus != null && enableStatus.equals(EnableStatusEnum.ENABLED);
+    public void updateExecutionInfo(Date lastExecuteTime, Date nextExecuteTime) {
+        this.lastExecutionTime = lastExecuteTime;
+        this.nextExecutionTime = nextExecuteTime;
+        if (this.executionCount == null) {
+            this.executionCount = 0;
+        }
+        this.executionCount++;
     }
 
     /**
-     * 记录执行完成
-     *
-     * @param nextTime 下次执行时间
+     * 启用规则
      */
-    public void recordExecution(Date nextTime) {
-        this.lastExecutionTime = new Date();
-        this.nextExecutionTime = nextTime;
-        if (executionCount == null) {
-            executionCount = 1;
-        } else {
-            executionCount++;
+    public void enable() {
+        this.enableStatus = EnableStatusEnum.ENABLED;
+    }
+
+    /**
+     * 禁用规则
+     */
+    public void disable() {
+        this.enableStatus = EnableStatusEnum.DISABLED;
+    }
+
+    /**
+     * 获取收件人列表
+     */
+    public List<String> getRecipients() {
+        if (extendsInfo != null && extendsInfo.getRecipients() != null) {
+            return extendsInfo.getRecipients();
+        }
+        return List.of();
+    }
+
+    /**
+     * 获取抄送列表
+     */
+    public List<String> getCcList() {
+        if (extendsInfo != null && extendsInfo.getCc() != null) {
+            return extendsInfo.getCc();
+        }
+        return List.of();
+    }
+
+    /**
+     * 获取密送列表
+     */
+    public List<String> getBccList() {
+        if (extendsInfo != null && extendsInfo.getBcc() != null) {
+            return extendsInfo.getBcc();
+        }
+        return List.of();
+    }
+
+    /**
+     * 验证规则配置
+     */
+    public void validate() {
+        if (orgCode == null || orgCode.trim().isEmpty()) {
+            throw new IllegalArgumentException("组织编码不能为空");
+        }
+        
+        if (ruleId == null || ruleId.trim().isEmpty()) {
+            throw new IllegalArgumentException("规则ID不能为空");
+        }
+        
+        if (ruleName == null || ruleName.trim().isEmpty()) {
+            throw new IllegalArgumentException("规则名称不能为空");
+        }
+        
+        if (templateId == null || templateId.trim().isEmpty()) {
+            throw new IllegalArgumentException("模板ID不能为空");
+        }
+        
+        if (ruleType == null) {
+            throw new IllegalArgumentException("规则类型不能为空");
+        }
+        
+        // 验证时间配置
+        if (startTime != null && endTime != null && startTime.after(endTime)) {
+            throw new IllegalArgumentException("开始时间不能晚于结束时间");
+        }
+        
+        // 验证执行次数
+        if (maxExecutions != null && maxExecutions <= 0) {
+            throw new IllegalArgumentException("最大执行次数必须大于0");
         }
     }
 
     /**
-     * 检查是否使用Cron表达式
-     *
-     * @return true 如果使用Cron表达式
+     * 创建新规则时的初始化
      */
-    public boolean isCronRule() {
-        return ruleType != null && ruleType.equals(RuleTypeEnum.CRON.getCode());
+    public static EmailSendRuleDO create(String orgCode, String ruleId, String ruleName, 
+                                       String templateId, Integer ruleType, 
+                                       EmailSendRuleExtendsInfoVO extendsInfo) {
+        EmailSendRuleDO rule = EmailSendRuleDO.builder()
+                .orgCode(orgCode)
+                .ruleId(ruleId)
+                .ruleName(ruleName)
+                .templateId(templateId)
+                .ruleType(ruleType)
+                .extendsInfo(extendsInfo)
+                .enableStatus(EnableStatusEnum.ENABLED)
+                .executionCount(0)
+                .createdAt(new Date())
+                .updatedAt(new Date())
+                .createdBy(UserContext.getUserId())
+                .updatedBy(UserContext.getUserId())
+                .build();
+        
+        rule.validate();
+        return rule;
     }
-
-    /**
-     * 检查是否使用固定频率
-     *
-     * @return true 如果使用固定频率
-     */
-    public boolean isFixedRateRule() {
-        return ruleType != null && ruleType.equals(RuleTypeEnum.FIXED_RATE.getCode());
-    }
-
-    /**
-     * 检查是否使用固定延迟
-     *
-     * @return true 如果使用固定延迟
-     */
-    public boolean isFixedDelayRule() {
-        return ruleType != null && ruleType.equals(RuleTypeEnum.FIXED_DELAY.getCode());
-    }
-
-    /**
-     * 检查是否是立即执行规则
-     *
-     * @return true 如果是立即执行规则
-     */
-    public boolean isImmediateRule() {
-        return ruleType != null && ruleType.equals(RuleTypeEnum.IMMEDIATE.getCode());
-    }
-
 } 

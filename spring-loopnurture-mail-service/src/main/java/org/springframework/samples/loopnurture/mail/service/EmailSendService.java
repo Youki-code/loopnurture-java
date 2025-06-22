@@ -95,7 +95,7 @@ public class EmailSendService {
 
 
     public EmailSendRecordDO getSendRecord(String recordId) {
-        EmailSendRecordDO record = sendRecordRepository.findById(recordId);
+        EmailSendRecordDO record = sendRecordRepository.findByRecordId(recordId);
         if(record==null){
             throw new ResourceNotFoundException("Send record not found");
         }

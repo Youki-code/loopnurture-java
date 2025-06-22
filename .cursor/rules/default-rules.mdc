@@ -227,12 +227,23 @@ converter_rules = [
     "处理JSON/JSONB字段的序列化/反序列化"
 ]
 
+# 软删除与主键通用规则
+[soft_delete_rules]
+rules = [
+    "所有数据表主键统一使用 BIGINT，自增 (IDENTITY / SERIAL) 字段 id",
+    "每张表必须包含 deleted BOOLEAN 字段，默认值 false (0)",
+    "PO 类中必须映射 deleted 字段，并加 @Where(clause = \"deleted = false\") 过滤已删除记录",
+    "Mapper (JpaRepository) 需提供 softDeleteById / deleteLogic 等方法，通过 UPDATE 将 deleted 置 true 而非物理删除",
+    "所有查询接口默认只返回 deleted = false 的数据"
+]
+
 [domain_rules]
 # DO类规范
 do_class_rules = [
     "领域对象可以使用枚举类型",
     "使用@Data注解简化getter/setter",
-    "包含完整的字段注释"
+    "包含完整的字段注释",
+    "领域对象(DO) **禁止**包含数据库自增主键 id 字段，业务唯一标识应使用业务字段（如 orgCode、ruleId 等）"
 ]
 
 # 枚举类规范
@@ -266,4 +277,12 @@ use_enum_in_do_vo = true
 
 [date_rules]
 # 统一使用 java.util.Date 或 java.time.*，推荐 Date，避免自定义 String 时间字段
-prefer_date_type = true 
+prefer_date_type = true
+
+# 仓储方法命名与返回值规范
+[repository_method_rules]
+rules = [
+    "Repository 接口方法命名不得使用 ById，因为领域对象 (DO) 不包含技术主键 id",
+    "查询、更新或删除应使用明确的业务键全称，如 findByOrgCode、deleteByOrgCode、findByUserUniq 等",
+    "Repository 查询方法应直接返回实体对象或集合，不使用 Optional<> 包装；数据不存在时返回 null 或由 Service 层抛出业务异常"
+] 

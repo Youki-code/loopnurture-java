@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.util.Date;
 
 /**
@@ -24,8 +26,8 @@ import java.util.Date;
 public class EmailSendRulePO {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "org_code")
     private String orgCode;
@@ -45,7 +47,8 @@ public class EmailSendRulePO {
     /**
      * 扩展信息(JSON)
      */
-    @Column(name = "extends_info")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "extends_info", columnDefinition = "jsonb")
     private String extendsInfo;
 
     @Column(name = "start_time")

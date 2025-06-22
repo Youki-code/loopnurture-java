@@ -10,6 +10,11 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.loopnurture.users.domain.repository.MarketingUserRepository;
+import org.springframework.samples.loopnurture.users.domain.repository.OrganizationRepository;
+import org.springframework.samples.loopnurture.users.domain.repository.UserOrganizationRepository;
+import org.junit.jupiter.api.AfterEach;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +39,16 @@ class UserApiIntegrationTest {
     private ObjectMapper objectMapper;
 
     private final RestTemplate restTemplate = new RestTemplate();
+
+    @Autowired
+    private MarketingUserRepository marketingUserRepository;
+    @Autowired
+    private OrganizationRepository organizationRepository;
+    @Autowired
+    private UserOrganizationRepository userOrganizationRepository;
+
+    private Long lastSystemUserId;
+    private String lastOrgCode;
 
     private String url(String path) {
         return "http://localhost:" + port + path;
@@ -64,6 +79,9 @@ class UserApiIntegrationTest {
         long userId = userInfo.path("systemUserId").asLong();
         Assertions.assertTrue(token.isEmpty() == false, "注册接口未返回 token");
         Assertions.assertTrue(userId > 0, "注册接口未返回有效的 userId");
+
+        lastSystemUserId = userId;
+        lastOrgCode = "org_" + userId;
 
         // -------- 2. 查询用户信息 --------
         HttpHeaders authHeaders = new HttpHeaders();
@@ -129,6 +147,9 @@ class UserApiIntegrationTest {
         long sysUserId = regRoot.path("data").path("userInfo").path("systemUserId").asLong();
         Assertions.assertFalse(regToken.isEmpty(), "注册未返回 token");
 
+        lastSystemUserId = sysUserId;
+        lastOrgCode = "org_" + sysUserId;
+
         // 2. login (OAuth)
         Map<String, Object> login = new HashMap<>();
         login.putAll(reg); // same credentials
@@ -147,5 +168,21 @@ class UserApiIntegrationTest {
         JsonNode vRoot = objectMapper.readTree(vResp.getBody());
         Assertions.assertTrue(vRoot.path("data").path("valid").asBoolean());
         Assertions.assertEquals(sysUserId, vRoot.path("data").path("userId").asLong());
+    }
+
+    @AfterEach
+    void cleanupInsertedData() {
+        if (lastSystemUserId != null) {
+            // 软删除用户-组织关联
+            userOrganizationRepository.deleteBySystemUserId(lastSystemUserId);
+            // 软删除用户本身
+            marketingUserRepository.softDeleteBySystemUserId(lastSystemUserId);
+        }
+        if (lastOrgCode != null) {
+            // 软删除组织
+            organizationRepository.deleteByOrgCode(lastOrgCode);
+        }
+        lastSystemUserId = null;
+        lastOrgCode = null;
     }
 } 

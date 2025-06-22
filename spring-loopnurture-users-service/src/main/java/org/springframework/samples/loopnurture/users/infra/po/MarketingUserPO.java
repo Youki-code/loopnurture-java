@@ -3,12 +3,15 @@ package org.springframework.samples.loopnurture.users.infra.po;
 import lombok.Data;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * 营销用户持久化对象
  */
 @Data
 @Entity
+@org.hibernate.annotations.Where(clause = "deleted = false")
 @Table(name = "marketing_user", indexes = {
     @Index(name = "idx_primary_email", columnList = "primary_email"),
     @Index(name = "idx_phone", columnList = "phone")
@@ -18,9 +21,9 @@ import java.time.LocalDateTime;
 })
 public class MarketingUserPO {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private String id;
+    private Long id;
 
     /**
      * 系统用户ID，使用雪花算法生成的全局唯一ID
@@ -43,7 +46,8 @@ public class MarketingUserPO {
     @Column(name = "user_type", columnDefinition = "SMALLINT")
     private Short userType;
 
-    @Column(name = "extends_info", columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "extends_info", columnDefinition = "jsonb")
     private String extendsInfo;
 
     @Column(name = "nickname")
@@ -79,6 +83,9 @@ public class MarketingUserPO {
     @Column(name = "phone_verified", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean phoneVerified;
 
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
+
     @Column(name = "current_org_code")
     private String currentOrgCode;
 
@@ -97,6 +104,7 @@ public class MarketingUserPO {
         updatedAt = LocalDateTime.now();
         if (emailVerified == null) emailVerified = false;
         if (phoneVerified == null) phoneVerified = false;
+        if (deleted == null) deleted = false;
     }
 
     @PreUpdate

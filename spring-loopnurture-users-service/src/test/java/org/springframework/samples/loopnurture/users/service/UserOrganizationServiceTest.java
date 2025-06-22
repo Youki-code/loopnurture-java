@@ -53,7 +53,6 @@ class UserOrganizationServiceTest {
         testOrgCode = "test-org-code";
 
         testUserOrg = new UserOrganizationDO();
-        testUserOrg.setId(1L);
         testUserOrg.setSystemUserId(testSystemUserId);
         testUserOrg.setOrgCode(testOrgCode);
         testUserOrg.setRole(UserRoleEnum.MEMBER);
@@ -66,7 +65,7 @@ class UserOrganizationServiceTest {
     @Test
     void addUserToOrganization_Success() {
         when(userRepository.findBySystemUserId(anyLong())).thenReturn(Optional.of(new MarketingUserDO()));
-        when(organizationRepository.findById(anyString())).thenReturn(Optional.of(new OrganizationDO()));
+        when(organizationRepository.findByOrgCode(anyString())).thenReturn(new OrganizationDO());
         when(userOrgRepository.existsBySystemUserIdAndOrgCode(anyLong(), anyString())).thenReturn(false);
         when(userOrgRepository.save(any(UserOrganizationDO.class))).thenReturn(testUserOrg);
 

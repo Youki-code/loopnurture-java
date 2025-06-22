@@ -40,9 +40,25 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
 
     @Override
     public EmailSendRuleDO save(EmailSendRuleDO rule) {
-        var po = emailSendRuleConverter.toPO(rule);
+        // upsert by (orgCode, ruleId)
+        org.springframework.samples.loopnurture.mail.infra.po.EmailSendRulePO po;
+        if (rule.getOrgCode()!=null && rule.getRuleId()!=null) {
+            java.util.Optional<org.springframework.samples.loopnurture.mail.infra.po.EmailSendRulePO> existing =
+                    emailSendRuleMapper.findByOrgCodeAndRuleId(rule.getOrgCode(), rule.getRuleId());
+            po = emailSendRuleConverter.toPO(rule);
+            existing.ifPresent(value -> po.setId(value.getId()));
+        } else {
+            po = emailSendRuleConverter.toPO(rule);
+        }
         emailSendRuleMapper.save(po);
         return emailSendRuleConverter.toDO(po);
+    }
+
+    @Override
+    public EmailSendRuleDO findById(Long id) {
+        return emailSendRuleMapper.findById(id)
+                .map(emailSendRuleConverter::toDO)
+                .orElse(null);
     }
 
     @Override
@@ -53,32 +69,27 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
     }
 
     @Override
-    public List<EmailSendRuleDO> findActiveRulesByOrgCode(String orgCode) {
-        return emailSendRuleMapper.findByOrgCodeAndEnableStatus(orgCode, 1)
-                .stream()
-                .map(emailSendRuleConverter::toDO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public Page<EmailSendRuleDO> findByOrgCode(String orgCode, Pageable pageable) {
         return emailSendRuleMapper.findByOrgCode(orgCode, pageable)
                 .map(emailSendRuleConverter::toDO);
     }
 
-
     @Override
-    public void deleteByRuleId(String ruleId) {
-        emailSendRuleMapper.softDeleteByRuleId(ruleId);
+    public Page<EmailSendRuleDO> findByOrgCodeAndTemplateId(String orgCode, String templateId, Pageable pageable) {
+        return emailSendRuleMapper.findByOrgCodeAndTemplateId(orgCode, templateId, pageable)
+                .map(emailSendRuleConverter::toDO);
     }
 
     @Override
-    public List<EmailSendRuleDO> findRulesForExecution(Date now) {
-        LocalDateTime ldt = toLocalDateTime(now);
-        return emailSendRuleMapper.findEnabledRulesDue(ldt)
-                .stream()
-                .map(emailSendRuleConverter::toDO)
-                .collect(Collectors.toList());
+    public Page<EmailSendRuleDO> findByOrgCodeAndRuleType(String orgCode, Integer ruleType, Pageable pageable) {
+        return emailSendRuleMapper.findByOrgCodeAndRuleType(orgCode, ruleType.shortValue(), pageable)
+                .map(emailSendRuleConverter::toDO);
+    }
+
+    @Override
+    public Page<EmailSendRuleDO> findByOrgCodeAndEnableStatus(String orgCode, Integer enableStatus, Pageable pageable) {
+        return emailSendRuleMapper.findByOrgCodeAndEnableStatus(orgCode, enableStatus.shortValue(), pageable)
+                .map(emailSendRuleConverter::toDO);
     }
 
     @Override
@@ -87,12 +98,20 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
     }
 
     @Override
-    public void updateExecutionInfo(String id, Date lastExecuteTime, Date nextExecuteTime, int executedCount) {
+    public List<EmailSendRuleDO> findExecutableRules() {
+        return emailSendRuleMapper.findExecutableRules(LocalDateTime.now())
+                .stream()
+                .map(emailSendRuleConverter::toDO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateExecutionInfo(Long id, Date lastExecuteTime, Date nextExecuteTime, int executedCount) {
         emailSendRuleMapper.updateExecutionInfo(id, toLocalDateTime(lastExecuteTime), toLocalDateTime(nextExecuteTime), executedCount);
     }
     
     @Override
-    public void update(String id, EmailSendRuleDO rule) {
+    public void update(Long id, EmailSendRuleDO rule) {
         var po = emailSendRuleConverter.toPO(rule);
         po.setId(id);
         emailSendRuleMapper.save(po);
@@ -105,40 +124,13 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
     }
 
     @Override
-    public Page<EmailSendRuleDO> pageQuery(EmailSendRulePageQueryDTO query){
-        // PageRequest 以 0 开始计数，而前端传入的 pageNum 约定为从 1 开始，需做 -1 转换
-        int pageIndex = Math.max(query.getPageNum() - 1, 0);
-        Pageable pageable = PageRequest.of(pageIndex, query.getPageSize());
+    public void deleteByOrgCodeAndRuleId(String orgCode, String ruleId) {
+        emailSendRuleMapper.deleteByOrgCodeAndRuleId(orgCode, ruleId);
+    }
 
-        Specification<EmailSendRulePO> spec = (root, cq, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (query.getEnableStatusList() != null && !query.getEnableStatusList().isEmpty()) {
-                predicates.add(root.get("enableStatus").in(query.getEnableStatusList()));
-            }
-
-            if (query.getRuleName() != null && !query.getRuleName().isBlank()) {
-                predicates.add(cb.like(root.get("ruleName"), "%" + query.getRuleName() + "%"));
-            }
-
-            if (query.getTemplateId() != null && !query.getTemplateId().isBlank()) {
-                predicates.add(cb.equal(root.get("templateId"), query.getTemplateId()));
-            }
-
-            if (query.getRuleType() != null) {
-                predicates.add(cb.equal(root.get("ruleType"), query.getRuleType()));
-            }
-
-            if (query.getOrgCode() != null && !query.getOrgCode().isBlank()) {
-                predicates.add(cb.equal(root.get("orgCode"), query.getOrgCode()));
-            }
-
-            // recipientType 暂无对应列，可在此扩展
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
-        return emailSendRuleMapper.findAll(spec, pageable).map(emailSendRuleConverter::toDO);
+    @Override
+    public void deleteByOrgCode(String orgCode) {
+        emailSendRuleMapper.deleteByOrgCode(orgCode);
     }
 
     @Override
@@ -156,26 +148,38 @@ public class EmailSendRuleRepositoryImpl implements EmailSendRuleRepository {
     }
 
     @Override
-    public List<EmailSendRuleDO> findExecutableRules(Date now) {
-        LocalDateTime ldt = toLocalDateTime(now);
-        Specification<EmailSendRulePO> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.equal(root.get("enableStatus"), EnableStatusEnum.ENABLED.getCode()));
-            predicates.add(cb.lessThanOrEqualTo(root.get("nextExecutionTime"), ldt));
-            predicates.add(
-                cb.or(
-                    cb.isNull(root.get("maxExecutions")),
-                    cb.lessThan(root.get("executionCount"), root.get("maxExecutions"))
-                )
-            );
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-        return emailSendRuleMapper.findAll(spec).stream()
+    public void deleteByRuleId(String ruleId) {
+        emailSendRuleMapper.softDeleteByRuleId(ruleId);
+    }
+
+    @Override
+    public List<EmailSendRuleDO> findRulesForExecution(Date now) {
+        java.time.LocalDateTime ldt = now.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+        return emailSendRuleMapper.findExecutableRules(ldt)
+                .stream()
                 .map(emailSendRuleConverter::toDO)
-                .collect(Collectors.toList());
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @Override
+    public Page<EmailSendRuleDO> pageQuery(EmailSendRulePageQueryDTO query) {
+        int pageIndex = query.getPageNum() > 0 ? query.getPageNum() - 1 : 0;
+        Pageable pageable = PageRequest.of(pageIndex, query.getPageSize());
+        Page<EmailSendRuleDO> page = emailSendRuleMapper.findByOrgCode(query.getOrgCode(), pageable)
+                .map(emailSendRuleConverter::toDO);
+        if (query.getRuleName() == null) {
+            return page;
+        }
+        java.util.List<EmailSendRuleDO> filtered = page.getContent().stream()
+                .filter(r -> r.getRuleName()!=null && r.getRuleName().contains(query.getRuleName()))
+                .toList();
+        return new org.springframework.data.domain.PageImpl<>(filtered, pageable, filtered.size());
     }
 
     private LocalDateTime toLocalDateTime(Date date) {
-        return date == null ? null : date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        if (date == null) {
+            return null;
+        }
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 } 

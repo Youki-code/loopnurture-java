@@ -37,13 +37,7 @@ spring:
           jta:
             platform: org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform
   flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
-    validate-on-migrate: false
-    clean-disabled: true
-    out-of-order: false
-    ignore-migration-patterns: "*:missing"
+    enabled: false
 
 # Eureka Client Configuration
 eureka:

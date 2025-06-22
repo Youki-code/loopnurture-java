@@ -2,7 +2,6 @@ package org.springframework.samples.loopnurture.users.service;
 
 import org.springframework.samples.loopnurture.users.domain.enums.OrganizationStatusEnum;
 import org.springframework.samples.loopnurture.users.domain.model.OrganizationDO;
-import org.springframework.samples.loopnurture.users.domain.model.vo.OrganizationSettingsVO;
 import org.springframework.samples.loopnurture.users.domain.repository.OrganizationRepository;
 import org.springframework.samples.loopnurture.users.domain.exception.OrganizationNotFoundException;
 import org.springframework.samples.loopnurture.users.domain.exception.OrganizationUniqExistsException;
@@ -47,8 +46,11 @@ public class OrganizationService {
      */
     @Transactional(readOnly = true)
     public OrganizationDO findById(String id) {
-        return organizationRepository.findById(id)
-            .orElseThrow(() -> new OrganizationNotFoundException("Organization not found with id: " + id));
+        OrganizationDO org = organizationRepository.findByOrgCode(id);
+        if (org == null) {
+            throw new OrganizationNotFoundException("Organization not found with code: " + id);
+        }
+        return org;
     }
 
     /**
@@ -61,8 +63,11 @@ public class OrganizationService {
      */
     @Transactional(readOnly = true)
     public OrganizationDO findByOrgCode(String orgCode) {
-        return organizationRepository.findByOrgCode(orgCode)
-            .orElseThrow(() -> new OrganizationNotFoundException("Organization not found with code: " + orgCode));
+        OrganizationDO org = organizationRepository.findByOrgCode(orgCode);
+        if (org == null) {
+            throw new OrganizationNotFoundException("Organization not found with code: " + orgCode);
+        }
+        return org;
     }
 
     /**
@@ -84,40 +89,46 @@ public class OrganizationService {
      * 更新组织信息
      * 更新现有组织的信息
      *
-     * @param id 组织ID
+     * @param orgCode 组织代码
      * @param organization 组织信息
      * @return 更新后的组织信息
      * @throws OrganizationNotFoundException 如果组织不存在
      */
-    public OrganizationDO updateOrganization(String id, OrganizationDO organization) {
-        findById(id); // 检查组织是否存在
-        organization.setId(id);
-        return organizationRepository.save(organization);
+    public OrganizationDO updateOrganization(String orgCode, OrganizationDO organization) {
+        OrganizationDO existing = findById(orgCode);
+        existing.setOrgName(organization.getOrgName());
+        existing.setPhone(organization.getPhone());
+        existing.setEmail(organization.getEmail());
+        existing.setWebsite(organization.getWebsite());
+        existing.setMaxUsers(organization.getMaxUsers());
+        existing.setMaxTemplates(organization.getMaxTemplates());
+        existing.setMaxRules(organization.getMaxRules());
+        return organizationRepository.save(existing);
     }
 
     /**
      * 删除组织
      * 根据组织ID删除指定组织
      *
-     * @param id 组织ID
+     * @param orgCode 组织代码
      * @throws OrganizationNotFoundException 如果组织不存在
      */
-    public void deleteOrganization(String id) {
-        findById(id); // 检查组织是否存在
-        organizationRepository.deleteById(id);
+    public void deleteOrganization(String orgCode) {
+        findById(orgCode);
+        organizationRepository.deleteByOrgCode(orgCode);
     }
 
     /**
      * 更新组织状态
      * 更新指定组织的状态
      *
-     * @param id 组织ID
+     * @param orgCode 组织代码
      * @param status 新状态
      * @return 更新后的组织信息
      * @throws OrganizationNotFoundException 如果组织不存在
      */
-    public OrganizationDO updateOrganizationStatus(String id, OrganizationStatusEnum status) {
-        OrganizationDO organization = findById(id);
+    public OrganizationDO updateOrganizationStatus(String orgCode, OrganizationStatusEnum status) {
+        OrganizationDO organization = findById(orgCode);
         organization.setStatus(status);
         return organizationRepository.save(organization);
     }
@@ -126,13 +137,13 @@ public class OrganizationService {
      * 更新组织设置
      * 更新指定组织的设置信息
      *
-     * @param id 组织ID
+     * @param orgCode 组织代码
      * @param organization 包含新设置的组织信息
      * @return 更新后的组织信息
      * @throws OrganizationNotFoundException 如果组织不存在
      */
-    public OrganizationDO updateOrganizationSettings(String id, OrganizationDO organization) {
-        OrganizationDO existingOrg = findById(id);
+    public OrganizationDO updateOrganizationSettings(String orgCode, OrganizationDO organization) {
+        OrganizationDO existingOrg = findById(orgCode);
         existingOrg.setMaxUsers(organization.getMaxUsers());
         existingOrg.setMaxTemplates(organization.getMaxTemplates());
         existingOrg.setMaxRules(organization.getMaxRules());

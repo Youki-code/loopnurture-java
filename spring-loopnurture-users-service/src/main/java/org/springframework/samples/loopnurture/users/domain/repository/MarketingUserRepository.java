@@ -39,7 +39,7 @@ public interface MarketingUserRepository {
      * @param user 用户信息
      * @return 保存后的用户信息
      */
-    org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO save(org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO user);
+    MarketingUserDO save(MarketingUserDO user);
 
     /**
      * 检查用户唯一标识是否已存在
@@ -50,11 +50,16 @@ public interface MarketingUserRepository {
     boolean existsByUserUniq(String userUniq);
 
     List<MarketingUserDO> findAll();
-    Optional<MarketingUserDO> findById(String id);
+    Optional<MarketingUserDO> findById(Long id);
     Optional<MarketingUserDO> findByPrimaryEmail(String primaryEmail);
     Optional<MarketingUserDO> findByPhone(String phone);
     List<MarketingUserDO> findByOrgCode(String orgCode);
-    void deleteById(String id);
+    void deleteById(Long id);
     boolean existsByPrimaryEmail(String primaryEmail);
     boolean existsByPhone(String phone);
+
+    /**
+     * 按 systemUserId 软删除用户
+     */
+    void softDeleteBySystemUserId(Long systemUserId);
 } 

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.samples.loopnurture.mail.infra.po.EmailSendRulePO;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +17,8 @@ import java.util.Optional;
 /**
  * 邮件发送规则JPA Mapper接口
  */
-public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, String>, JpaSpecificationExecutor<EmailSendRulePO> {
+@Repository
+public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, Long>, JpaSpecificationExecutor<EmailSendRulePO> {
     
     /**
      * 根据组织编码查找规则
@@ -100,7 +102,7 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
     @Query("UPDATE EmailSendRulePO e SET e.lastExecutionTime = :lastExecutionTime, " +
             "e.nextExecutionTime = :nextExecutionTime, e.executionCount = :executionCount " +
             "WHERE e.id = :id")
-    void updateExecutionInfo(@Param("id") String id,
+    void updateExecutionInfo(@Param("id") Long id,
                              @Param("lastExecutionTime") LocalDateTime lastExecutionTime,
                              @Param("nextExecutionTime") LocalDateTime nextExecutionTime,
                              @Param("executionCount") int executionCount);
@@ -121,7 +123,7 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
      */
     @Modifying
     @Query("UPDATE EmailSendRulePO e SET e.deleted = true WHERE e.id = :id")
-    void softDeleteById(@Param("id") String id);
+    void softDeleteById(@Param("id") Long id);
 
     /**
      * 根据 ruleId 逻辑删除
@@ -129,4 +131,40 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, S
     @Modifying
     @Query("UPDATE EmailSendRulePO e SET e.deleted = true WHERE e.ruleId = :ruleId")
     void softDeleteByRuleId(@Param("ruleId") String ruleId);
+
+    /**
+     * 根据组织编码和模板ID查询邮件发送规则
+     */
+    Page<EmailSendRulePO> findByOrgCodeAndTemplateId(String orgCode, String templateId, Pageable pageable);
+
+    /**
+     * 根据组织编码和规则类型查询邮件发送规则
+     */
+    Page<EmailSendRulePO> findByOrgCodeAndRuleType(String orgCode, Short ruleType, Pageable pageable);
+
+    /**
+     * 根据组织编码和启用状态查询邮件发送规则
+     */
+    Page<EmailSendRulePO> findByOrgCodeAndEnableStatus(String orgCode, Short enableStatus, Pageable pageable);
+
+    /**
+     * 根据组织编码和启用状态统计规则数量
+     */
+    long countByOrgCodeAndEnableStatus(String orgCode, Short enableStatus);
+
+    /**
+     * 查找需要执行的规则
+     */
+    @Query("SELECT e FROM EmailSendRulePO e WHERE e.nextExecutionTime <= :currentTime AND e.enableStatus = 1 AND e.deleted = false")
+    List<EmailSendRulePO> findExecutableRules(@Param("currentTime") LocalDateTime currentTime);
+
+    /**
+     * 根据组织编码和规则ID删除规则
+     */
+    void deleteByOrgCodeAndRuleId(String orgCode, String ruleId);
+
+    /**
+     * 根据组织编码删除所有规则
+     */
+    void deleteByOrgCode(String orgCode);
 } 

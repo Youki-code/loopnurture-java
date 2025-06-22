@@ -32,13 +32,8 @@ spring:
         types:
           preferred-instant-jdbc-type: TIMESTAMP
   flyway:
-    enabled: true
-    baseline-on-migrate: true
-    baseline-version: 0
-    locations: classpath:db/migration
-    validate-on-migrate: false
-    # 如果数据库已存在表，设置为true
-    baseline-on-new-schema: true
+    enabled: false
+    # 已停用 Flyway，采用 schema SQL 初始化
 
 server:
   port: 8081

@@ -83,9 +83,27 @@ public class EmailSendRuleOperateService {
             throw new ResourceNotFoundException("Rule not found");
         }
 
-        checkDuplicateName(rule.getOrgCode(), request.getRuleName(), rule.getId());
+        checkDuplicateName(rule.getOrgCode(), request.getRuleName(), rule.getRuleId());
 
-        rule.modifyRule(request.getRuleName(), request.getTemplateId(), request.getRuleType(), request.getStartTime(), request.getEndTime(), request.getMaxExecutions(), EnableStatusEnum.fromCode(request.getEnableStatus()), null, request.getRecipients(), request.getCc(), request.getBcc(), request.getCronExpression(), request.getFixedRate(), request.getFixedDelay());
+        // 更新字段
+        if(request.getRuleName()!=null) rule.setRuleName(request.getRuleName());
+        if(request.getTemplateId()!=null) rule.setTemplateId(request.getTemplateId());
+        if(request.getRuleType()!=null) rule.setRuleType(request.getRuleType());
+        rule.setStartTime(request.getStartTime());
+        rule.setEndTime(request.getEndTime());
+        rule.setMaxExecutions(request.getMaxExecutions());
+        rule.setEnableStatus(EnableStatusEnum.fromCode(request.getEnableStatus()));
+        // 扩展信息
+        EmailSendRuleExtendsInfoVO ext = rule.getExtendsInfo();
+        if(ext==null){ ext = new EmailSendRuleExtendsInfoVO(); }
+        ext.setRecipients(request.getRecipients());
+        ext.setCc(request.getCc());
+        ext.setBcc(request.getBcc());
+        ext.setCronExpression(request.getCronExpression());
+        ext.setFixedRate(request.getFixedRate());
+        ext.setFixedDelay(request.getFixedDelay());
+        rule.setExtendsInfo(ext);
+        rule.setUpdatedAt(new Date());
         
         return ruleRepository.save(rule);
     }
@@ -103,7 +121,7 @@ public class EmailSendRuleOperateService {
     private void checkDuplicateName(String orgCode, String ruleName, String excludeId) {
         if (ruleName == null) return;
         EmailSendRuleDO emailSendRuleDO = ruleRepository.findByOrgCodeAndRuleName(orgCode, ruleName);
-        if (emailSendRuleDO != null && !emailSendRuleDO.getId().equals(excludeId)) {
+        if (emailSendRuleDO != null && !emailSendRuleDO.getRuleId().equals(excludeId)) {
             throw new ValidationException("Rule name already exists");
         }
     }

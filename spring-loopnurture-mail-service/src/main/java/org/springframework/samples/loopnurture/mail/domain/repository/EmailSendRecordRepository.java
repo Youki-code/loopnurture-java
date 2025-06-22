@@ -27,7 +27,7 @@ public interface EmailSendRecordRepository {
      * @param id 要更新的记录ID
      * @param record 更新的内容
      */
-    void update(String id, EmailSendRecordDO record);
+    void update(Long id, EmailSendRecordDO record);
 
     /**
      * 根据组织编码和状态查询邮件发送记录
@@ -54,40 +54,33 @@ public interface EmailSendRecordRepository {
      */
     long countByOrgCodeAndStatus(String orgCode, EmailStatusEnum status);
 
-
     /**
      * 根据组织ID查找记录
      */
-    Page<EmailSendRecordDO> findByOrgId(String orgId, Pageable pageable);
+    Page<EmailSendRecordDO> findByOrgCode(String orgCode, Pageable pageable);
 
     /**
-     * 根据规则ID查找记录
+     * 根据组织编码、状态和时间范围查询邮件发送记录
      */
-    Page<EmailSendRecordDO> findByRuleId(String ruleId, Pageable pageable);
+    Page<EmailSendRecordDO> findByOrgCodeAndStatusAndSentAtBetween(String orgCode, EmailStatusEnum status, 
+                                                                 LocalDateTime startTime, LocalDateTime endTime, 
+                                                                 Pageable pageable);
 
     /**
-     * 根据模板ID查找记录
+     * 根据模板ID查询邮件发送记录
      */
     Page<EmailSendRecordDO> findByTemplateId(String templateId, Pageable pageable);
 
     /**
-     * 查找需要重试的记录
+     * 根据业务 recordId 获取记录
      */
-    List<EmailSendRecordDO> findRecordsForRetry(int maxRetryCount, LocalDateTime beforeTime);
+    EmailSendRecordDO findByRecordId(String recordId);
 
     /**
-     * 统计组织在指定时间段内的发送记录数量
+     * 根据ID删除记录
      */
-    long countByOrgIdAndStatusAndSendTimeBetween(String orgId, Integer status, LocalDateTime startTime, LocalDateTime endTime);
+    void deleteById(Long id);
 
-    long countByOrgIdAndStatusAndSentAtBetween(String orgId, Integer status, LocalDateTime startTime, LocalDateTime endTime);
-
-    List<EmailSendRecordDO> findByStatusAndRetryCountLessThanAndCreatedAtBefore(Integer status, int maxRetries, LocalDateTime beforeTime);
-
-    Page<EmailSendRecordDO> pageQuery(EmailSendRecordPageQueryDTO query);
-
-    /**
-     * 根据主键查询发送记录
-     */
-    EmailSendRecordDO findById(String id);
+    @Deprecated // 请勿在应用层使用
+    EmailSendRecordDO findById(Long id);
 } 

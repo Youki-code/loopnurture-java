@@ -11,14 +11,12 @@ import org.springframework.samples.loopnurture.users.domain.model.OrganizationDO
 import org.springframework.samples.loopnurture.users.domain.repository.OrganizationRepository;
 import org.springframework.samples.loopnurture.users.domain.enums.OrganizationStatusEnum;
 import org.springframework.samples.loopnurture.users.domain.enums.OrganizationTypeEnum;
-import org.springframework.samples.loopnurture.users.domain.model.vo.OrganizationSettingsVO;
 import org.springframework.samples.loopnurture.users.domain.exception.OrganizationNotFoundException;
 import org.springframework.samples.loopnurture.users.domain.exception.OrganizationUniqExistsException;
 import org.springframework.samples.loopnurture.users.config.TestConfig;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +38,6 @@ class OrganizationServiceTest {
     @BeforeEach
     void setUp() {
         testOrg = new OrganizationDO();
-        testOrg.setId("test-org-1");
         testOrg.setOrgCode("TEST_ORG");
         testOrg.setOrgName("Test Organization");
         testOrg.setOrgType(OrganizationTypeEnum.ENTERPRISE);
@@ -72,27 +69,8 @@ class OrganizationServiceTest {
     }
 
     @Test
-    void findById_Success() {
-        when(organizationRepository.findById("test-org-1")).thenReturn(Optional.of(testOrg));
-
-        OrganizationDO result = organizationService.findById("test-org-1");
-
-        assertNotNull(result);
-        assertEquals(testOrg.getId(), result.getId());
-    }
-
-    @Test
-    void findById_NotFound() {
-        when(organizationRepository.findById(anyString())).thenReturn(Optional.empty());
-
-        assertThrows(OrganizationNotFoundException.class, () -> 
-            organizationService.findById("non-existent-id")
-        );
-    }
-
-    @Test
-    void findByOrgCode_Success() {
-        when(organizationRepository.findByOrgCode("TEST_ORG")).thenReturn(Optional.of(testOrg));
+    void findByOrgCode_Success_Service() {
+        when(organizationRepository.findByOrgCode("TEST_ORG")).thenReturn(testOrg);
 
         OrganizationDO result = organizationService.findByOrgCode("TEST_ORG");
 
@@ -101,10 +79,9 @@ class OrganizationServiceTest {
     }
 
     @Test
-    void findByOrgCode_NotFound() {
-        when(organizationRepository.findByOrgCode(anyString())).thenReturn(Optional.empty());
-
-        assertThrows(OrganizationNotFoundException.class, () -> 
+    void findByOrgCode_NotFound_Service() {
+        when(organizationRepository.findByOrgCode(anyString())).thenReturn(null);
+        assertThrows(OrganizationNotFoundException.class, () ->
             organizationService.findByOrgCode("NONEXISTENT")
         );
     }
@@ -112,9 +89,7 @@ class OrganizationServiceTest {
     @Test
     void findAll_Success() {
         OrganizationDO org2 = new OrganizationDO();
-        org2.setId("test-org-2");
         org2.setOrgCode("TEST_ORG_2");
-        org2.setOrgType(OrganizationTypeEnum.TEAM);
         
         List<OrganizationDO> orgs = Arrays.asList(testOrg, org2);
         when(organizationRepository.findAll()).thenReturn(orgs);
@@ -128,11 +103,11 @@ class OrganizationServiceTest {
 
     @Test
     void updateOrganization_Success() {
-        when(organizationRepository.findById("test-org-1")).thenReturn(Optional.of(testOrg));
+        when(organizationRepository.findByOrgCode("TEST_ORG")).thenReturn(testOrg);
         when(organizationRepository.save(any(OrganizationDO.class))).thenReturn(testOrg);
 
         testOrg.setOrgName("Updated Organization");
-        OrganizationDO result = organizationService.updateOrganization("test-org-1", testOrg);
+        OrganizationDO result = organizationService.updateOrganization("TEST_ORG", testOrg);
 
         assertNotNull(result);
         assertEquals("Updated Organization", result.getOrgName());
@@ -140,20 +115,11 @@ class OrganizationServiceTest {
     }
 
     @Test
-    void updateOrganization_NotFound() {
-        when(organizationRepository.findById(anyString())).thenReturn(Optional.empty());
-
-        assertThrows(OrganizationNotFoundException.class, () -> 
-            organizationService.updateOrganization("non-existent-id", testOrg)
-        );
-    }
-
-    @Test
     void updateOrganizationStatus_Success() {
-        when(organizationRepository.findById("test-org-1")).thenReturn(Optional.of(testOrg));
+        when(organizationRepository.findByOrgCode("TEST_ORG")).thenReturn(testOrg);
         when(organizationRepository.save(any(OrganizationDO.class))).thenReturn(testOrg);
 
-        OrganizationDO result = organizationService.updateOrganizationStatus("test-org-1", OrganizationStatusEnum.DISABLED);
+        OrganizationDO result = organizationService.updateOrganizationStatus("TEST_ORG", OrganizationStatusEnum.DISABLED);
 
         assertNotNull(result);
         assertEquals(OrganizationStatusEnum.DISABLED, result.getStatus());
@@ -162,14 +128,14 @@ class OrganizationServiceTest {
 
     @Test
     void updateOrganizationSettings_Success() {
-        when(organizationRepository.findById("test-org-1")).thenReturn(Optional.of(testOrg));
+        when(organizationRepository.findByOrgCode("TEST_ORG")).thenReturn(testOrg);
         when(organizationRepository.save(any(OrganizationDO.class))).thenReturn(testOrg);
 
         testOrg.setMaxUsers(200);
         testOrg.setMaxTemplates(300);
         testOrg.setMaxRules(100);
 
-        OrganizationDO result = organizationService.updateOrganizationSettings("test-org-1", testOrg);
+        OrganizationDO result = organizationService.updateOrganizationSettings("TEST_ORG", testOrg);
 
         assertNotNull(result);
         assertEquals(200, result.getMaxUsers());
@@ -180,20 +146,20 @@ class OrganizationServiceTest {
 
     @Test
     void deleteOrganization_Success() {
-        when(organizationRepository.findById("test-org-1")).thenReturn(Optional.of(testOrg));
-        doNothing().when(organizationRepository).deleteById(anyString());
+        when(organizationRepository.findByOrgCode("TEST_ORG")).thenReturn(testOrg);
+        doNothing().when(organizationRepository).deleteByOrgCode(anyString());
 
-        organizationService.deleteOrganization("test-org-1");
+        organizationService.deleteOrganization("TEST_ORG");
 
-        verify(organizationRepository).deleteById("test-org-1");
+        verify(organizationRepository).deleteByOrgCode("TEST_ORG");
     }
 
     @Test
     void deleteOrganization_NotFound() {
-        when(organizationRepository.findById(anyString())).thenReturn(Optional.empty());
+        when(organizationRepository.findByOrgCode(anyString())).thenReturn(null);
 
         assertThrows(OrganizationNotFoundException.class, () -> 
-            organizationService.deleteOrganization("non-existent-id")
+            organizationService.deleteOrganization("NONEXISTENT")
         );
     }
 } 

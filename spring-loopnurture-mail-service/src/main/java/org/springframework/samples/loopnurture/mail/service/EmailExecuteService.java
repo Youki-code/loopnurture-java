@@ -31,7 +31,7 @@ public class EmailExecuteService {
      */
     public void executeDueRules() {
         Date now = new Date();
-        List<EmailSendRuleDO> dueRules = ruleRepository.findExecutableRules(now);
+        List<EmailSendRuleDO> dueRules = ruleRepository.findRulesForExecution(now);
         for (EmailSendRuleDO rule : dueRules) {
             try {
                 executeRule(rule.getRuleId());
@@ -105,7 +105,8 @@ public class EmailExecuteService {
 
         // 更新执行信息
         Date now = new Date();
-        rule.recordExecution(new Date(now.getTime()+3600_000));
+        Date next = new Date(now.getTime() + 3600_000);
+        rule.updateExecutionInfo(now, next);
         ruleRepository.save(rule);
     }
 

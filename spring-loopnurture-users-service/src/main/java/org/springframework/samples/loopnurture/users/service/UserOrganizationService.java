@@ -44,7 +44,7 @@ public class UserOrganizationService {
         if (userRepository.findBySystemUserId(systemUserId).isEmpty()) {
             throw new IllegalArgumentException("User not found: " + systemUserId);
         }
-        if (organizationRepository.findById(orgCode).isEmpty()) {
+        if (organizationRepository.findByOrgCode(orgCode) == null) {
             throw new IllegalArgumentException("Organization not found: " + orgCode);
         }
 

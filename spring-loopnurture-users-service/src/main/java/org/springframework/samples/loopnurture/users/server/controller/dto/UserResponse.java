@@ -11,11 +11,6 @@ import org.springframework.samples.loopnurture.users.domain.model.MarketingUserD
 @Data
 public class UserResponse {
     /**
-     * 用户ID
-     */
-    private String id;
-
-    /**
      * 系统用户ID
      */
     private Long systemUserId;
@@ -101,7 +96,6 @@ public class UserResponse {
         }
 
         UserResponse response = new UserResponse();
-        response.setId(user.getId());
         response.setSystemUserId(user.getSystemUserId());
         response.setOrgCode(null);
         response.setUserUniq(user.getUserUniq());

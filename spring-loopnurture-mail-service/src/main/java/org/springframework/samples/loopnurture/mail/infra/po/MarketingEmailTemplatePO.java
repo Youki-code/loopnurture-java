@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * 营销邮件模板持久化对象
@@ -23,8 +25,8 @@ public class MarketingEmailTemplatePO {
      * 主键ID
      */
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     /**
      * 组织编码
@@ -71,7 +73,8 @@ public class MarketingEmailTemplatePO {
     /**
      * 扩展信息（JSON格式）
      */
-    @Column(name = "extends_info")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "extends_info", columnDefinition = "jsonb")
     private String extendsInfo;
 
     /**

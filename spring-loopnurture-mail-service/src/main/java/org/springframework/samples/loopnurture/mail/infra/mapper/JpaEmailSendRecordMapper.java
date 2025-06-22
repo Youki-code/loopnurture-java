@@ -6,65 +6,59 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.samples.loopnurture.mail.infra.po.EmailSendRecordPO;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 邮件发送记录JPA Mapper接口
  */
-public interface JpaEmailSendRecordMapper extends JpaRepository<EmailSendRecordPO, String> {
+@Repository
+public interface JpaEmailSendRecordMapper extends JpaRepository<EmailSendRecordPO, Long> {
 
     /**
-     * 根据组织编码和状态分页查询
+     * 根据组织编码和状态查询邮件发送记录
      */
-    Page<EmailSendRecordPO> findByOrgCodeAndStatus(String orgCode, Integer status, Pageable pageable);
+    Page<EmailSendRecordPO> findByOrgCodeAndStatus(String orgCode, Short status, Pageable pageable);
 
     /**
-     * 根据组织编码和发送时间范围分页查询
+     * 根据组织编码和发送时间范围查询邮件发送记录
      */
-    Page<EmailSendRecordPO> findByOrgCodeAndSendTimeBetween(String orgCode, LocalDateTime start, LocalDateTime end, Pageable pageable);
+    Page<EmailSendRecordPO> findByOrgCodeAndSendTimeBetween(String orgCode, LocalDateTime startTime, LocalDateTime endTime, Pageable pageable);
 
     /**
-     * 根据组织编码和模板ID分页查询
+     * 根据组织编码和模板ID查询邮件发送记录
      */
     Page<EmailSendRecordPO> findByOrgCodeAndTemplateId(String orgCode, String templateId, Pageable pageable);
 
     /**
-     * 统计组织的发送记录数量
-     */
-    long countByOrgCodeAndStatus(String orgCode, Integer status);
-
-    /**
-     * 根据组织编码分页查询
+     * 根据组织编码查询邮件发送记录
      */
     Page<EmailSendRecordPO> findByOrgCode(String orgCode, Pageable pageable);
 
     /**
-     * 根据模板ID分页查询
+     * 根据状态查询邮件发送记录
      */
-    Page<EmailSendRecordPO> findByTemplateId(String templateId, Pageable pageable);
+    List<EmailSendRecordPO> findByStatus(Short status);
 
     /**
-     * 根据规则ID分页查询
+     * 根据组织编码和状态统计记录数量
      */
-    Page<EmailSendRecordPO> findByRuleId(String ruleId, Pageable pageable);
+    @Query("SELECT COUNT(e) FROM EmailSendRecordPO e WHERE e.orgCode = :orgCode AND e.status = :status AND e.deleted = false")
+    long countByOrgCodeAndStatus(@Param("orgCode") String orgCode, @Param("status") Short status);
 
     /**
-     * 统计组织在指定时间范围内的发送记录数量
+     * 查找需要重试的邮件发送记录
      */
-    long countByOrgCodeAndStatusAndSendTimeBetween(String orgCode, Integer status,
-                                                  LocalDateTime startTime, LocalDateTime endTime);
-
-    /**
-     * 根据状态查询发送记录
-     */
-    List<EmailSendRecordPO> findByStatus(Integer status);
+    @Query("SELECT e FROM EmailSendRecordPO e WHERE e.status = :status AND e.deleted = false")
+    List<EmailSendRecordPO> findByStatus(@Param("status") Integer status);
 
     /**
      * 逻辑删除发送记录
      */
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.data.jpa.repository.Query("UPDATE EmailSendRecordPO e SET e.deleted = true WHERE e.id = :id")
-    void softDeleteById(@Param("id") String id);
+    void softDeleteById(@Param("id") Long id);
 } 

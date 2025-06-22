@@ -19,11 +19,6 @@ public class OrganizationDTO {
     private String orgName;
 
     /**
-     * 组织描述
-     */
-    private String description;
-
-    /**
      * 组织状态
      */
     private Integer status;

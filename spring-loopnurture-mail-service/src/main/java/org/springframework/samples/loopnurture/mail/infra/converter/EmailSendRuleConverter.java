@@ -5,20 +5,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRuleDO;
+import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
 import org.springframework.samples.loopnurture.mail.infra.po.EmailSendRulePO;
 import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+
 /**
  * 邮件发送规则转换器
+ * 负责在领域对象和持久化对象之间进行转换
  */
 @Component
 @RequiredArgsConstructor
 public class EmailSendRuleConverter {
+    
     private final ObjectMapper objectMapper;
     private static final Logger log = LoggerFactory.getLogger(EmailSendRuleConverter.class);
-
+    
     /**
      * 将持久化对象转换为领域对象
      */
@@ -28,7 +35,6 @@ public class EmailSendRuleConverter {
         }
 
         EmailSendRuleDO entity = new EmailSendRuleDO();
-        entity.setId(po.getId());
         entity.setOrgCode(po.getOrgCode());
         entity.setRuleId(po.getRuleId());
         entity.setRuleName(po.getRuleName());
@@ -70,7 +76,6 @@ public class EmailSendRuleConverter {
         }
 
         EmailSendRulePO po = new EmailSendRulePO();
-        po.setId(entity.getId());
         po.setOrgCode(entity.getOrgCode());
         po.setRuleId(entity.getRuleId());
         po.setRuleName(entity.getRuleName());
@@ -100,5 +105,12 @@ public class EmailSendRuleConverter {
         po.setEnableStatus(entity.getEnableStatus() != null ? entity.getEnableStatus().getCode().shortValue() : null);
 
         return po;
+    }
+
+    private LocalDateTime toLocalDateTime(Date date) {
+        if (date == null) {
+            return null;
+        }
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 } 

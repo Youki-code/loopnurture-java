@@ -54,7 +54,6 @@ public class OrganizationController {
         OrganizationDTO dto = new OrganizationDTO();
         dto.setOrgCode(organization.getOrgCode());
         dto.setOrgName(organization.getOrgName());
-        dto.setDescription(organization.getDescription());
         dto.setStatus(organization.getStatus() != null ? organization.getStatus().getCode() : null);
         dto.setOrgType(organization.getOrgType() != null ? organization.getOrgType().getCode() : null);
         dto.setCreatedAt(organization.getCreatedAt());

@@ -63,7 +63,7 @@ public class EmailSendRecordConverter {
      * @param entity 领域对象
      * @param id 可选的ID，用于更新操作
      */
-    public EmailSendRecordPO toPO(EmailSendRecordDO entity, String id) {
+    public EmailSendRecordPO toPO(EmailSendRecordDO entity, Long id) {
         if (entity == null) {
             return null;
         }
