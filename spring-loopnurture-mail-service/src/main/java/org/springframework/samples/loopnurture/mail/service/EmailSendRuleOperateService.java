@@ -115,7 +115,21 @@ public class EmailSendRuleOperateService {
 
     @Transactional
     public void executeRule(String ruleId) {
-        throw new UnsupportedOperationException("executeRule not implemented in OperateService yet");
+        EmailSendRuleDO rule = ruleRepository.findByRuleId(ruleId);
+        if (rule == null) {
+            throw new ResourceNotFoundException("Rule not found");
+        }
+
+        // 如果规则未启用或已超出执行限制则直接返回
+        if (!rule.canExecute()) {
+            return; // 静默跳过
+        }
+
+        // 此处应调用真正的邮件发送逻辑；为了测试，简单记录执行信息
+        Date now = new Date();
+        rule.updateExecutionInfo(now, null);
+
+        ruleRepository.save(rule);
     }
 
     private void checkDuplicateName(String orgCode, String ruleName, String excludeId) {

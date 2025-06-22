@@ -93,7 +93,7 @@ public class MarketingEmailTemplateRepositoryImpl implements MarketingEmailTempl
 
     @Override
     public void deleteByOrgCode(String orgCode) {
-        jpaMapper.deleteByOrgCode(orgCode);
+        jpaMapper.softDeleteByOrgCode(orgCode);
     }
 
     @Override
@@ -128,7 +128,7 @@ public class MarketingEmailTemplateRepositoryImpl implements MarketingEmailTempl
 
     @Override
     public void deleteByTemplateId(String templateId) {
-        jpaMapper.deleteByOrgCodeAndTemplateId(UserContext.getOrgCode(), templateId);
+        jpaMapper.softDeleteByOrgCodeAndTemplateId(UserContext.getOrgCode(), templateId);
     }
 
     @Override

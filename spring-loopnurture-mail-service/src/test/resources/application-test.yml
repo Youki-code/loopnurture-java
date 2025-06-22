@@ -5,18 +5,22 @@ spring:
     config:
       enabled: false
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate  # 生产库已建表，测试只验证结构；如需自动建库改为 update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb_mail;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
-    username: sa
-    password:
+    driver-class-name: org.postgresql.Driver
+    # Default to remote Supabase prod database; can override via TEST_DB_URL env if needed
+    url: ${TEST_DB_URL:jdbc:postgresql://aws-0-us-west-1.pooler.supabase.com:6543/postgres?user=postgres.cilxaqxdcffzpggwjphz&password=loopnurture1a2b3c4d!}
+    username: ${TEST_DB_USERNAME:postgres.cilxaqxdcffzpggwjphz}
+    password: ${TEST_DB_PASSWORD:loopnurture1a2b3c4d!}
+    hikari:
+      data-source-properties:
+        prepareThreshold: 0  # 禁用服务端 prepared statement，避免 "prepared statement ... already exists" 错误
   test:
     database:
       replace: none

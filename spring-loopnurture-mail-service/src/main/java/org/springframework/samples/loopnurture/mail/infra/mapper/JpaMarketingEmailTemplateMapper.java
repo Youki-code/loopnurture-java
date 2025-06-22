@@ -51,11 +51,13 @@ public interface JpaMarketingEmailTemplateMapper extends JpaRepository<Marketing
     /**
      * 根据组织编码和模板ID删除模板
      */
+    @Deprecated
     void deleteByOrgCodeAndTemplateId(String orgCode, String templateId);
     
     /**
      * 根据组织编码删除所有模板
      */
+    @Deprecated
     void deleteByOrgCode(String orgCode);
     
     /**
@@ -70,4 +72,20 @@ public interface JpaMarketingEmailTemplateMapper extends JpaRepository<Marketing
     Page<MarketingEmailTemplatePO> findByOrgCodeAndTemplateNameContaining(@Param("orgCode") String orgCode, 
                                                                          @Param("templateName") String templateName, 
                                                                          Pageable pageable);
+
+    /**
+     * 逻辑删除（单条）
+     */
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE MarketingEmailTemplatePO t SET t.deleted = true WHERE t.orgCode = :orgCode AND t.templateId = :templateId")
+    void softDeleteByOrgCodeAndTemplateId(@Param("orgCode") String orgCode, @Param("templateId") String templateId);
+
+    /**
+     * 逻辑删除组织所有模板
+     */
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE MarketingEmailTemplatePO t SET t.deleted = true WHERE t.orgCode = :orgCode")
+    void softDeleteByOrgCode(@Param("orgCode") String orgCode);
 } 

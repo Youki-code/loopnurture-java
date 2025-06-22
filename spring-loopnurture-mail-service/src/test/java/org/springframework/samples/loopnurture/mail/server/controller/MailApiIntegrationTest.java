@@ -96,7 +96,15 @@ class MailApiIntegrationTest {
         ResponseEntity<String> modResp = restTemplate.postForEntity(url("/api/v1/marketing/template/modifyTemplate"), modReq, String.class);
         Assertions.assertEquals(HttpStatus.OK, modResp.getStatusCode());
 
-        // ---------- 3. (改为) 再次分页查询模板列表，确认修改生效 ----------
+        // ---------- 3. 获取模板详情（确认修改后的字段） ----------
+        Map<String, String> tplDetailPayload = Map.of("templateId", templateId);
+        HttpEntity<String> tplDetReq = new HttpEntity<>(objectMapper.writeValueAsString(tplDetailPayload), authHeaders);
+        ResponseEntity<String> tplDetResp = restTemplate.postForEntity(url("/api/v1/marketing/template/getTemplateDetail"), tplDetReq, String.class);
+        Assertions.assertEquals(HttpStatus.OK, tplDetResp.getStatusCode());
+        JsonNode tplDetRoot = objectMapper.readTree(tplDetResp.getBody());
+        Assertions.assertEquals(modifyTpl.get("templateName"), tplDetRoot.path("data").path("templateName").asText());
+
+        // ---------- 4. (改为) 再次分页查询模板列表，确认修改生效 ----------
         Map<String, Object> detailQuery = new HashMap<>();
         detailQuery.put("pageNum", 1);
         detailQuery.put("pageSize", 10);
@@ -116,7 +124,7 @@ class MailApiIntegrationTest {
         }
         Assertions.assertTrue(nameMatched, "Modified template name not found in page result");
 
-        // ---------- 4. 分页查询模板列表 ----------
+        // ---------- 5. 分页查询模板列表 ----------
         Map<String, Object> pageTpl = new HashMap<>();
         pageTpl.put("pageNum", 1);
         pageTpl.put("pageSize", 10);
@@ -127,7 +135,7 @@ class MailApiIntegrationTest {
         Assertions.assertTrue(pageRoot.path("data").path("content").isArray());
         Assertions.assertTrue(pageRoot.path("data").path("content").size() >= 1);
 
-        // ---------- 5. 创建邮件发送规则 ----------
+        // ---------- 6. 创建邮件发送规则 ----------
         Map<String, Object> createRule = new HashMap<>();
         createRule.put("ruleName", "intTest_rule_" + uniq);
         createRule.put("templateId", templateId);
@@ -139,7 +147,7 @@ class MailApiIntegrationTest {
         String ruleId = objectMapper.readTree(ruleCreateResp.getBody()).path("data").path("ruleId").asText();
         Assertions.assertFalse(ruleId.isEmpty(), "createRule 未返回 ruleId");
 
-        // ---------- 6. 修改发送规则 ----------
+        // ---------- 7. 修改发送规则 ----------
         Map<String, Object> modifyRule = new HashMap<>();
         modifyRule.put("ruleId", ruleId);
         modifyRule.put("ruleName", "intTest_rule_mod_" + uniq);
@@ -152,7 +160,7 @@ class MailApiIntegrationTest {
         ResponseEntity<String> ruleModResp = restTemplate.postForEntity(url("/api/v1/email/rules/modifyRule"), ruleModReq, String.class);
         Assertions.assertEquals(HttpStatus.OK, ruleModResp.getStatusCode());
 
-        // ---------- 7. 获取规则详情 ----------
+        // ---------- 8. 获取规则详情 ----------
         Map<String, String> ruleDetailPayload = Map.of("ruleId", ruleId);
         HttpEntity<String> ruleDetReq = new HttpEntity<>(objectMapper.writeValueAsString(ruleDetailPayload), authHeaders);
         ResponseEntity<String> ruleDetResp = restTemplate.postForEntity(url("/api/v1/email/rules/getRuleDetail"), ruleDetReq, String.class);
@@ -160,7 +168,7 @@ class MailApiIntegrationTest {
         JsonNode ruleDetRoot = objectMapper.readTree(ruleDetResp.getBody());
         Assertions.assertEquals(modifyRule.get("ruleName"), ruleDetRoot.path("data").path("ruleName").asText());
 
-        // ---------- 8. 分页查询发送规则 ----------
+        // ---------- 9. 分页查询发送规则 ----------
         Map<String, Object> rulePage = new HashMap<>();
         rulePage.put("pageNum", 1);
         rulePage.put("pageSize", 10);
@@ -170,13 +178,19 @@ class MailApiIntegrationTest {
         JsonNode rulePageRoot = objectMapper.readTree(rulePageResp.getBody());
         Assertions.assertTrue(rulePageRoot.path("data").path("content").size() >= 1);
 
-        // ---------- 9. 删除发送规则 ----------
+        // ---------- 10. 立即触发执行规则 ----------
+        Map<String, String> execPayload = Map.of("ruleId", ruleId);
+        HttpEntity<String> execReq = new HttpEntity<>(objectMapper.writeValueAsString(execPayload), authHeaders);
+        ResponseEntity<String> execResp = restTemplate.postForEntity(url("/api/v1/email/rules/executeRule"), execReq, String.class);
+        Assertions.assertEquals(HttpStatus.OK, execResp.getStatusCode());
+
+        // ---------- 11. 删除发送规则 ----------
         Map<String, String> delPayload = Map.of("ruleId", ruleId);
         HttpEntity<String> delRuleReq = new HttpEntity<>(objectMapper.writeValueAsString(delPayload), authHeaders);
         ResponseEntity<String> delRuleResp = restTemplate.postForEntity(url("/api/v1/email/rules/deleteRule"), delRuleReq, String.class);
         Assertions.assertEquals(HttpStatus.OK, delRuleResp.getStatusCode());
 
-        // ---------- 10. 删除邮件模板 ----------
+        // ---------- 12. 删除邮件模板 ----------
         HttpEntity<String> delTplReq = new HttpEntity<>(objectMapper.writeValueAsString(detailQuery), authHeaders);
         ResponseEntity<String> delTplResp = restTemplate.postForEntity(url("/api/v1/marketing/template/deleteTemplate"), delTplReq, String.class);
         Assertions.assertEquals(HttpStatus.OK, delTplResp.getStatusCode());
