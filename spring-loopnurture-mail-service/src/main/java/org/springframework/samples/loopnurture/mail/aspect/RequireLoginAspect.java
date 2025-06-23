@@ -12,11 +12,15 @@ import org.springframework.samples.loopnurture.mail.server.feign.UserServiceClie
 import org.springframework.samples.loopnurture.mail.server.feign.dto.ValidateTokenRequest;
 import org.springframework.samples.loopnurture.mail.server.feign.dto.TokenValidationResponse;
 import org.springframework.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Aspect
 @Component
 @RequiredArgsConstructor
 public class RequireLoginAspect {
+
+    private static final Logger log = LoggerFactory.getLogger(RequireLoginAspect.class);
 
     private final HttpServletRequest request;
     private final UserServiceClient userServiceClient;
@@ -36,7 +40,11 @@ public class RequireLoginAspect {
         }
 
         // 调用 Users-Service 校验 token
+        log.info("[RequireLoginAspect] Validating token: {}", token);
+        System.out.println("[RequireLoginAspect] Validating token: " + token);
         TokenValidationResponse resp = userServiceClient.validateToken(new ValidateTokenRequest(token));
+        log.info("[RequireLoginAspect] Validation response: {}", resp);
+        System.out.println("[RequireLoginAspect] Validation response: " + resp);
         if (resp == null || !resp.isValid()) {
             throw new UnauthorizedException("无效或已过期的 Token");
         }
