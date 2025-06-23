@@ -12,6 +12,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+    open-in-view: false
   datasource:
     driver-class-name: org.postgresql.Driver
     # Default to remote Supabase prod database; can override via TEST_DB_URL env if needed

@@ -114,4 +114,21 @@ CREATE INDEX idx_email_rule_next_execution ON email_send_rule(next_execution_tim
 CREATE TRIGGER update_email_send_rule_updated_at
     BEFORE UPDATE ON email_send_rule
     FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column(); 
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- =============================================
+-- AI Strategy Table (AI策略表)
+-- =============================================
+
+-- 创建 AI 策略表
+CREATE TABLE ai_strategy (
+    ai_strategy_version VARCHAR(50) PRIMARY KEY,   -- 策略版本主键
+    ai_strategy_type SMALLINT NOT NULL,            -- 策略类型
+    ai_strategy_content JSONB,                    -- 策略内容（JSON格式）
+    enable_status SMALLINT NOT NULL DEFAULT 1,    -- 启用状态：1=ENABLED, 0=DISABLED
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+-- 创建 AI 策略索引
+CREATE INDEX idx_ai_strategy_status ON ai_strategy(enable_status); 

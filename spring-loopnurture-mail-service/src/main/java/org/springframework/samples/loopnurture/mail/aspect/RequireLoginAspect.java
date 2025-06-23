@@ -24,6 +24,13 @@ public class RequireLoginAspect {
     @Around("@annotation(org.springframework.samples.loopnurture.mail.annotation.RequireLogin) || @within(org.springframework.samples.loopnurture.mail.annotation.RequireLogin)")
     public Object bindAndClearUserContext(ProceedingJoinPoint pjp) throws Throwable {
         String token = request.getHeader("Authorization");
+        if (token != null) {
+            token = token.trim(); // 去掉首尾空格，避免 header 冒号后留空格导致签名不匹配
+        }
+        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
         if (!StringUtils.hasText(token)) {
             throw new UnauthorizedException("缺少 Authorization 头，请先登录");
         }
