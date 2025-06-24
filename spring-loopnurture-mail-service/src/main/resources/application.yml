@@ -59,13 +59,9 @@ sendgrid:
 server:
   port: 8082
 
+# 用户服务直连地址，避免走注册中心解析到错误实例
 services:
   user:
-    url: http://localhost:8081
-
-# 添加缺失的配置
-user:
-  service:
     url: http://localhost:8081
 
 # Disable Zipkin reporter locally

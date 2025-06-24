@@ -9,7 +9,7 @@ spring:
           searchLocations: classpath:/config
         git:
           uri: https://github.com/Youki-code/loopnurture-java
-          default-label: develop
+          default-label: master
           searchPaths: config
 
 management:

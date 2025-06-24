@@ -31,7 +31,7 @@ spring:
       server:
         git:
           uri: https://github.com/Youki-code/loopnurture-java
-          default-label: develop
+          default-label: master
           searchPaths: config
           clone-on-start: true
           basedir: ./config-local-cache
