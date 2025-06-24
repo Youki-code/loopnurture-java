@@ -16,6 +16,7 @@ import org.springframework.samples.loopnurture.mail.domain.enums.AiStrategyTypeE
 import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
 import org.springframework.samples.loopnurture.mail.infra.mapper.JpaAiStrategyMapper;
 import org.springframework.samples.loopnurture.mail.infra.po.AiStrategyPO;
+import org.springframework.samples.loopnurture.mail.server.controller.dto.ApiResponse;
 import org.springframework.samples.loopnurture.mail.server.feign.UserServiceClient;
 import org.springframework.samples.loopnurture.mail.server.feign.dto.TokenValidationResponse;
 import org.springframework.samples.loopnurture.mail.server.feign.dto.ValidateTokenRequest;
@@ -59,7 +60,7 @@ class AiStrategyApiIntegrationTest {
         ok.setUserId("test-user");
         ok.setOrgCode("TEST_ORG");
         Mockito.when(userServiceClient.validateToken(ArgumentMatchers.any(ValidateTokenRequest.class)))
-               .thenReturn(ok);
+               .thenReturn(ApiResponse.ok(ok));
     }
 
     private String url(String path) {

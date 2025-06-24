@@ -34,7 +34,9 @@ public class UserController {
 
         LoginResponse resp = new LoginResponse();
         resp.setToken(token);
-        resp.setUserInfo(LoginResponse.UserInfo.fromDO(user));
+        LoginResponse.UserInfo userInfo = LoginResponse.UserInfo.fromDO(user);
+        userInfo.setOrgCode(userService.findFirstOrgCode(user.getSystemUserId()));
+        resp.setUserInfo(userInfo);
 
         return ApiResponse.ok(resp);
     }
@@ -46,7 +48,9 @@ public class UserController {
     @GetMapping("/{id}")
     public ApiResponse<UserResponse> getUser(@PathVariable Long id) {
         MarketingUserDO user = userService.findBySystemUserId(id);
-        return ApiResponse.ok(UserResponse.fromDO(user));
+        UserResponse userResponse = UserResponse.fromDO(user);
+        userResponse.setOrgCode(userService.findFirstOrgCode(user.getSystemUserId()));
+        return ApiResponse.ok(userResponse);
     }
 
     /**
@@ -69,6 +73,8 @@ public class UserController {
         }
 
         MarketingUserDO saved = userService.save(user);
-        return ApiResponse.ok(UserResponse.fromDO(saved));
+        UserResponse userResponse = UserResponse.fromDO(saved);
+        userResponse.setOrgCode(userService.findFirstOrgCode(saved.getSystemUserId()));
+        return ApiResponse.ok(userResponse);
     }
 } 

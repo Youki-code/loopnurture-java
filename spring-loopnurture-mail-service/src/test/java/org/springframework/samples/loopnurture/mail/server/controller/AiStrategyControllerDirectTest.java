@@ -71,7 +71,7 @@ class AiStrategyControllerDirectTest {
         ok.setValid(true);
         ok.setUserId("test-user");
         ok.setOrgCode("TEST_ORG");
-        org.mockito.Mockito.when(userServiceClient.validateToken(org.mockito.ArgumentMatchers.any())).thenReturn(ok);
+        org.mockito.Mockito.when(userServiceClient.validateToken(org.mockito.ArgumentMatchers.any())).thenReturn(ApiResponse.ok(ok));
     }
 
     @Test

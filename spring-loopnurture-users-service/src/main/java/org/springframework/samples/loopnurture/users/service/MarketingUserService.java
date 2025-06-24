@@ -11,6 +11,7 @@ import org.springframework.samples.loopnurture.users.domain.exception.UserUniqEx
 import org.springframework.samples.loopnurture.users.domain.model.MarketingUserDO;
 import org.springframework.samples.loopnurture.users.domain.model.vo.MarketingUserExtendsVO;
 import org.springframework.samples.loopnurture.users.domain.repository.MarketingUserRepository;
+import org.springframework.samples.loopnurture.users.domain.repository.UserOrganizationRepository;
 import org.springframework.samples.loopnurture.users.server.config.JwtUtils;
 import org.springframework.samples.loopnurture.users.infra.utils.RsaUtils;
 import org.springframework.samples.loopnurture.users.infra.utils.SnowflakeIdGenerator;
@@ -24,6 +25,7 @@ import org.springframework.samples.loopnurture.users.domain.enums.OrganizationTy
 import org.springframework.samples.loopnurture.users.domain.enums.OrganizationStatusEnum;
 import org.springframework.samples.loopnurture.users.domain.enums.UserRoleEnum;
 import org.springframework.samples.loopnurture.users.domain.model.OrganizationDO;
+import org.springframework.samples.loopnurture.users.domain.model.UserOrganizationDO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,6 +45,7 @@ public class MarketingUserService {
     private final RsaUtils rsaUtils;
     private final OrganizationService organizationService;
     private final UserOrganizationService userOrganizationService;
+    private final UserOrganizationRepository userOrganizationRepository;
 
     /**
      * 用户注册
@@ -191,16 +194,18 @@ public class MarketingUserService {
             String userUniq = jwtUtils.getUserUniqFromToken(token);
             MarketingUserDO user = userRepository.findByUserUniq(userUniq)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            String orgCode = findFirstOrgCode(user.getSystemUserId());
 
             response.setValid(true);
             response.setUserId(user.getSystemUserId());
             response.setUserUniq(user.getUserUniq());
-            response.setOrgCode(null);
+            response.setOrgCode(orgCode);
         } catch (Exception e) {
             response.setValid(false);
             response.setErrorMessage(e.getMessage());
         }
 
+        System.out.println("validateToken.response: " + response.toString());
         return response;
     }
 
@@ -311,7 +316,7 @@ public class MarketingUserService {
         userInfo.setLanguagePreference(user.getLanguagePreference() != null ? user.getLanguagePreference().getCode() : null);
         userInfo.setTimezone(user.getTimezone());
         userInfo.setAuthType(user.getAuthType() != null ? user.getAuthType().getCode() : null);
-        userInfo.setOrgCode(null);
+        userInfo.setOrgCode(findFirstOrgCode(user.getSystemUserId()));
         userInfo.setEmailVerified(user.getEmailVerified());
         userInfo.setPhoneVerified(user.getPhoneVerified());
         response.setUserInfo(userInfo);
@@ -458,5 +463,18 @@ public class MarketingUserService {
     public MarketingUserDO findBySystemUserId(Long systemUserId) {
         return userRepository.findBySystemUserId(systemUserId)
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
+    }
+
+    /**
+     * 根据系统用户ID获取第一个未删除的orgCode
+     * @param systemUserId
+     * @return
+     */
+    public String findFirstOrgCode(Long systemUserId) {
+        List<UserOrganizationDO> userOrganizations = userOrganizationRepository.findBySystemUserId(systemUserId);
+        if (userOrganizations.isEmpty()) {
+            return null;
+        }
+        return userOrganizations.get(0).getOrgCode();
     }
 } 

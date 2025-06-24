@@ -62,7 +62,7 @@ class MailControllerDirectTest {
         ok.setValid(true);
         ok.setUserId(ctx.getUserId());
         ok.setOrgCode(ctx.getOrgCode());
-        org.mockito.Mockito.when(userServiceClient.validateToken(org.mockito.ArgumentMatchers.any())).thenReturn(ok);
+        org.mockito.Mockito.when(userServiceClient.validateToken(org.mockito.ArgumentMatchers.any())).thenReturn(ApiResponse.ok(ok));
 
         templateRepository.deleteByOrgCode(ctx.getOrgCode());
         ruleRepository.deleteByOrgCode(ctx.getOrgCode());
