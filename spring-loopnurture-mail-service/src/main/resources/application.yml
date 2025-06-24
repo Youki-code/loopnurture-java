@@ -54,7 +54,7 @@ eureka:
 
 # SendGrid Configuration
 sendgrid:
-  api-key: ${SENDGRID_API_KEY:your-sendgrid-api-key-here}
+  api-key: "${SENDGRID_API_KEY:your-sendgrid-api-key-here}"
 
 server:
   port: 8082
