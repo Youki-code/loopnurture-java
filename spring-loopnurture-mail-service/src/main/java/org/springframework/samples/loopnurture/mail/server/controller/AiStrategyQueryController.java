@@ -3,6 +3,7 @@ package org.springframework.samples.loopnurture.mail.server.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.samples.loopnurture.mail.annotation.RequireLogin;
+import org.springframework.samples.loopnurture.mail.domain.enums.AiStrategyTypeEnum;
 import org.springframework.samples.loopnurture.mail.domain.model.AiStrategyDO;
 import org.springframework.samples.loopnurture.mail.server.controller.dto.ApiResponse;
 import org.springframework.samples.loopnurture.mail.server.controller.dto.GetAiStrategyRequest;
@@ -27,9 +28,12 @@ public class AiStrategyQueryController {
     /**
      * 根据策略类型获取最新启用策略
      */
-    @RequireLogin
     @PostMapping("/getLatestStrategy")
     public ApiResponse<AiStrategyResponse> getLatestStrategy(@Valid @RequestBody GetAiStrategyRequest request) {
+        // 如果没有传入类型的话，默认获取营销邮件的策略
+        if(request.getAiStrategyType() == null){
+            request.setAiStrategyType(AiStrategyTypeEnum.MARKETING_MAIL.getCode());
+        }
         AiStrategyDO strategy = aiStrategyQueryService.getLatestEnabledStrategy(request.getAiStrategyType());
         if (strategy == null) {
             return ApiResponse.error("Strategy not found");

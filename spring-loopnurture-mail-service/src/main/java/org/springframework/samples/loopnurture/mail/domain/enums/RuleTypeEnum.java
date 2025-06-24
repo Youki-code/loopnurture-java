@@ -39,6 +39,6 @@ public enum RuleTypeEnum implements BaseIntEnum {
                 return type;
             }
         }
-        throw new IllegalArgumentException("Invalid RuleTypeEnum code: " + code);
+        return null;
     }
 } 

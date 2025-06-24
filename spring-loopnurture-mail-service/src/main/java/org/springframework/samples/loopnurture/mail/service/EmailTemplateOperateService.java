@@ -36,10 +36,29 @@ public class EmailTemplateOperateService {
 
     @Transactional
     public MarketingEmailTemplateDO createTemplate(CreateMarketingEmailTemplateRequest request) {
+        Boolean templateNameEmptyFlag = false;
+        // 判断templateName是否为空，为空的话考虑从输入字符串中截取前30个字符串,需要考虑如果字符串不足30个字符，则直接使用输入字符串
+        if(request.getTemplateName() == null || request.getTemplateName().isEmpty()){
+            templateNameEmptyFlag = true;
+            // 如果输入字符串不足30个字符，则直接使用输入字符串 
+            if(request.getInputContent().length() < 30){
+                request.setTemplateName(request.getInputContent());
+            }else{
+                // 如果输入字符串超过30个字符，则截取前30个字符
+                request.setTemplateName(request.getInputContent().substring(0, 30) + "...");
+            }
+        }
         // 判断templateName是否已存在
         List<MarketingEmailTemplateDO> dup = templateRepository.findByOrgCodeAndTemplateName(UserContext.getOrgCode(), request.getTemplateName());
         if (!CollectionUtils.isEmpty(dup)) {
-            throw new ValidationException("Template name already exists");
+            // 如果templateName为空，判断是否是系统生成的
+            if(templateNameEmptyFlag){
+                // 如果是系统生成的，则在原本名称后增加上当前时间格式化后的字符串
+                request.setTemplateName(request.getTemplateName() + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")));
+            }else{
+                // 如果是用户生成的，则提示用户模板名称已存在
+                throw new ValidationException("Template name already exists");
+            }
         }
         // 创建模板，使用 UUID +日期前缀生成唯一模板 ID
         String templateId =  LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss")) + UUID.randomUUID().toString().substring(0, 8);

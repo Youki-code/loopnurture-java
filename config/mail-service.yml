@@ -37,7 +37,7 @@ spring:
           basedir: ./config-local-cache
 
 sendgrid:
-  api-key: ${SENDGRID_API_KEY}
+  api-key: "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"
 
 server:
   port: 8082

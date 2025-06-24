@@ -9,11 +9,13 @@ import org.springframework.samples.loopnurture.mail.exception.ResourceNotFoundEx
 import org.springframework.samples.loopnurture.mail.exception.ValidationException;
 import org.springframework.samples.loopnurture.mail.context.UserContext;
 import org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum;
+import org.springframework.samples.loopnurture.mail.domain.enums.RuleTypeEnum;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRuleDO;
 import org.springframework.samples.loopnurture.mail.domain.model.MarketingEmailTemplateDO;
 import org.springframework.samples.loopnurture.mail.domain.model.vo.EmailSendRuleExtendsInfoVO;
 import org.springframework.samples.loopnurture.mail.server.controller.dto.CreateEmailSendRuleRequest;
 import org.springframework.samples.loopnurture.mail.server.controller.dto.UpdateEmailSendRuleRequest;
+import org.springframework.scheduling.support.CronExpression;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,6 +37,14 @@ public class EmailSendRuleOperateService {
 
     @Transactional
     public EmailSendRuleDO createRule(CreateEmailSendRuleRequest request) {
+        // 判断ruleType在不在枚举之中
+        if(RuleTypeEnum.fromCode(request.getRuleType()) == null){
+            throw new ValidationException("Rule type not found");
+        }
+        // 判断收件人不能为空
+        if(request.getRecipients() == null || request.getRecipients().isEmpty()){
+            throw new ValidationException("Recipients cannot be empty");
+        }
         // 判断templateId是否存在
         MarketingEmailTemplateDO template = marketingEmailTemplateRepository.getByTemplateId(request.getTemplateId());
         if (template == null) {
@@ -55,6 +65,25 @@ public class EmailSendRuleOperateService {
                 .fixedRate(request.getFixedRate())
                 .fixedDelay(request.getFixedDelay())
                 .build();
+
+        // 如果是即时发送，则maxExecutions设置为1
+        if(request.getRuleType() == RuleTypeEnum.IMMEDIATE.getCode()){
+            request.setMaxExecutions(1);
+            // 开始时间和结束时间设置成2个小时
+            request.setStartTime(new Date());
+            request.setEndTime(new Date(System.currentTimeMillis() + 2 * 60 * 60 * 1000));
+        }
+        // 如果是定时发送，则maxExecutions设置为null
+        if(request.getRuleType() == RuleTypeEnum.CRON.getCode()){
+            // 判断cronExpression不能为空
+            if(request.getCronExpression() == null || request.getCronExpression().isEmpty()){
+                throw new ValidationException("Cron expression cannot be empty");
+            }
+            // 判断cronExpression是否符合cron表达式格式
+            if(!CronExpression.isValidExpression(request.getCronExpression())){
+                throw new ValidationException("Cron expression is not valid");
+            }
+        }
         EmailSendRuleDO rule = EmailSendRuleDO.builder()
                 .orgCode(orgCode)
                 .ruleId(ruleId)
@@ -72,7 +101,15 @@ public class EmailSendRuleOperateService {
                 .updatedBy(UserContext.getUserId())
                 .enableStatus(EnableStatusEnum.ENABLED)
                 .build();
-
+        // 如果是即时发送，则maxExecutions设置为1
+        if(request.getRuleType() == RuleTypeEnum.IMMEDIATE.getCode()){
+            rule.setMaxExecutions(1);
+            // 开始时间和结束时间设置成2个小时
+            rule.setStartTime(new Date());
+            rule.setEndTime(new Date(System.currentTimeMillis() + 2 * 60 * 60 * 1000));
+            // 设置nextExecutionTime为当前时间
+            rule.setNextExecutionTime(new Date());
+        }
         return ruleRepository.save(rule);
     }
 

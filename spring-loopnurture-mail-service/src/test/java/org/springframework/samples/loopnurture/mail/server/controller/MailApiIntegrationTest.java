@@ -14,6 +14,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.samples.loopnurture.mail.server.controller.dto.ApiResponse;
 import org.springframework.samples.loopnurture.mail.server.feign.UserServiceClient;
 import org.springframework.samples.loopnurture.mail.server.feign.dto.TokenValidationResponse;
 import org.springframework.samples.loopnurture.mail.server.feign.dto.ValidateTokenRequest;
@@ -57,7 +58,7 @@ class MailApiIntegrationTest {
         ok.setUserId("test-user");
         ok.setOrgCode("TEST_ORG");
         Mockito.when(userServiceClient.validateToken(ArgumentMatchers.any(ValidateTokenRequest.class)))
-               .thenReturn(ok);
+               .thenReturn(ApiResponse.ok(ok));
     }
 
     private String url(String path) {

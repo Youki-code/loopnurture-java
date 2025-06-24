@@ -153,9 +153,9 @@ public interface JpaEmailSendRuleMapper extends JpaRepository<EmailSendRulePO, L
     long countByOrgCodeAndEnableStatus(String orgCode, Short enableStatus);
 
     /**
-     * 查找需要执行的规则
+     * 查找需要执行的规则,startTime小于等于currentTime，endTime大于currentTime,并且已经执行次数小于最大执行次数，且当前输入时间小于nextExecutionTime 
      */
-    @Query("SELECT e FROM EmailSendRulePO e WHERE e.nextExecutionTime <= :currentTime AND e.enableStatus = 1 AND e.deleted = false")
+    @Query("SELECT e FROM EmailSendRulePO e WHERE e.nextExecutionTime <= :currentTime AND e.startTime <= :currentTime AND e.endTime >= :currentTime AND e.executionCount < e.maxExecutions AND e.enableStatus = 1 AND e.deleted = false")
     List<EmailSendRulePO> findExecutableRules(@Param("currentTime") LocalDateTime currentTime);
 
     /**

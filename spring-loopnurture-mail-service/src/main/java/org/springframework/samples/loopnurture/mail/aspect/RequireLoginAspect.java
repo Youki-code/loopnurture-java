@@ -8,6 +8,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import org.springframework.samples.loopnurture.mail.context.UserContext;
 import org.springframework.samples.loopnurture.mail.exception.UnauthorizedException;
+import org.springframework.samples.loopnurture.mail.server.controller.dto.ApiResponse;
 import org.springframework.samples.loopnurture.mail.server.feign.UserServiceClient;
 import org.springframework.samples.loopnurture.mail.server.feign.dto.ValidateTokenRequest;
 import org.springframework.samples.loopnurture.mail.server.feign.dto.TokenValidationResponse;
@@ -42,18 +43,19 @@ public class RequireLoginAspect {
         // 调用 Users-Service 校验 token
         log.info("[RequireLoginAspect] Validating token: {}", token);
         System.out.println("[RequireLoginAspect] Validating token: " + token);
-        TokenValidationResponse resp = userServiceClient.validateToken(new ValidateTokenRequest(token));
+        ApiResponse<TokenValidationResponse> resp = userServiceClient.validateToken(new ValidateTokenRequest(token));
         log.info("[RequireLoginAspect] Validation response: {}", resp);
         System.out.println("[RequireLoginAspect] Validation response: " + resp);
-        if (resp == null || !resp.isValid()) {
+        if (resp == null || !resp.getData().isValid()) {
             throw new UnauthorizedException("无效或已过期的 Token");
         }
+        TokenValidationResponse data = resp.getData();
 
         // 将校验结果写入 UserContext，供后续业务代码使用
         UserContext ctx = new UserContext();
         ctx.setToken(token);
-        ctx.setUserId(resp.getUserId());
-        ctx.setOrgCode(resp.getOrgCode());
+        ctx.setUserId(data.getUserId());
+        ctx.setOrgCode(data.getOrgCode());
 
         UserContext.set(ctx);
         try {

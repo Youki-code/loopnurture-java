@@ -159,6 +159,12 @@ public class EmailSendRuleDO {
             this.executionCount = 0;
         }
         this.executionCount++;
+        if(this.executionCount >= this.maxExecutions){
+            this.enableStatus = EnableStatusEnum.DISABLED;
+        }
+        if(this.executionCount >= this.maxExecutions){
+            this.enableStatus = EnableStatusEnum.DISABLED;
+        }
     }
 
     /**

@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Configuration;
 public class SendGridConfig {
 
     /**
-     * 直接从环境变量 SENDGRID_API_KEY 读取；若不存在则为空串，
-     * 这样在开发/测试环境不会因为缺少密钥而导致应用启动失败。
+     * 优先读取 application.yml / Config-Server 中的 sendgrid.api-key；
+     * 若不存在则回退到环境变量 SENDGRID_API_KEY；再无则为空串。
      */
-    @Value("${SENDGRID_API_KEY:}")
+    @Value("${sendgrid.api-key:${SENDGRID_API_KEY:}}")
     private String apiKey;
 
     @Bean
