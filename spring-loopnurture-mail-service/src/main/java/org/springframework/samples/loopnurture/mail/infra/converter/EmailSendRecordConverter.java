@@ -76,6 +76,8 @@ public class EmailSendRecordConverter {
         po.setSendTime(entity.getSentAt());
         po.setCreatedAt(entity.getCreatedAt());
         po.setCreatedBy(entity.getCreatedBy());
+        po.setUpdatedBy(entity.getCreatedBy());
+        po.setUpdatedAt(entity.getCreatedAt());
 
         EmailSendRecordExtendsInfoVO info = entity.getExtendsInfo();
 

@@ -79,4 +79,10 @@ public class MarketingEmailTemplateResponse {
      * 更新人ID
      */
     private String updatedBy;
+
+    /** 公司名称 */
+    private String companyName;
+
+    /** 邮件目的 */
+    private String emailPurpose;
 } 

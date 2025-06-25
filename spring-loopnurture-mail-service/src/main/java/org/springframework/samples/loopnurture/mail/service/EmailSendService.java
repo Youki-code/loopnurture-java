@@ -10,6 +10,7 @@ import com.sendgrid.helpers.mail.objects.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.flywaydb.core.internal.util.JsonUtils;
 import org.springframework.samples.loopnurture.mail.domain.model.EmailSendRecordDO;
 import org.springframework.samples.loopnurture.mail.domain.repository.EmailSendRecordRepository;
 import org.springframework.samples.loopnurture.mail.exception.ResourceNotFoundException;
@@ -70,6 +71,7 @@ public class EmailSendService {
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             Response response = sendGrid.api(request);
+            System.out.println("SendGrid response: " + JsonUtils.toJson(response));
 
             // 检查发送结果
             if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
@@ -90,6 +92,14 @@ public class EmailSendService {
     // 发送日志相关方法
     @Transactional
     public EmailSendRecordDO createSendRecord(EmailSendRecordDO record) {
+        if (record.getCreatedAt() == null) {
+            record.setCreatedAt(new java.util.Date());
+        }
+        if (record.getCreatedBy() == null) {
+            // 如果用户上下文不可用，也保持非空
+            String uid = org.springframework.samples.loopnurture.mail.context.UserContext.getUserId();
+            record.setCreatedBy(uid != null ? uid : "system");
+        }
         return sendRecordRepository.save(record);
     }
 

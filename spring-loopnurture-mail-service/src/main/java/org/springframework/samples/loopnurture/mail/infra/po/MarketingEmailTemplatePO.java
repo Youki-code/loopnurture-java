@@ -64,6 +64,14 @@ public class MarketingEmailTemplatePO {
     @Column(name = "ai_strategy_version")
     private String aiStrategyVersion;
 
+    /** 公司名称 */
+    @Column(name = "company_name")
+    private String companyName;
+
+    /** 邮件目的 */
+    @Column(name = "email_purpose")
+    private String emailPurpose;
+
     /**
      * 启用状态：1-启用，0-禁用
      */

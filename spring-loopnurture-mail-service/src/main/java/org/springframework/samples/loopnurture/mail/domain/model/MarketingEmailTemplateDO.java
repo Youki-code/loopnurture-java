@@ -55,6 +55,16 @@ public class MarketingEmailTemplateDO {
     private String aiStrategyVersion;
 
     /**
+     * 公司名称，例如：XXX酒店
+     */
+    private String companyName;
+
+    /**
+     * 邮件目的，例如：Promotion
+     */
+    private String emailPurpose;
+
+    /**
      * 启用状态：1-启用，0-禁用
      */
     private EnableStatusEnum enableStatus;
@@ -184,7 +194,8 @@ public class MarketingEmailTemplateDO {
      */
     public static MarketingEmailTemplateDO create(String orgCode, String templateId, 
                                                 String templateName, ContentTypeEnum contentType,
-                                                String contentTemplate, String aiStrategyVersion) {
+                                                String contentTemplate, String aiStrategyVersion,
+                                                String companyName, String emailPurpose) {
         MarketingEmailTemplateDO template = MarketingEmailTemplateDO.builder()
                 .orgCode(orgCode)
                 .templateId(templateId)
@@ -192,6 +203,8 @@ public class MarketingEmailTemplateDO {
                 .contentType(contentType)
                 .contentTemplate(contentTemplate)
                 .aiStrategyVersion(aiStrategyVersion)
+                .companyName(companyName)
+                .emailPurpose(emailPurpose)
                 .enableStatus(EnableStatusEnum.ENABLED)
                 .createdAt(new Date())
                 .updatedAt(new Date())

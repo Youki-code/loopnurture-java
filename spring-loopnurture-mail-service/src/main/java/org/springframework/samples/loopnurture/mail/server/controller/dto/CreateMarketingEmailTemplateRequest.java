@@ -44,6 +44,18 @@ public class CreateMarketingEmailTemplateRequest {
     private String aiStrategyVersion;
 
     /**
+     * 公司名称，例如：XXX酒店
+     */
+    @Size(max = 100, message = "Company name length cannot exceed 100")
+    private String companyName;
+
+    /**
+     * 邮件目的，例如：Promotion
+     */
+    @Size(max = 50, message = "Email purpose length cannot exceed 50")
+    private String emailPurpose;
+
+    /**
      * 扩展信息
      */
     private MarketingEmailTemplateExtendsInfoVO extendsInfo;

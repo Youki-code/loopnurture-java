@@ -68,6 +68,8 @@ public class EmailTemplateOperateService {
                 .contentType(ContentTypeEnum.fromCode(request.getContentType()))
                 .contentTemplate(request.getContentTemplate())
                 .aiStrategyVersion(request.getAiStrategyVersion())
+                .companyName(request.getCompanyName())
+                .emailPurpose(request.getEmailPurpose())
                 .enableStatus(EnableStatusEnum.ENABLED)
                 .orgCode(UserContext.getOrgCode())
                 .createdAt(new Date())

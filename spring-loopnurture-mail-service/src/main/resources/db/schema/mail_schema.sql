@@ -25,6 +25,8 @@ CREATE TABLE marketing_email_template (
     content_type SMALLINT NOT NULL,             -- 内容类型：1=TEXT, 2=HTML
     content_template TEXT NOT NULL,             -- 内容模板
     ai_strategy_version VARCHAR(50),            -- AI策略版本
+    company_name VARCHAR(100),                 -- 公司名称
+    email_purpose VARCHAR(50),                 -- 邮件目的
     enable_status SMALLINT NOT NULL DEFAULT 1,  -- 启用状态：1=ENABLED, 0=DISABLED
     extends_info JSONB,                         -- 扩展信息（JSON格式）
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

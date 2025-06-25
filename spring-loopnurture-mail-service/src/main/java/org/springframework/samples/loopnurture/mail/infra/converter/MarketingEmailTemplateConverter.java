@@ -48,6 +48,8 @@ public class MarketingEmailTemplateConverter {
         response.setContentType(entity.getContentType()!=null?entity.getContentType().getCode():null);
         response.setContentTemplate(entity.getContentTemplate());
         response.setAiStrategyVersion(entity.getAiStrategyVersion());
+        response.setCompanyName(entity.getCompanyName());
+        response.setEmailPurpose(entity.getEmailPurpose());
         response.setEnableStatus(entity.getEnableStatus()!=null?entity.getEnableStatus().getCode():null);
         response.setExtendsInfo(entity.getExtendsInfo());
         response.setCreatedAt(entity.getCreatedAt());
@@ -72,6 +74,8 @@ public class MarketingEmailTemplateConverter {
         entity.setContentType(po.getContentType() != null ? org.springframework.samples.loopnurture.mail.domain.enums.ContentTypeEnum.fromCode(po.getContentType().intValue()) : null);
         entity.setContentTemplate(po.getContentTemplate());
         entity.setAiStrategyVersion(po.getAiStrategyVersion());
+        entity.setCompanyName(po.getCompanyName());
+        entity.setEmailPurpose(po.getEmailPurpose());
         entity.setEnableStatus(po.getEnableStatus() != null ? org.springframework.samples.loopnurture.mail.domain.enums.EnableStatusEnum.fromCode(po.getEnableStatus().intValue()) : null);
         entity.setCreatedAt(po.getCreatedAt());
         entity.setUpdatedAt(po.getUpdatedAt());
@@ -105,6 +109,8 @@ public class MarketingEmailTemplateConverter {
         po.setContentType(entity.getContentType()!=null?entity.getContentType().getCode().shortValue():null);
         po.setContentTemplate(entity.getContentTemplate());
         po.setAiStrategyVersion(entity.getAiStrategyVersion());
+        po.setCompanyName(entity.getCompanyName());
+        po.setEmailPurpose(entity.getEmailPurpose());
         po.setEnableStatus(entity.getEnableStatus()!=null?entity.getEnableStatus().getCode().shortValue():null);
         
         try {

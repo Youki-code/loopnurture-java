@@ -26,6 +26,7 @@ import org.springframework.samples.loopnurture.users.domain.enums.OrganizationSt
 import org.springframework.samples.loopnurture.users.domain.enums.UserRoleEnum;
 import org.springframework.samples.loopnurture.users.domain.model.OrganizationDO;
 import org.springframework.samples.loopnurture.users.domain.model.UserOrganizationDO;
+import org.springframework.samples.loopnurture.users.service.oauth.GoogleTokenValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -46,6 +47,9 @@ public class MarketingUserService {
     private final OrganizationService organizationService;
     private final UserOrganizationService userOrganizationService;
     private final UserOrganizationRepository userOrganizationRepository;
+    private final GoogleTokenValidator googleTokenValidator;
+    @org.springframework.beans.factory.annotation.Value("${google.oauth.verify-token:true}")
+    private boolean googleVerifyToken;
 
     /**
      * 用户注册
@@ -78,6 +82,33 @@ public class MarketingUserService {
         if (authType == AuthTypeEnum.PASSWORD) {
             String decryptedPassword = rsaUtils.decrypt(request.getPassword());
             newUser.setPassword(passwordEncoder.encode(decryptedPassword));
+        } else if (authType == AuthTypeEnum.GOOGLE_OAUTH) {
+            MarketingUserExtendsVO extendsInfo = new MarketingUserExtendsVO();
+            extendsInfo.setOauthAccessToken(request.getOauthAccessToken());
+
+            if (googleVerifyToken) {
+                // 开启验证：本地校验 Google ID Token
+                var payload = googleTokenValidator.validate(request.getOauthAccessToken());
+                newUser.setOauthUserId(payload.getGoogleId());
+
+                // 补全基本信息
+                if (!org.apache.commons.lang3.StringUtils.isNotBlank(request.getPrimaryEmail())) {
+                    newUser.setPrimaryEmail(payload.getEmail());
+                }
+                if (!org.apache.commons.lang3.StringUtils.isNotBlank(request.getNickname())) {
+                    newUser.setNickname(payload.getName());
+                }
+                if (!org.apache.commons.lang3.StringUtils.isNotBlank(request.getAvatarUrl())) {
+                    newUser.setAvatarUrl(payload.getAvatar());
+                }
+
+                extendsInfo.setOauthIdToken(request.getOauthAccessToken());
+            } else {
+                // 关闭验证：直接信任请求提供的 oauthUserId
+                newUser.setOauthUserId(request.getOauthUserId());
+            }
+
+            newUser.setExtendInfo(extendsInfo);
         } else {
             newUser.setOauthUserId(request.getOauthUserId());
             MarketingUserExtendsVO extendsInfo = new MarketingUserExtendsVO();

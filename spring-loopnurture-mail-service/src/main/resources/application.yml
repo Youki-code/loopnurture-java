@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: optional:configserver:http://localhost:8888
   application:
     name: mail-service
   datasource:
@@ -54,7 +52,7 @@ eureka:
 
 # SendGrid Configuration
 sendgrid:
-  api-key: "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"
+  api-key: "${SENDGRID_API_KEY:}"  # 从环境变量导入，默认空
 
 server:
   port: 8082
