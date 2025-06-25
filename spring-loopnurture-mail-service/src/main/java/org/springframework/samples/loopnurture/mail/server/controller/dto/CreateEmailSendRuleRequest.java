@@ -83,4 +83,10 @@ public class CreateEmailSendRuleRequest {
      */
     @Size(max = 255, message = "Description length cannot exceed 255")
     private String description;
+
+    /**
+     * 邮件主题
+     */
+    @Size(max = 200, message = "Subject length cannot exceed 200")
+    private String subject;
 } 

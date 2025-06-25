@@ -83,4 +83,9 @@ public class UpdateEmailSendRuleRequest {
      * 最大执行次数
      */
     private Integer maxExecutions;
+
+    /**
+     * 邮件主题
+     */
+    private String subject;
 } 

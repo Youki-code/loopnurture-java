@@ -74,20 +74,27 @@ public class EmailExecuteService {
             return;
         }
 
-        // 收件人
-        List<String> recipients = getRecipients(template);
+        // 收件人 应该是从rule中获取
+        List<String> recipients = rule.getRecipients();
         if (recipients.isEmpty()) {
             log.info("Rule {} has no recipients", rule.getRuleId());
             return;
         }
 
         for (String email : recipients) {
+            // 收货人抄送人密送人
+            List<String> cc = rule.getCcList();
+            List<String> bcc = rule.getBccList();
+            String subject = rule.getExtendsInfo()!=null && rule.getExtendsInfo().getSubject()!=null
+                    ? rule.getExtendsInfo().getSubject()
+                    : template.getSubjectTemplate();
+
             EmailSendRecordExtendsInfoVO info = EmailSendRecordExtendsInfoVO.builder()
                     .recipient(java.util.List.of(email))
-                    .subject(template.getSubjectTemplate())
+                    .subject(subject)
                     .content(template.getContentTemplate())
-                    .cc(template.getExtendsInfo()!=null?template.getExtendsInfo().getCc():null)
-                    .bcc(template.getExtendsInfo()!=null?template.getExtendsInfo().getBcc():null)
+                    .cc(cc)
+                    .bcc(bcc)
                     .build();
 
             EmailSendRecordDO record = EmailSendRecordDO.builder()

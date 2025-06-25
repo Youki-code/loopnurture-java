@@ -109,8 +109,7 @@ public class MarketingEmailTemplateRepositoryImpl implements MarketingEmailTempl
 
     @Override
     public MarketingEmailTemplateDO getByTemplateId(String templateId) {
-        String orgCode = UserContext.getOrgCode();
-        return jpaMapper.findByOrgCodeAndTemplateId(orgCode, templateId)
+        return jpaMapper.findByTemplateId(templateId)
                 .map(po -> converter.toDO(po))
                 .orElse(null);
     }

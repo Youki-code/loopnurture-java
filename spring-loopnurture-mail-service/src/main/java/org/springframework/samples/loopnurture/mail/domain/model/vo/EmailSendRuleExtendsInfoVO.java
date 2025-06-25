@@ -50,4 +50,9 @@ public class EmailSendRuleExtendsInfoVO implements Serializable {
      * 固定延迟，单位：毫秒（周期发送时必填）
      */
     private Long fixedDelay;
+
+    /**
+     * 邮件主题
+     */
+    private String subject;
 } 

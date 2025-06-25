@@ -88,4 +88,9 @@ public interface JpaMarketingEmailTemplateMapper extends JpaRepository<Marketing
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.data.jpa.repository.Query("UPDATE MarketingEmailTemplatePO t SET t.deleted = true WHERE t.orgCode = :orgCode")
     void softDeleteByOrgCode(@Param("orgCode") String orgCode);
+
+    /**
+     * 根据模板ID查询邮件模板（不区分组织）
+     */
+    Optional<MarketingEmailTemplatePO> findByTemplateId(String templateId);
 } 
