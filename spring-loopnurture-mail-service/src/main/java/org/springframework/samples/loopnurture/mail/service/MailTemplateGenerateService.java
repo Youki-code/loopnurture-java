@@ -88,6 +88,16 @@ public class MailTemplateGenerateService {
     // ================================================================
 
     /**
+     * Pattern to detect the image placeholder like:
+     * [Image: some description - 600x400px]
+     * <p>
+     * We use DOTALL so that the description can span multiple lines if the model
+     * decides to insert line-breaks.
+     */
+    private static final java.util.regex.Pattern IMAGE_PLACEHOLDER_PATTERN =
+            java.util.regex.Pattern.compile("\\[Image:[\\s\\S]*?]", java.util.regex.Pattern.CASE_INSENSITIVE);
+
+    /**
      * Generates a structured email content plan for the specified campaign parameters.
      *
      * @param companyName  the brand / company name (mandatory)
@@ -186,18 +196,33 @@ public class MailTemplateGenerateService {
         String emailComposerRaw = callClaude(emailSystemPrompt, composerPrompt);
         log.info("[MailTpl] Email composer raw length={} chars", emailComposerRaw.length());
 
+        // 3.1) unwrap Claude JSON to plain text
+        String assistantText = unwrapClaudeResponse(emailComposerRaw);
+
         // 4) Separate subject line & HTML, and detect image placeholder
-        String subject = extractSubjectLine(emailComposerRaw);
-        String html = extractHtml(emailComposerRaw);
+        String subject = extractSubjectLine(assistantText);
+        String html = extractHtml(assistantText);
 
         // 5) Handle image placeholder if present
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("\\[Image: (.*?)\\]").matcher(html);
+        java.util.regex.Matcher matcher = IMAGE_PLACEHOLDER_PATTERN.matcher(html);
         if (matcher.find()) {
-            String imageDescription = matcher.group(1);
+            String placeholder = matcher.group();
+            // Try to extract human-readable description inside the placeholder for alt attribute
+            String imageDescription = placeholder.replaceFirst("(?i)\\[Image:\\s*", "").replaceFirst("]$", "").trim();
             log.info("[MailTpl] Image placeholder detected: {}", imageDescription);
-            String imageUrl = generateImage(imageDescription);
-            log.info("[MailTpl] Image generated and uploaded url={}", imageUrl);
-            html = html.replaceFirst("\\[Image: .*?\\]", "<img src=\"" + imageUrl + "\" alt=\"" + imageDescription.replaceAll("\"", "&quot;") + "\" style=\"max-width:100%;\"/>");
+
+            String cleanDescription = normalizeImageDescription(imageDescription);
+            log.info("[MailTpl] Image placeholder detected: {} -> cleaned: {}", imageDescription, cleanDescription);
+
+            // 1) Generate square source image
+            String baseImageUrl = generateImage(cleanDescription);
+            log.info("[MailTpl] Image generated and uploaded url={}", baseImageUrl);
+
+            // 2) If placeholder包含尺寸，使用七牛 imageView2 调整尺寸
+            String finalImageUrl = appendResizeParamsIfNeeded(baseImageUrl, imageDescription);
+
+            String imgTag = String.format("<img src=\"%s\" alt=\"%s\" style=\"max-width:100%%;\"/>", finalImageUrl, cleanDescription.replace("\"", "&quot;"));
+            html = matcher.replaceFirst(imgTag);
         }
 
         log.info("[MailTpl] Email generation done - subject={}, htmlLength={} chars", subject, html.length());
@@ -288,11 +313,22 @@ public class MailTemplateGenerateService {
     }
 
     private String extractSubjectLine(String composerRaw) {
+        // Prefer explicit marker "**Subject Line:** <text>" (Markdown style)
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\*\\*Subject Line:\\*\\*\\s*(.+)", java.util.regex.Pattern.CASE_INSENSITIVE)
+                .matcher(composerRaw);
+        if (m.find()) {
+            return m.group(1).trim();
+        }
+
+        // Fallback: look for a line starting with "Subject:" (no bold)
+        m = java.util.regex.Pattern.compile("(?i)^subject:\\s*(.+)", java.util.regex.Pattern.MULTILINE).matcher(composerRaw);
+        if (m.find()) {
+            return m.group(1).trim();
+        }
+
+        // Final fallback: first non-blank, non-HTML line
         for (String line : composerRaw.split("\n")) {
             String trimmed = line.trim();
-            if (trimmed.toLowerCase().startsWith("subject:")) {
-                return trimmed.replaceFirst("(?i)subject:\\s*", "").trim();
-            }
             if (!trimmed.isEmpty() && !trimmed.startsWith("<")) {
                 return trimmed;
             }
@@ -301,11 +337,23 @@ public class MailTemplateGenerateService {
     }
 
     private String extractHtml(String composerRaw) {
-        int idx = composerRaw.indexOf("<");
-        if (idx >= 0) {
-            return composerRaw.substring(idx);
+        // Prefer fenced code block ```html ... ``` as returned by the prompt template
+        int start = composerRaw.indexOf("```html");
+        if (start >= 0) {
+            start += "```html".length();
+            // Skip optional newline after the marker
+            if (start < composerRaw.length() && composerRaw.charAt(start) == '\n') {
+                start += 1;
+            }
+            int end = composerRaw.indexOf("```", start);
+            if (end > start) {
+                return composerRaw.substring(start, end).trim();
+            }
         }
-        return composerRaw;
+
+        // Fallback: first '<' onwards (original behaviour)
+        int idx = composerRaw.indexOf('<');
+        return idx >= 0 ? composerRaw.substring(idx) : composerRaw;
     }
 
     /**
@@ -354,6 +402,66 @@ public class MailTemplateGenerateService {
             log.warn("Failed to load AI prompts from strategy repository, fallback to defaults", e);
             return null;
         }
+    }
+
+    /**
+     * Removes trailing dimension hints such as "- 600x250", "- 600x250px", "600×250" etc.
+     */
+    private String normalizeImageDescription(String desc) {
+        if (desc == null) {
+            return null;
+        }
+        // matches variations like " - 600x250", "-600x250px", "600×250 px" (unicode × as well)
+        return desc.replaceFirst("\\s*-?\\s*\\d{2,4}[x×]\\d{2,4}px?\\s*$", "").trim();
+    }
+
+    /**
+     * 从原始占位符提取尺寸并拼接七牛 imageView2/1/w/{w}/h/{h} 参数。
+     */
+    private String appendResizeParamsIfNeeded(String baseUrl, String rawPlaceholder) {
+        try {
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d{2,4})[x×](\\d{2,4})", java.util.regex.Pattern.CASE_INSENSITIVE)
+                    .matcher(rawPlaceholder);
+            if (m.find()) {
+                String width = m.group(1);
+                String height = m.group(2);
+                String separator = baseUrl.contains("?") ? "&" : "?";
+                return baseUrl + separator + "imageView2/1/w/" + width + "/h/" + height;
+            }
+        } catch (Exception ignore) {
+            // graceful fallback
+        }
+        return baseUrl;
+    }
+
+    /**
+     * The Anthropics v1 endpoint returns a JSON object like
+     * {
+     *   "id":"msg_…",
+     *   "type":"message",
+     *   "role":"assistant",
+     *   "content":[{"type":"text","text":"…actual markdown/html…"}],
+     *   …
+     * }
+     * We only care about the first element's text.
+     */
+    private String unwrapClaudeResponse(String json) {
+        try {
+            com.fasterxml.jackson.databind.JsonNode root = objectMapper.readTree(json);
+            com.fasterxml.jackson.databind.JsonNode contentArr = root.get("content");
+            if (contentArr != null && contentArr.isArray() && contentArr.size() > 0) {
+                com.fasterxml.jackson.databind.JsonNode first = contentArr.get(0);
+                if (first != null) {
+                    com.fasterxml.jackson.databind.JsonNode txt = first.get("text");
+                    if (txt != null && txt.isTextual()) {
+                        return txt.asText();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to unwrap Claude response, fallback to raw", e);
+        }
+        return json; // fallback
     }
 
     /**

@@ -27,11 +27,16 @@ public class AiMailGenerateController {
 
     @PostMapping("/generate")
     public ApiResponse<AiMailGenerateResponse> generate(@Valid @RequestBody AiMailGenerateRequest req) {
+        long start = System.currentTimeMillis();
         log.info("[AI-Mail] generate called: {}", req);
+
         var result = mailTemplateGenerateService.generateEmailTemplate(
                 req.getCompanyName(),
                 req.getEmailPurpose(),
                 req.getRequirement());
+
+        long cost = System.currentTimeMillis() - start;
+        log.info("[AI-Mail] generate finished in {} ms", cost);
 
         AiMailGenerateResponse resp = AiMailGenerateResponse.builder()
                 .subject(result.subject())
