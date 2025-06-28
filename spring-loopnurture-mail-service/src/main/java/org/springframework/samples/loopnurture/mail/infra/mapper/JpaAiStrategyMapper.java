@@ -15,12 +15,8 @@ import java.util.Optional;
 public interface JpaAiStrategyMapper extends JpaRepository<AiStrategyPO, String> {
 
     /**
-     * 根据策略类型和启用状态获取最新策略
-     *
-     * @param aiStrategyType 策略类型
-     * @param enableStatus 启用状态
+     * Derived query: Spring Data will automatically add LIMIT 1 because of "First" keyword.
      */
-    @Query("SELECT s FROM AiStrategyPO s WHERE s.aiStrategyType = :aiStrategyType AND s.enableStatus = :enableStatus ORDER BY s.createdAt DESC")
-    Optional<AiStrategyPO> findTopByTypeAndStatus(@Param("aiStrategyType") Short aiStrategyType,
-                                                 @Param("enableStatus") Short enableStatus);
+    Optional<AiStrategyPO> findFirstByAiStrategyTypeAndEnableStatusOrderByCreatedAtDesc(Short aiStrategyType,
+                                                                                       Short enableStatus);
 } 

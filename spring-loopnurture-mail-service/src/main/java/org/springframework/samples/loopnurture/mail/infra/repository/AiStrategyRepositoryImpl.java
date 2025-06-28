@@ -20,7 +20,7 @@ public class AiStrategyRepositoryImpl implements AiStrategyRepository {
 
     @Override
     public AiStrategyDO findLatestEnabledByType(Integer aiStrategyType) {
-        return jpaMapper.findTopByTypeAndStatus(aiStrategyType.shortValue(), EnableStatusEnum.ENABLED.getCode().shortValue())
+        return jpaMapper.findFirstByAiStrategyTypeAndEnableStatusOrderByCreatedAtDesc(aiStrategyType.shortValue(), EnableStatusEnum.ENABLED.getCode().shortValue())
                 .map(converter::toDO)
                 .orElse(null);
     }
