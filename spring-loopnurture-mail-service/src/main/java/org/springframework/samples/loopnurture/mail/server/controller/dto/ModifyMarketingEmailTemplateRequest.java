@@ -56,5 +56,10 @@ public class ModifyMarketingEmailTemplateRequest {
     @Size(max = 50, message = "AI strategy version length cannot exceed 50")
     private String aiStrategyVersion;
 
+    /**
+     * 邮件主题模板（可选）
+     */
+    @Size(max = 200, message = "Subject length cannot exceed 200")
+    private String subjectTemplate;
 
 } 

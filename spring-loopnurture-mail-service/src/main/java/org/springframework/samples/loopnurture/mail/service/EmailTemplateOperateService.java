@@ -23,6 +23,7 @@ import org.springframework.samples.loopnurture.mail.server.controller.dto.Create
 import org.springframework.samples.loopnurture.mail.server.controller.dto.ModifyMarketingEmailTemplateRequest;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.samples.loopnurture.mail.domain.model.vo.MarketingEmailTemplateExtendsInfoVO;
 
 /**
  * 邮件模板服务
@@ -77,6 +78,13 @@ public class EmailTemplateOperateService {
                 .createdBy(UserContext.getUserId())
                 .updatedBy(UserContext.getUserId())
                 .build();
+
+        // 构造扩展信息，写入 subjectTemplate 与 inputContent
+        var ext = new MarketingEmailTemplateExtendsInfoVO();
+        ext.setSubject(request.getSubjectTemplate());
+        ext.setInputContent(request.getInputContent());
+        template.setExtendsInfo(ext);
+
         return templateRepository.save(template);
     }
 
@@ -96,6 +104,13 @@ public class EmailTemplateOperateService {
 
         // 修改模板，设置输入的所有字段，如果为空则不修改
         existing.modifyTemplate(request.getTemplateName(), ContentTypeEnum.fromCode(request.getContentType()), request.getContentTemplate(), request.getAiStrategyVersion(), EnableStatusEnum.fromCode(request.getEnableStatus()), request.getInputContent());
+
+        // 更新 subjectTemplate 至 extendsInfo
+        if (existing.getExtendsInfo() == null) {
+            existing.setExtendsInfo(new MarketingEmailTemplateExtendsInfoVO());
+        }
+        existing.getExtendsInfo().setSubject(request.getSubjectTemplate());
+
         return templateRepository.save(existing);
     }
 

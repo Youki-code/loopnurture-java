@@ -85,9 +85,13 @@ public class EmailExecuteService {
             // 收货人抄送人密送人
             List<String> cc = rule.getCcList();
             List<String> bcc = rule.getBccList();
-            String subject = rule.getExtendsInfo()!=null && rule.getExtendsInfo().getSubject()!=null
-                    ? rule.getExtendsInfo().getSubject()
-                    : template.getSubjectTemplate();
+            // 优先使用规则自定义主题，其次使用模板扩展信息中的 subject
+            String subject = null;
+            if (rule.getExtendsInfo() != null && org.springframework.util.StringUtils.hasText(rule.getExtendsInfo().getSubject())) {
+                subject = rule.getExtendsInfo().getSubject();
+            } else if (template.getExtendsInfo() != null && org.springframework.util.StringUtils.hasText(template.getExtendsInfo().getSubject())) {
+                subject = template.getExtendsInfo().getSubject();
+            }
 
             EmailSendRecordExtendsInfoVO info = EmailSendRecordExtendsInfoVO.builder()
                     .recipient(java.util.List.of(email))
