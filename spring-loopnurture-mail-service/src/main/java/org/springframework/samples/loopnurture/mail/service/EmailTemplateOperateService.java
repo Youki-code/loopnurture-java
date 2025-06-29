@@ -81,7 +81,7 @@ public class EmailTemplateOperateService {
 
         // 构造扩展信息，写入 subjectTemplate 与 inputContent
         var ext = new MarketingEmailTemplateExtendsInfoVO();
-        ext.setSubject(request.getSubjectTemplate());
+        ext.setSubjectTemplate(request.getSubject());
         ext.setInputContent(request.getInputContent());
         template.setExtendsInfo(ext);
 
@@ -109,7 +109,7 @@ public class EmailTemplateOperateService {
         if (existing.getExtendsInfo() == null) {
             existing.setExtendsInfo(new MarketingEmailTemplateExtendsInfoVO());
         }
-        existing.getExtendsInfo().setSubject(request.getSubjectTemplate());
+        existing.getExtendsInfo().setSubjectTemplate(request.getSubject());
 
         return templateRepository.save(existing);
     }

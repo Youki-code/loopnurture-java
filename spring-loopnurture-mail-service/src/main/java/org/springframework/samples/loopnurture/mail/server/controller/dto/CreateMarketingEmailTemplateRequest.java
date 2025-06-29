@@ -61,8 +61,8 @@ public class CreateMarketingEmailTemplateRequest {
     private MarketingEmailTemplateExtendsInfoVO extendsInfo;
 
     /**
-     * 邮件主题模板（可选）
+     * 邮件主题（可选）
      */
     @Size(max = 200, message = "Subject length cannot exceed 200")
-    private String subjectTemplate;
+    private String subject;
 } 

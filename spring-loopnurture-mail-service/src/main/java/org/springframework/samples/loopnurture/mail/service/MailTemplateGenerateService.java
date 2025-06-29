@@ -97,6 +97,11 @@ public class MailTemplateGenerateService {
     private static final java.util.regex.Pattern IMAGE_PLACEHOLDER_PATTERN =
             java.util.regex.Pattern.compile("\\[Image:[\\s\\S]*?]", java.util.regex.Pattern.CASE_INSENSITIVE);
 
+    // ================= New prompts =================
+    private static final String CONTENT_GEN_SYSTEM_PROMPT = "Email Content Generator Prompt\nYou're a conversion-focused email copywriter.\nWrite all content in **English**, regardless of input language. Write email copy for the following context:\n\nCampaign: {{campaign}}\nTone: {{tone}}\nTarget: {{target}}\nGoal: {{goal}}\nCTA: {{cta}}\nHoliday Context: {{holiday}}\n\nPlease provide:\n- Email body (max 200 words)\n- One clear CTA button (text + position)\n- Variant B: Different structure or tone (storytelling or emotional angle)\n\n/*Only return:\n- Subject line (1 line in English)";
+
+    private static final String HTML_GEN_SYSTEM_PROMPT = "1.HTML Email Template Composer Prompt\n\nYou are a responsive HTML email designer.\n\nBased on the following email content, brand style, and seasonal context, generate a mobile-friendly HTML email (with inline CSS) that is compatible with Gmail and Outlook.\n\nOnly return:\n- One subject line (in English)\n- One full clean semantic HTML email (with correct layout, ≤600px wide, no external CSS)";
+
     /**
      * Generates a structured email content plan for the specified campaign parameters.
      *
@@ -177,7 +182,8 @@ public class MailTemplateGenerateService {
             throw new IllegalStateException("AI strategy prompts not configured");
         }
         String intentSystemPrompt = contentVO.getIntentPrompt();
-        String emailSystemPrompt = contentVO.getEmailHtmlPrompt();
+        String contentSystemPrompt = StringUtils.hasText(contentVO.getEmailContentPrompt()) ? contentVO.getEmailContentPrompt() : CONTENT_GEN_SYSTEM_PROMPT;
+        String emailSystemPrompt = StringUtils.hasText(contentVO.getEmailHtmlPrompt()) ? contentVO.getEmailHtmlPrompt() : HTML_GEN_SYSTEM_PROMPT;
 
         // 1) Build user prompt
         String userPrompt = buildUserPrompt(companyName, emailPurpose, requirement);
@@ -187,23 +193,32 @@ public class MailTemplateGenerateService {
         String intentText = callClaude(intentSystemPrompt, userPrompt);
         log.info("[MailTpl] IntentText received: {}", intentText.length() > 200 ? intentText.substring(0, 200) + "..." : intentText);
 
-        // 3) HTML email generation via Claude (include previous context as JSON string)
-        String composerPrompt = java.util.Map.of(
+        // 3) Email content generation (plain text + CTA etc.)
+        String contentPromptPayload = java.util.Map.of(
                 "originalInput", userPrompt,
                 "intentAnalysis", intentText
+        ).toString();
+
+        String emailContentRaw = callClaude(contentSystemPrompt, contentPromptPayload);
+        log.info("[MailTpl] EmailContent raw length={} chars", emailContentRaw.length());
+
+        String emailContentText = unwrapClaudeResponse(emailContentRaw);
+
+        // 4) HTML email generation via Claude with richer context
+        String composerPrompt = java.util.Map.of(
+                "originalInput", userPrompt,
+                "intentAnalysis", intentText,
+                "emailContent", emailContentText
         ).toString();
 
         String emailComposerRaw = callClaude(emailSystemPrompt, composerPrompt);
         log.info("[MailTpl] Email composer raw length={} chars", emailComposerRaw.length());
 
-        // 3.1) unwrap Claude JSON to plain text
-        String assistantText = unwrapClaudeResponse(emailComposerRaw);
+        // 5) Separate subject line & HTML, and detect image placeholder
+        String subject = extractSubjectLine(emailComposerRaw);
+        String html = extractHtml(emailComposerRaw);
 
-        // 4) Separate subject line & HTML, and detect image placeholder
-        String subject = extractSubjectLine(assistantText);
-        String html = extractHtml(assistantText);
-
-        // 5) Handle image placeholder if present
+        // 6) Handle image placeholder if present
         java.util.regex.Matcher matcher = IMAGE_PLACEHOLDER_PATTERN.matcher(html);
         if (matcher.find()) {
             String placeholder = matcher.group();

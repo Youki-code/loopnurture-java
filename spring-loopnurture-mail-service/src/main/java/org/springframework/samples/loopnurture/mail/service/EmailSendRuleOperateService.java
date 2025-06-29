@@ -65,6 +65,7 @@ public class EmailSendRuleOperateService {
                 .fixedRate(request.getFixedRate())
                 .fixedDelay(request.getFixedDelay())
                 .subject(request.getSubject())
+                .fromEmail(request.getFromEmail())
                 .build();
 
         // 如果是即时发送，则maxExecutions设置为1
@@ -141,6 +142,7 @@ public class EmailSendRuleOperateService {
         ext.setCronExpression(request.getCronExpression());
         ext.setFixedRate(request.getFixedRate());
         ext.setFixedDelay(request.getFixedDelay());
+        ext.setFromEmail(request.getFromEmail());
         rule.setExtendsInfo(ext);
         rule.setUpdatedAt(new Date());
         

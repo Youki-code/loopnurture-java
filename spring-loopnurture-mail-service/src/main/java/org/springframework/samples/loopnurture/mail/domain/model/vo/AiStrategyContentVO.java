@@ -23,4 +23,7 @@ public class AiStrategyContentVO {
 
     /** Prompt used for HTML email generation step (claude-sonnet-4-20250514). */
     private String emailHtmlPrompt;
+
+    /** Prompt used for email content (plain text) generation step. */
+    private String emailContentPrompt;
 } 

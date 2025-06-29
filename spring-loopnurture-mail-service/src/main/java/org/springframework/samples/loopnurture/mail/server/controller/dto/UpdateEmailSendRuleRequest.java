@@ -88,4 +88,9 @@ public class UpdateEmailSendRuleRequest {
      * 邮件主题
      */
     private String subject;
+
+    /**
+     * 发件人邮箱（可选）
+     */
+    private String fromEmail;
 } 

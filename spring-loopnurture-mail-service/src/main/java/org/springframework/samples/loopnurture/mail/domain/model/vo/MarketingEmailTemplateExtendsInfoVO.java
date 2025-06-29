@@ -49,9 +49,6 @@ public class MarketingEmailTemplateExtendsInfoVO {
      */
     private String inputContent;
 
-    /** 邮件主题 */
-    private String subject;
-
     /** 收件人列表 */
     private java.util.List<String> recipients;
 

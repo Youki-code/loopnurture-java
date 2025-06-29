@@ -69,7 +69,9 @@ public class EmailSendService {
             Request request = new Request();
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
-            request.setBody(mail.build());
+            String requestBody = mail.build();
+            log.info("[SendGrid] Request body: {}", requestBody);
+            request.setBody(requestBody);
             Response response = sendGrid.api(request);
             System.out.println("SendGrid response: " + JsonUtils.toJson(response));
 

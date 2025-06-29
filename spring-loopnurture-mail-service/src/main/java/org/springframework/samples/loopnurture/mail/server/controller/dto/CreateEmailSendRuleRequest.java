@@ -89,4 +89,10 @@ public class CreateEmailSendRuleRequest {
      */
     @Size(max = 200, message = "Subject length cannot exceed 200")
     private String subject;
+
+    /**
+     * 发件人邮箱（可选），为空时系统将使用默认 support@eraiser.pro
+     */
+    @Size(max = 100, message = "Sender email length cannot exceed 100")
+    private String fromEmail;
 } 

@@ -55,4 +55,9 @@ public class EmailSendRuleExtendsInfoVO implements Serializable {
      * 邮件主题
      */
     private String subject;
+
+    /**
+     * 发件人邮箱
+     */
+    private String fromEmail;
 } 

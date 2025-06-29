@@ -85,15 +85,21 @@ public class EmailExecuteService {
             // 收货人抄送人密送人
             List<String> cc = rule.getCcList();
             List<String> bcc = rule.getBccList();
-            // 优先使用规则自定义主题，其次使用模板扩展信息中的 subject
+            // 优先使用规则自定义主题，其次使用模板扩展信息中的 subjectTemplate
             String subject = null;
             if (rule.getExtendsInfo() != null && org.springframework.util.StringUtils.hasText(rule.getExtendsInfo().getSubject())) {
                 subject = rule.getExtendsInfo().getSubject();
-            } else if (template.getExtendsInfo() != null && org.springframework.util.StringUtils.hasText(template.getExtendsInfo().getSubject())) {
-                subject = template.getExtendsInfo().getSubject();
+            } else if (template.getExtendsInfo() != null && org.springframework.util.StringUtils.hasText(template.getExtendsInfo().getSubjectTemplate())) {
+                subject = template.getExtendsInfo().getSubjectTemplate();
             }
 
+            // 取发件人：规则配置优先，没有则使用默认
+            String fromEmail = (rule.getExtendsInfo() != null && org.springframework.util.StringUtils.hasText(rule.getExtendsInfo().getFromEmail()))
+                    ? rule.getExtendsInfo().getFromEmail()
+                    : "support@eraiser.pro";
+
             EmailSendRecordExtendsInfoVO info = EmailSendRecordExtendsInfoVO.builder()
+                    .sender(fromEmail)
                     .recipient(java.util.List.of(email))
                     .subject(subject)
                     .content(template.getContentTemplate())
