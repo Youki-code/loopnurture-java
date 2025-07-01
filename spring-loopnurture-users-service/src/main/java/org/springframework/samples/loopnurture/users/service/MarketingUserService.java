@@ -191,17 +191,34 @@ public class MarketingUserService {
                 throw new LoginFailedException("Invalid password");
             }
         } else {
-            user = userRepository.findByOAuthInfo(request.getOauthUserId(), authType.getCode())
-                .orElseThrow(() -> new LoginFailedException("OAuth user not found"));
-            
-            // Update OAuth token if provided
-            if (StringUtils.hasText(request.getOauthAccessToken())) {
-                updateOAuthInfo(user, request.getOauthAccessToken());
-                // Persist latest OAuth token. Some mocks may return null, so guard against it
-                MarketingUserDO persisted = userRepository.save(user);
-                if (persisted != null) {
-                    user = persisted;
+            // ---------- OAuth 登录 ----------
+            Optional<MarketingUserDO> optionalUser = userRepository.findByOAuthInfo(request.getOauthUserId(), authType.getCode());
+
+            if (optionalUser.isPresent()) {
+                user = optionalUser.get();
+                // Update OAuth token if provided
+                if (StringUtils.hasText(request.getOauthAccessToken())) {
+                    updateOAuthInfo(user, request.getOauthAccessToken());
+                    // Persist latest OAuth token. Some mocks may return null, so guard against it
+                    MarketingUserDO persisted = userRepository.save(user);
+                    if (persisted != null) {
+                        user = persisted;
+                    }
                 }
+            } else {
+                // ------ 未找到用户：自动注册 ------
+                RegisterRequest registerRequest = new RegisterRequest();
+                registerRequest.setAuthType(request.getAuthType());
+                registerRequest.setOauthUserId(request.getOauthUserId());
+                registerRequest.setOauthAccessToken(request.getOauthAccessToken());
+                registerRequest.setPrimaryEmail(request.getEmail());
+                registerRequest.setPhone(request.getPhone());
+                registerRequest.setUserUniq(request.getUserUniq());
+
+                // 自动注册可能缺少邮箱/手机号等信息，调用者需保证必填参数完整
+                // 如果不满足 RegisterRequest.validate() 的要求，将抛出异常，保持原有错误行为
+
+                user = register(registerRequest);
             }
         }
 
