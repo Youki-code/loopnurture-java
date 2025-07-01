@@ -84,6 +84,7 @@ public class RegisterRequest {
     @Schema(description = "用户类型")
     private Integer userType;
 
+
     /**
      * 验证请求参数
      */
@@ -105,9 +106,5 @@ public class RegisterRequest {
             }
         }
 
-        // 至少需要一种联系方式
-        if (StringUtils.isBlank(primaryEmail) && StringUtils.isBlank(phone)) {
-            throw new IllegalArgumentException("邮箱或手机号至少需要填写一项");
-        }
     }
 } 
